@@ -272,26 +272,30 @@ async function loadFromRemote() {
         }
 
         // Remote has partial data (checklist + messages only, pre-itinerary sync)
-        // Merge what we can into local db
-        if (db) {
-            if (remote.checklist && typeof remote.checklist === 'object' && db.checklist) {
-                db.checklist.forEach(item => {
-                    if (remote.checklist[item.id] !== undefined) {
-                        item.done = remote.checklist[item.id];
-                    }
-                });
-            }
-            if (Array.isArray(remote.messages)) {
-                const localIds = new Set((db.messages || []).map(m => m.id));
-                remote.messages.forEach(m => {
-                    if (m && m.id && !localIds.has(m.id)) {
-                        db.messages.push(m);
-                    }
-                });
-                db.messages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-            }
-            saveToLocalStorage();
+        // Initialize db from local if needed, then merge remote data
+        if (!db) {
+            const local = loadDbFromLocal();
+            db = local ? local : JSON.parse(JSON.stringify(initialTripData));
+            mergeMessagesFromLocal(db);
+            mergeChecklistState(db);
         }
+        if (remote.checklist && typeof remote.checklist === 'object' && db.checklist) {
+            db.checklist.forEach(item => {
+                if (remote.checklist[item.id] !== undefined) {
+                    item.done = remote.checklist[item.id];
+                }
+            });
+        }
+        if (Array.isArray(remote.messages)) {
+            const localIds = new Set((db.messages || []).map(m => m.id));
+            remote.messages.forEach(m => {
+                if (m && m.id && !localIds.has(m.id)) {
+                    db.messages.push(m);
+                }
+            });
+            db.messages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+        }
+        saveToLocalStorage();
 
         // Push local itinerary to remote so next load gets full data
         if (db && db.itinerary) {
@@ -375,6 +379,7 @@ async function initApp() {
 
 // SAVE STATE
 function saveToLocalStorage() {
+    if (!db || !db.checklist) return;
     // Save checklist checkboxes to local storage
     const checklistState = {};
     db.checklist.forEach(item => {
