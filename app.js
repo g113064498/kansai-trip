@@ -245,14 +245,7 @@ async function loadFromRemote() {
             db.messages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
         }
 
-        // 合併遠端的行程資料（完全覆蓋，因為遠端是最新版本）
-        if (remote.itinerary && typeof remote.itinerary === 'object') {
-            db.itinerary = remote.itinerary;
-        }
-        if (remote.attractionPool && Array.isArray(remote.attractionPool)) {
-            db.attractionPool = remote.attractionPool;
-        }
-
+        // 行程資料不上傳覆蓋本機（本機 localStorage 優先）
         saveToLocalStorage();
         setSyncStatus('synced');
     } catch (err) {
