@@ -169,58 +169,56 @@ const initialTripData = {
 };
 // [INITIAL_DATA_END]
 
-// DB VERSION — bump this to force fresh start if localStorage gets corrupted
-const DB_VERSION = 'v3';
-const savedVersion = localStorage.getItem('kansai_trip_db_version');
-
 // GLOBAL DATABASE STATE
-// Wrap in try-catch to survive corrupted localStorage data
-let savedChecklistState = {};
-let savedMessages = [];
-let savedDb = null;
-try {
-    const raw = localStorage.getItem('kansai_trip_checklist_state');
-    if (raw) savedChecklistState = JSON.parse(raw);
-} catch (e) { console.warn('[DB] checklist state parse error:', e); }
-try {
-    const raw = localStorage.getItem('kansai_trip_messages');
-    if (raw) savedMessages = JSON.parse(raw);
-} catch (e) { console.warn('[DB] messages parse error:', e); }
-try {
-    const raw = localStorage.getItem('kansai_trip_db');
-    if (raw) savedDb = JSON.parse(raw);
-} catch (e) { console.warn('[DB] db parse error:', e); }
+// db starts as null; populated by initApp() which tries remote first, then localStorage
+let db = null;
+let activeTab = 'dashboard';
+let currentSelectedDay = "2026-11-04";
+let currentPoolFilter = 'all';
 
-// Load full db from localStorage first (persists itinerary edit/delete/add),
-// otherwise fall back to hardcoded initial data.
-// If version mismatch, start fresh to avoid corrupted state.
-let db;
-if (savedVersion === DB_VERSION && savedDb && savedDb.itinerary && savedDb.flights && savedDb.hotels) {
-    db = savedDb;
-} else {
-    db = JSON.parse(JSON.stringify(initialTripData));
-}
-localStorage.setItem('kansai_trip_db_version', DB_VERSION);
-
-// Restore messages from separate key (proven working approach)
-if (Array.isArray(savedMessages) && savedMessages.length > 0) {
-    db.messages = savedMessages;
-}
-
-// Restore checklist checkboxes
-if (db.checklist) {
-    db.checklist.forEach(item => {
-        if (savedChecklistState[item.id] !== undefined) {
-            item.done = savedChecklistState[item.id];
+// Helper: build db from local storage (fast fallback)
+function loadDbFromLocal() {
+    try {
+        const raw = localStorage.getItem('kansai_trip_db');
+        if (raw) {
+            const saved = JSON.parse(raw);
+            if (saved && saved.itinerary && saved.flights && saved.hotels) return saved;
         }
-    });
+    } catch (e) { console.warn('[DB] local parse error:', e); }
+    return null;
 }
 
-// Ensure messages array is valid and welcome message exists
-if (!Array.isArray(db.messages)) db.messages = [];
-const hasWelcome = db.messages.some(m => m && m.id === 'msg-1');
-if (!hasWelcome && Array.isArray(initialTripData.messages) && initialTripData.messages.length > 0) {
-    db.messages.unshift(initialTripData.messages[0]);
+// Helper: merge checklist state from separate key
+function mergeChecklistState(target) {
+    try {
+        const raw = localStorage.getItem('kansai_trip_checklist_state');
+        if (raw) {
+            const state = JSON.parse(raw);
+            if (target.checklist) {
+                target.checklist.forEach(item => {
+                    if (state[item.id] !== undefined) item.done = state[item.id];
+                });
+            }
+        }
+    } catch (e) { /* ignore */ }
+}
+
+// Helper: merge messages from separate key
+function mergeMessagesFromLocal(target) {
+    try {
+        const raw = localStorage.getItem('kansai_trip_messages');
+        if (raw) {
+            const saved = JSON.parse(raw);
+            if (Array.isArray(saved) && saved.length > 0) {
+                target.messages = saved;
+            }
+        }
+    } catch (e) { /* ignore */ }
+    if (!Array.isArray(target.messages)) target.messages = [];
+    const hasWelcome = target.messages.some(m => m && m.id === 'msg-1');
+    if (!hasWelcome && Array.isArray(initialTripData.messages) && initialTripData.messages.length > 0) {
+        target.messages.unshift(initialTripData.messages[0]);
+    }
 }
 
 // ==========================================
@@ -256,33 +254,56 @@ async function loadFromRemote() {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const remote = await res.json();
 
-        // 合併遠端的待辦勾選狀態
-        if (remote && remote.checklist && typeof remote.checklist === 'object') {
-            db.checklist.forEach(item => {
-                if (remote.checklist[item.id] !== undefined) {
-                    item.done = remote.checklist[item.id];
-                }
-            });
-        }
-        // 合併遠端的留言（以「合併新訊息」方式而非整個覆蓋，避免覆蓋本地尚未同步的）
-        if (Array.isArray(remote.messages)) {
+        // Remote has full itinerary data → use as primary source of truth
+        if (remote && remote.itinerary && typeof remote.itinerary === 'object') {
+            db = remote;
+            // Merge checklist state from remote into db
+            if (remote.checklist && typeof remote.checklist === 'object' && db.checklist) {
+                db.checklist.forEach(item => {
+                    if (remote.checklist[item.id] !== undefined) {
+                        item.done = remote.checklist[item.id];
+                    }
+                });
+            }
             if (!Array.isArray(db.messages)) db.messages = [];
-            const localIds = new Set(db.messages.map(m => m.id));
-            remote.messages.forEach(m => {
-                if (m && m.id && !localIds.has(m.id)) {
-                    db.messages.push(m);
-                }
-            });
-            // 依時間排序（依照 id 內的 timestamp）
-            db.messages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+            saveToLocalStorage();
+            setSyncStatus('synced');
+            return true;
         }
 
-        // 行程資料不上傳覆蓋本機（本機 localStorage 優先）
-        saveToLocalStorage();
+        // Remote has partial data (checklist + messages only, pre-itinerary sync)
+        // Merge what we can into local db
+        if (db) {
+            if (remote.checklist && typeof remote.checklist === 'object' && db.checklist) {
+                db.checklist.forEach(item => {
+                    if (remote.checklist[item.id] !== undefined) {
+                        item.done = remote.checklist[item.id];
+                    }
+                });
+            }
+            if (Array.isArray(remote.messages)) {
+                const localIds = new Set((db.messages || []).map(m => m.id));
+                remote.messages.forEach(m => {
+                    if (m && m.id && !localIds.has(m.id)) {
+                        db.messages.push(m);
+                    }
+                });
+                db.messages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+            }
+            saveToLocalStorage();
+        }
+
+        // Push local itinerary to remote so next load gets full data
+        if (db && db.itinerary) {
+            saveToRemote().catch(() => {});
+        }
+
         setSyncStatus('synced');
+        return true;
     } catch (err) {
         console.warn('[Sync] 讀取 Netlify Blobs 失敗，改用 LocalStorage:', err);
         setSyncStatus('offline');
+        return false;
     }
 }
 
@@ -290,14 +311,16 @@ async function saveToRemote() {
     try {
         setSyncStatus('syncing');
         const checklistState = {};
-        db.checklist.forEach(item => {
-            checklistState[item.id] = item.done;
-        });
+        if (db && db.checklist) {
+            db.checklist.forEach(item => {
+                checklistState[item.id] = item.done;
+            });
+        }
         const body = {
             checklist: checklistState,
-            messages: db.messages || [],
-            itinerary: db.itinerary,
-            attractionPool: db.attractionPool,
+            messages: (db && db.messages) || [],
+            itinerary: db ? db.itinerary : {},
+            attractionPool: (db && db.attractionPool) || [],
         };
         const res = await fetch(SYNC_ENDPOINT, {
             method: 'POST',
@@ -312,18 +335,34 @@ async function saveToRemote() {
     }
 }
 
-let activeTab = 'dashboard';
-let currentSelectedDay = "2026-11-04";
-let currentPoolFilter = 'all';
-
-// APP INITIALIZATION
+// APP INITIALIZATION — remote-first: try Netlify Blobs, fall back to localStorage
 window.addEventListener('DOMContentLoaded', () => {
-    initApp();
-    new MapleLeaves(); // Start falling maple leaves
+    initApp().then(() => { new MapleLeaves(); });
 });
 
-function initApp() {
-    saveToLocalStorage();
+async function initApp() {
+    // Step 1: Try loading from remote (Netlify Blobs)
+    const remoteOk = await loadFromRemote();
+
+    if (!remoteOk) {
+        // Step 2: Remote failed — use localStorage as fallback
+        const local = loadDbFromLocal();
+        if (local) {
+            db = local;
+        } else {
+            db = JSON.parse(JSON.stringify(initialTripData));
+        }
+        mergeMessagesFromLocal(db);
+        mergeChecklistState(db);
+        saveToLocalStorage(); // ensure local cache is fresh
+    }
+
+    // db must be valid now; ensure all fields exist
+    if (!db.messages) db.messages = [];
+    if (!db.attractionPool) db.attractionPool = [];
+    if (!db.itinerary) db.itinerary = {};
+
+    // Step 3: Render everything
     updateCountdown();
     renderDashboard();
     renderDaysSidebar();
@@ -331,17 +370,7 @@ function initApp() {
     renderPool();
     renderChecklists();
     updateBudgetCalculations();
-    renderMessages(); // Load and display messages
-
-    // 嘗試從 Netlify Blobs 拉取最新狀態（完成後重新渲染相關區塊）
-    loadFromRemote().then(() => {
-        renderDaysSidebar();
-        renderItineraryForDay(currentSelectedDay);
-        renderPool();
-        renderChecklists();
-        renderMessages();
-        updateBudgetCalculations();
-    });
+    renderMessages();
 }
 
 // SAVE STATE
