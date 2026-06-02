@@ -1,0 +1,1 @@
+﻿@{name=kansai-trip; version=1.0.0; description=關西雙人旅遊規劃網頁 - 含 Netlify Functions 同步後端; private=True; dependencies=}
