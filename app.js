@@ -170,25 +170,26 @@ const initialTripData = {
 // [INITIAL_DATA_END]
 
 // GLOBAL DATABASE STATE
-// Load checklist state from local storage
-const savedChecklistState = JSON.parse(localStorage.getItem('kansai_trip_checklist_state')) || {};
-// Load messages state from local storage
-const savedMessages = JSON.parse(localStorage.getItem('kansai_trip_messages')) || [];
+// Try to load full database from localStorage first (persists all user edits)
+const savedDb = JSON.parse(localStorage.getItem('kansai_trip_db'));
+let db;
 
-// Load database using initialTripData (from code) as the single source of truth
-let db = JSON.parse(JSON.stringify(initialTripData));
+if (savedDb && savedDb.itinerary && savedDb.flights && savedDb.hotels) {
+    db = savedDb;
+} else {
+    // First visit or no saved data — use hardcoded initial data
+    db = JSON.parse(JSON.stringify(initialTripData));
+}
 
-// Merge checklist checkboxes from local storage
-db.checklist.forEach(item => {
-    if (savedChecklistState[item.id] !== undefined) {
-        item.done = savedChecklistState[item.id];
+// Ensure messages array exists
+if (!Array.isArray(db.messages)) db.messages = [];
+if (!Array.isArray(initialTripData.messages)) initialTripData.messages = [];
+// Merge any new initial messages not yet in saved db
+initialTripData.messages.forEach(m => {
+    if (!db.messages.find(x => x.id === m.id)) {
+        db.messages.push(m);
     }
 });
-
-// Load messages from local storage if any exist
-if (savedMessages.length > 0) {
-    db.messages = savedMessages;
-}
 
 // ==========================================
 // NETLIFY BLOBS SYNC LAYER (跨裝置同步)
