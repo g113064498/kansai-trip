@@ -169,35 +169,56 @@ const initialTripData = {
 };
 // [INITIAL_DATA_END]
 
+// DB VERSION — bump this to force fresh start if localStorage gets corrupted
+const DB_VERSION = 'v3';
+const savedVersion = localStorage.getItem('kansai_trip_db_version');
+
 // GLOBAL DATABASE STATE
-const savedChecklistState = JSON.parse(localStorage.getItem('kansai_trip_checklist_state')) || {};
-const savedMessages = JSON.parse(localStorage.getItem('kansai_trip_messages')) || [];
-const savedDb = JSON.parse(localStorage.getItem('kansai_trip_db'));
+// Wrap in try-catch to survive corrupted localStorage data
+let savedChecklistState = {};
+let savedMessages = [];
+let savedDb = null;
+try {
+    const raw = localStorage.getItem('kansai_trip_checklist_state');
+    if (raw) savedChecklistState = JSON.parse(raw);
+} catch (e) { console.warn('[DB] checklist state parse error:', e); }
+try {
+    const raw = localStorage.getItem('kansai_trip_messages');
+    if (raw) savedMessages = JSON.parse(raw);
+} catch (e) { console.warn('[DB] messages parse error:', e); }
+try {
+    const raw = localStorage.getItem('kansai_trip_db');
+    if (raw) savedDb = JSON.parse(raw);
+} catch (e) { console.warn('[DB] db parse error:', e); }
 
 // Load full db from localStorage first (persists itinerary edit/delete/add),
-// otherwise fall back to hardcoded initial data
+// otherwise fall back to hardcoded initial data.
+// If version mismatch, start fresh to avoid corrupted state.
 let db;
-if (savedDb && savedDb.itinerary && savedDb.flights && savedDb.hotels) {
+if (savedVersion === DB_VERSION && savedDb && savedDb.itinerary && savedDb.flights && savedDb.hotels) {
     db = savedDb;
 } else {
     db = JSON.parse(JSON.stringify(initialTripData));
 }
+localStorage.setItem('kansai_trip_db_version', DB_VERSION);
 
 // Restore messages from separate key (proven working approach)
-if (savedMessages.length > 0) {
+if (Array.isArray(savedMessages) && savedMessages.length > 0) {
     db.messages = savedMessages;
 }
 
 // Restore checklist checkboxes
-db.checklist.forEach(item => {
-    if (savedChecklistState[item.id] !== undefined) {
-        item.done = savedChecklistState[item.id];
-    }
-});
+if (db.checklist) {
+    db.checklist.forEach(item => {
+        if (savedChecklistState[item.id] !== undefined) {
+            item.done = savedChecklistState[item.id];
+        }
+    });
+}
 
 // Ensure messages array is valid and welcome message exists
 if (!Array.isArray(db.messages)) db.messages = [];
-const hasWelcome = db.messages.some(m => m.id === 'msg-1');
+const hasWelcome = db.messages.some(m => m && m.id === 'msg-1');
 if (!hasWelcome && Array.isArray(initialTripData.messages) && initialTripData.messages.length > 0) {
     db.messages.unshift(initialTripData.messages[0]);
 }
