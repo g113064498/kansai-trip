@@ -353,14 +353,15 @@ async function ensureArticle(tag, title, content) {
 
 async function ensureProduct(title, content) {
     const cacheKey = `prod:${title}`;
+    const productData = { title, content, category: '行程', origin_price: 0, price: 0, unit: '天', enabled: true };
     const existingId = getCacheId('prod', cacheKey);
     if (existingId) {
-        try { await hexAPI.updateProduct(existingId, { title, content, category: '行程', enabled: true }); return existingId; } catch { removeCacheId('prod', cacheKey); }
+        try { await hexAPI.updateProduct(existingId, productData); return existingId; } catch { removeCacheId('prod', cacheKey); }
     }
     const all = await hexAPI.getProducts();
     const found = all.find(p => p.title === title);
-    if (found) { setCacheId('prod', cacheKey, found.id); await hexAPI.updateProduct(found.id, { title, content, category: '行程', enabled: true }); return found.id; }
-    await hexAPI.createProduct({ title, content, category: '行程', origin_price: 0, price: 0, unit: '天', enabled: true });
+    if (found) { setCacheId('prod', cacheKey, found.id); await hexAPI.updateProduct(found.id, productData); return found.id; }
+    await hexAPI.createProduct(productData);
     const updated = await hexAPI.getProducts();
     const created = updated.find(p => p.title === title);
     if (created) setCacheId('prod', cacheKey, created.id);
@@ -373,7 +374,6 @@ async function loadFromRemote() {
 
         db = JSON.parse(JSON.stringify(initialTripData));
         if (!db.messages) db.messages = [];
-        db.itinerary = {};
 
         // Load master article → flights, hotels, budget, checklist, pool
         const allArticles = await hexAPI.getArticles();
@@ -392,10 +392,12 @@ async function loadFromRemote() {
             } catch { /* skip corrupt master */ }
         }
 
-        // Load itinerary from Products API
+        // Load itinerary from Products API (merge with initial data)
         const allProducts = await hexAPI.getProducts();
-        for (const prod of allProducts) {
-            if (prod.category === '行程' && prod.title && prod.content) {
+        const productDays = allProducts.filter(p => p.category === '行程' && p.title && p.content);
+        if (productDays.length > 0) {
+            db.itinerary = {};
+            for (const prod of productDays) {
                 try {
                     const events = JSON.parse(prod.content);
                     if (Array.isArray(events)) db.itinerary[prod.title] = events;
