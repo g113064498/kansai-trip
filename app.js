@@ -347,68 +347,54 @@ async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
         const allArticles = await hexAPI.getArticles();
-        console.log('[Sync] allArticles:', allArticles.map(a => ({ id: a.id, title: a.title, tag: a.tag, contentLen: a.content ? a.content.length : 0 })));
         if (!allArticles || allArticles.length === 0) {
             setSyncStatus('offline');
             return false;
         }
-        let merged = false;
-        const localDb = loadDbFromLocal();
-        const target = localDb ? JSON.parse(JSON.stringify(localDb)) : JSON.parse(JSON.stringify(initialTripData));
-        if (!target.messages) target.messages = [];
+
+        // Start fresh from initial data, then overwrite with API data
+        db = JSON.parse(JSON.stringify(initialTripData));
+        if (!db.messages) db.messages = [];
+        db.itinerary = {};
 
         // Load master article → flights, hotels, budget, checklist, pool
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
         if (master && master.content) {
             try {
                 const m = JSON.parse(master.content);
-                if (m.flights) target.flights = m.flights;
-                if (m.hotels) target.hotels = m.hotels;
-                if (m.budget) target.budget = m.budget;
-                if (m.checklist) target.checklist = m.checklist;
-                if (m.attractionPool) target.attractionPool = m.attractionPool;
-                merged = true;
+                if (m.flights) db.flights = m.flights;
+                if (m.hotels) db.hotels = m.hotels;
+                if (m.budget) db.budget = m.budget;
+                if (m.checklist) db.checklist = m.checklist;
+                if (m.attractionPool) db.attractionPool = m.attractionPool;
             } catch { /* skip corrupt master */ }
         }
 
         // Load itinerary articles → db.itinerary
         const dayArticles = allArticles.filter(a => a.tag && a.tag.includes(ARTICLE_TAGS.ITINERARY));
-        if (dayArticles.length > 0) {
-            target.itinerary = {};
-            for (const art of dayArticles) {
-                try {
-                    const events = JSON.parse(art.content);
-                    if (Array.isArray(events)) {
-                        target.itinerary[art.title] = events;
-                        merged = true;
-                    }
-                } catch { /* skip corrupt day */ }
-            }
+        for (const art of dayArticles) {
+            try {
+                const events = JSON.parse(art.content);
+                if (Array.isArray(events)) {
+                    db.itinerary[art.title] = events;
+                }
+            } catch { /* skip corrupt day */ }
         }
 
-        // Load messages article
+        // Load messages article → db.messages
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
-        console.log('[Sync] msgArt:', msgArt ? { id: msgArt.id, title: msgArt.title, contentPreview: msgArt.content ? msgArt.content.substring(0, 200) : null } : 'NOT FOUND');
         if (msgArt && msgArt.content) {
             try {
                 const msgs = JSON.parse(msgArt.content);
-                console.log('[Sync] parsed msgs count:', msgs.length, msgs);
-                if (Array.isArray(msgs) && msgs.length > 0) {
-                    target.messages = msgs;
-                    merged = true;
+                if (Array.isArray(msgs)) {
+                    db.messages = msgs;
                 }
             } catch { /* skip */ }
         }
 
-        if (merged) {
-            db = target;
-            console.log('[Sync] db.messages after merge:', db.messages.length, db.messages);
-            saveToLocalStorage();
-            setSyncStatus('synced');
-            return true;
-        }
-        setSyncStatus('offline');
-        return false;
+        saveToLocalStorage();
+        setSyncStatus('synced');
+        return true;
     } catch (err) {
         console.warn('[Sync] 讀取 API 失敗，改用 LocalStorage:', err);
         setSyncStatus('offline');
