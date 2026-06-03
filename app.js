@@ -226,7 +226,6 @@ function mergeMessagesFromLocal(target) {
 // ==========================================
 const API_BASE = 'https://vue3-course-api.hexschool.io/v2';
 const API_PATH = 'kansai-trip';
-const MASTER_ARTICLE_TITLE = 'kansai-trip-master-data';
 
 const hexAPI = {
     async request(method, url, body) {
@@ -286,9 +285,11 @@ function isTokenExpired() {
 // ==========================================
 // 使用六角學院 Vue3 課程 API (/v2/) 作為資料庫
 // API Path: kansai-trip
-// 需要先登入取得 token，所有行程資料儲存在單一文章的 content 欄位
+// 使用 Articles API 存三類資料：每一天行程各一篇、留言板一篇、主資料一篇
 // 離線時自動降級為僅 LocalStorage 本地儲存
 let syncIndicatorEl = null;
+
+const ARTICLE_TAGS = { ITINERARY: 'itinerary', MESSAGES: 'messages', MASTER: 'master' };
 
 function setSyncStatus(status) {
     if (!syncIndicatorEl) {
@@ -307,49 +308,99 @@ function setSyncStatus(status) {
     syncIndicatorEl.style.color = info.color;
 }
 
+function getArticleId(tag, title) {
+    return localStorage.getItem(`article_id:${tag}:${title}`);
+}
+
+function setArticleId(tag, title, id) {
+    localStorage.setItem(`article_id:${tag}:${title}`, id);
+}
+
+async function ensureArticle(tag, title, content, isPublic) {
+    const existingId = getArticleId(tag, title);
+    if (existingId) {
+        try {
+            await hexAPI.getArticle(existingId);
+            await hexAPI.updateArticle(existingId, { title, content, tag: [tag], isPublic });
+            return existingId;
+        } catch {
+            localStorage.removeItem(`article_id:${tag}:${title}`);
+        }
+    }
+    const all = await hexAPI.getArticles();
+    const found = all.find(a => a.tag && a.tag.includes(tag) && a.title === title);
+    if (found) {
+        setArticleId(tag, title, found.id);
+        await hexAPI.updateArticle(found.id, { title, content, tag: [tag], isPublic });
+        return found.id;
+    }
+    const res = await hexAPI.createArticle({ title, content, tag: [tag], isPublic });
+    const updated = await hexAPI.getArticles();
+    const created = updated.find(a => a.tag && a.tag.includes(tag) && a.title === title);
+    if (created) setArticleId(tag, title, created.id);
+    return created ? created.id : null;
+}
+
 async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
+        const allArticles = await hexAPI.getArticles();
+        if (!allArticles || allArticles.length === 0) {
+            setSyncStatus('offline');
+            return false;
+        }
+        let merged = false;
+        const localDb = loadDbFromLocal();
+        const target = localDb ? JSON.parse(JSON.stringify(localDb)) : JSON.parse(JSON.stringify(initialTripData));
+        if (!target.messages) target.messages = [];
 
-        // Find the master article that contains our db
-        let masterId = localStorage.getItem('kansai_trip_article_id');
-        let article = null;
-
-        if (masterId) {
+        // Load master article → flights, hotels, budget, checklist, pool
+        const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
+        if (master && master.content) {
             try {
-                article = await hexAPI.getArticle(masterId);
-            } catch {
-                masterId = null;
-                localStorage.removeItem('kansai_trip_article_id');
+                const m = JSON.parse(master.content);
+                if (m.flights) target.flights = m.flights;
+                if (m.hotels) target.hotels = m.hotels;
+                if (m.budget) target.budget = m.budget;
+                if (m.checklist) target.checklist = m.checklist;
+                if (m.attractionPool) target.attractionPool = m.attractionPool;
+                merged = true;
+            } catch { /* skip corrupt master */ }
+        }
+
+        // Load itinerary articles → db.itinerary
+        const dayArticles = allArticles.filter(a => a.tag && a.tag.includes(ARTICLE_TAGS.ITINERARY));
+        if (dayArticles.length > 0) {
+            target.itinerary = {};
+            for (const art of dayArticles) {
+                try {
+                    const events = JSON.parse(art.content);
+                    if (Array.isArray(events)) {
+                        target.itinerary[art.title] = events;
+                        merged = true;
+                    }
+                } catch { /* skip corrupt day */ }
             }
         }
 
-        if (!article) {
-            const articles = await hexAPI.getArticles();
-            const found = articles.find(a => a.title === MASTER_ARTICLE_TITLE);
-            if (found) {
-                article = await hexAPI.getArticle(found.id);
-                localStorage.setItem('kansai_trip_article_id', found.id);
-            }
-        }
-
-        if (article && article.content) {
-            const remoteDb = JSON.parse(article.content);
-            if (remoteDb && remoteDb.itinerary) {
-                const local = loadDbFromLocal();
-                if (local) {
-                    db = remoteDb;
-                    mergeChecklistState(db);
-                    mergeMessagesFromLocal(db);
-                } else {
-                    db = remoteDb;
+        // Load messages article
+        const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
+        if (msgArt && msgArt.content) {
+            try {
+                const msgs = JSON.parse(msgArt.content);
+                if (Array.isArray(msgs) && msgs.length > 0) {
+                    target.messages = msgs;
+                    merged = true;
                 }
-                saveToLocalStorage();
-                setSyncStatus('synced');
-                return true;
-            }
+            } catch { /* skip */ }
         }
 
+        if (merged) {
+            db = target;
+            saveToLocalStorage();
+            setSyncStatus('synced');
+            return true;
+        }
         setSyncStatus('offline');
         return false;
     } catch (err) {
@@ -362,40 +413,33 @@ async function loadFromRemote() {
 async function saveToRemote() {
     try {
         setSyncStatus('syncing');
+        if (!db) return;
 
-        const cleanDb = JSON.parse(JSON.stringify(db));
-        if (cleanDb.itinerary) {
-            for (const day in cleanDb.itinerary) {
-                cleanDb.itinerary[day].forEach(ev => {
-                    if (ev.photos) {
-                        ev.photos = ev.photos.filter(p => !p.startsWith('data:'));
-                    }
+        // 1) Save master data
+        const masterPayload = JSON.stringify({
+            flights: db.flights,
+            hotels: db.hotels,
+            budget: db.budget,
+            checklist: db.checklist,
+            attractionPool: db.attractionPool || [],
+        });
+        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', masterPayload, false);
+
+        // 2) Save each day as separate article
+        if (db.itinerary) {
+            for (const [date, events] of Object.entries(db.itinerary)) {
+                const clean = events.map(ev => {
+                    const e = { ...ev };
+                    if (e.photos) e.photos = e.photos.filter(p => !p.startsWith('data:'));
+                    return e;
                 });
+                await ensureArticle(ARTICLE_TAGS.ITINERARY, date, JSON.stringify(clean), false);
             }
         }
 
-        const payload = JSON.stringify(cleanDb);
-        let masterId = localStorage.getItem('kansai_trip_article_id');
-
-        if (masterId) {
-            await hexAPI.updateArticle(masterId, {
-                title: MASTER_ARTICLE_TITLE,
-                content: payload,
-                tag: ['itinerary'],
-                isPublic: false,
-            });
-        } else {
-            await hexAPI.createArticle({
-                title: MASTER_ARTICLE_TITLE,
-                content: payload,
-                tag: ['itinerary'],
-                isPublic: false,
-            });
-            const articles = await hexAPI.getArticles();
-            const found = articles.find(a => a.title === MASTER_ARTICLE_TITLE);
-            if (found) {
-                localStorage.setItem('kansai_trip_article_id', found.id);
-            }
+        // 3) Save messages
+        if (db.messages && db.messages.length > 0) {
+            await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages), false);
         }
 
         setSyncStatus('synced');
@@ -460,8 +504,11 @@ function updateLoginButton() {
 
 function handleLogout() {
     if (confirm('確定要登出嗎？登出後將無法同步資料到雲端。')) {
+        // Clear all cached article IDs
+        for (const key of Object.keys(localStorage)) {
+            if (key.startsWith('article_id:')) localStorage.removeItem(key);
+        }
         clearToken();
-        localStorage.removeItem('kansai_trip_article_id');
         localStorage.removeItem('kansai_trip_user_email');
         location.reload();
     }
@@ -491,6 +538,7 @@ async function initApp() {
         mergeMessagesFromLocal(db);
         mergeChecklistState(db);
         saveToLocalStorage();
+        if (loggedIn) saveToRemote();
     }
 
     if (!db.messages) db.messages = [];
