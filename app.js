@@ -317,11 +317,13 @@ function setArticleId(tag, title, id) {
 }
 
 async function ensureArticle(tag, title, content, isPublic) {
+    const now = Math.floor(Date.now() / 1000);
+    const articleData = { title, content, tag: [tag], isPublic, create_at: now, author: 'admin' };
     const existingId = getArticleId(tag, title);
     if (existingId) {
         try {
             await hexAPI.getArticle(existingId);
-            await hexAPI.updateArticle(existingId, { title, content, tag: [tag], isPublic });
+            await hexAPI.updateArticle(existingId, articleData);
             return existingId;
         } catch {
             localStorage.removeItem(`article_id:${tag}:${title}`);
@@ -331,10 +333,10 @@ async function ensureArticle(tag, title, content, isPublic) {
     const found = all.find(a => a.tag && a.tag.includes(tag) && a.title === title);
     if (found) {
         setArticleId(tag, title, found.id);
-        await hexAPI.updateArticle(found.id, { title, content, tag: [tag], isPublic });
+        await hexAPI.updateArticle(found.id, articleData);
         return found.id;
     }
-    const res = await hexAPI.createArticle({ title, content, tag: [tag], isPublic });
+    const res = await hexAPI.createArticle(articleData);
     const updated = await hexAPI.getArticles();
     const created = updated.find(a => a.tag && a.tag.includes(tag) && a.title === title);
     if (created) setArticleId(tag, title, created.id);
