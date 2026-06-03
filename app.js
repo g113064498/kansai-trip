@@ -320,26 +320,33 @@ async function ensureArticle(tag, title, content, isPublic) {
     const now = Math.floor(Date.now() / 1000);
     const articleData = { title, content, tag: [tag], isPublic, create_at: now, author: 'admin' };
     const existingId = getArticleId(tag, title);
+    console.log('[ensureArticle]', tag, title, 'existingId:', existingId);
     if (existingId) {
         try {
             await hexAPI.getArticle(existingId);
-            await hexAPI.updateArticle(existingId, articleData);
+            const upd = await hexAPI.updateArticle(existingId, articleData);
+            console.log('[ensureArticle] updated:', upd);
             return existingId;
-        } catch {
+        } catch (e) {
+            console.log('[ensureArticle] update failed, removing cached id:', e.message);
             localStorage.removeItem(`article_id:${tag}:${title}`);
         }
     }
     const all = await hexAPI.getArticles();
+    console.log('[ensureArticle] all articles count:', all.length, 'tags:', all.map(a => a.tag));
     const found = all.find(a => a.tag && a.tag.includes(tag) && a.title === title);
     if (found) {
         setArticleId(tag, title, found.id);
-        await hexAPI.updateArticle(found.id, articleData);
+        const upd = await hexAPI.updateArticle(found.id, articleData);
+        console.log('[ensureArticle] found & updated:', found.id, upd);
         return found.id;
     }
     const res = await hexAPI.createArticle(articleData);
+    console.log('[ensureArticle] created:', res);
     const updated = await hexAPI.getArticles();
     const created = updated.find(a => a.tag && a.tag.includes(tag) && a.title === title);
     if (created) setArticleId(tag, title, created.id);
+    console.log('[ensureArticle] created id:', created ? created.id : null);
     return created ? created.id : null;
 }
 
@@ -431,7 +438,8 @@ async function saveToRemote() {
 
         // 3) Save messages
         if (db.messages && db.messages.length > 0) {
-            await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages), false);
+            const msgResult = await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages), false);
+            console.log('[Sync] messages save result:', msgResult);
         }
 
         setSyncStatus('synced');
