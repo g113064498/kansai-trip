@@ -237,15 +237,14 @@ const hexAPI = {
         if (body) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const data = await res.json();
+        if (data.success === false) throw new Error(data.message || 'API 請求失敗');
         if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
         return data;
     },
     async login(email, password) {
-        const data = await this.request('POST', `${API_BASE}/admin/signin`, { email, password });
-        if (data.token) {
-            setToken(data.token);
-            const expires = data.expires ? new Date(data.expires).getTime() : Date.now() + 86400000;
-            localStorage.setItem('kansai_trip_token_expires', expires);
+        const data = await this.request('POST', `${API_BASE}/admin/signin`, { username: email, password });
+        if (data.token && data.expired) {
+            document.cookie = `hexToken=${data.token}; expires=${new Date(data.expired)}`;
         }
         return data;
     },
@@ -268,22 +267,18 @@ const hexAPI = {
 };
 
 function getToken() {
-    return localStorage.getItem('kansai_trip_token');
-}
-
-function setToken(token) {
-    localStorage.setItem('kansai_trip_token', token);
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; hexToken=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
 }
 
 function clearToken() {
-    localStorage.removeItem('kansai_trip_token');
-    localStorage.removeItem('kansai_trip_token_expires');
+    document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
 }
 
 function isTokenExpired() {
-    const expires = localStorage.getItem('kansai_trip_token_expires');
-    if (!expires) return true;
-    return Date.now() > parseInt(expires, 10);
+    return !getToken();
 }
 
 // ==========================================
