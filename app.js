@@ -231,7 +231,7 @@ const hexAPI = {
     async request(method, url, body) {
         const token = getToken();
         const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        if (token) headers['Authorization'] = token;
         const opts = { method, headers };
         if (body) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
