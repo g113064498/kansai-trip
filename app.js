@@ -461,9 +461,20 @@ async function saveItineraryToRemote() {
     if (!db) return;
     try {
         setSyncStatus('syncing');
-        if (db.itinerary) {
-            for (const [date, events] of Object.entries(db.itinerary)) {
+        const currentDates = Object.keys(db.itinerary || {});
+        // Create/update products for current itinerary days
+        for (const date of currentDates) {
+            const events = db.itinerary[date];
+            if (events && events.length > 0) {
                 await ensureProduct(date, JSON.stringify(cleanEvents(events)));
+            }
+        }
+        // Delete products for days no longer in itinerary
+        const allProducts = await hexAPI.getProducts();
+        for (const prod of allProducts) {
+            if (prod.category === '行程' && !currentDates.includes(prod.title)) {
+                await hexAPI.deleteProduct(prod.id);
+                removeCacheId('prod', `prod:${prod.title}`);
             }
         }
         await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, attractionPool: db.attractionPool || [] }));
