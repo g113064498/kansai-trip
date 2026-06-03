@@ -1422,6 +1422,122 @@ header p {
     gap: 8px;
 }
 
+/* LOGIN MODAL */
+#login-modal.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+#login-modal.modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+#login-modal .modal-content {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 32px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    transform: none;
+}
+#login-modal .modal-close {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 28px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+#login-modal .modal-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+    color: var(--text-main);
+}
+#login-modal .form-group {
+    margin-bottom: 14px;
+}
+#login-modal .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text-main);
+}
+#login-modal .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    background: var(--bg-base);
+    color: var(--text-main);
+    transition: var(--transition);
+}
+#login-modal .form-input:focus {
+    outline: none;
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 3px rgba(224,152,167,0.15);
+}
+#login-modal .form-error {
+    color: var(--accent-red);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    min-height: 20px;
+}
+#login-modal .form-submit {
+    width: 100%;
+    padding: 12px;
+    background: var(--secondary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+#login-modal .form-submit:hover {
+    background: var(--secondary-light);
+}
+#login-modal .form-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+#login-modal .link-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-red);
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: underline;
+}
+.login-btn {
+    background: var(--secondary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    font-weight: 500;
+}
+.login-btn:hover {
+    background: var(--secondary-light);
+}
+
 /* LIGHTBOX */
 .lightbox {
     position: fixed;

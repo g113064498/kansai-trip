@@ -222,12 +222,77 @@ function mergeMessagesFromLocal(target) {
 }
 
 // ==========================================
-// NETLIFY BLOBS SYNC LAYER (跨裝置同步)
+// HEXSCHOOL API HELPER (六角學院 Vue3 課程 API)
 // ==========================================
-// 待辦勾選狀態 + 留言 會自動同步到 Netlify Blobs，
-// 另一裝置重新整理頁面即可看到最新內容。
-// 沒網路時自動降級為僅 LocalStorage 本地儲存。
-const SYNC_ENDPOINT = '/.netlify/functions/sync';
+const API_BASE = 'https://vue3-course-api.hexschool.io/v2';
+const API_PATH = 'kansai-trip';
+const MASTER_ARTICLE_TITLE = 'kansai-trip-master-data';
+
+const hexAPI = {
+    async request(method, url, body) {
+        const token = getToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const opts = { method, headers };
+        if (body) opts.body = JSON.stringify(body);
+        const res = await fetch(url, opts);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+        return data;
+    },
+    async login(email, password) {
+        const data = await this.request('POST', `${API_BASE}/admin/signin`, { email, password });
+        if (data.token) {
+            setToken(data.token);
+            const expires = data.expires ? new Date(data.expires).getTime() : Date.now() + 86400000;
+            localStorage.setItem('kansai_trip_token_expires', expires);
+        }
+        return data;
+    },
+    async getArticles() {
+        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles`);
+        return data.articles || [];
+    },
+    async getArticle(id) {
+        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/article/${id}`);
+        return data.article || null;
+    },
+    async createArticle(payload) {
+        const data = await this.request('POST', `${API_BASE}/api/${API_PATH}/admin/article`, payload);
+        return data;
+    },
+    async updateArticle(id, payload) {
+        const data = await this.request('PUT', `${API_BASE}/api/${API_PATH}/admin/article/${id}`, payload);
+        return data;
+    },
+};
+
+function getToken() {
+    return localStorage.getItem('kansai_trip_token');
+}
+
+function setToken(token) {
+    localStorage.setItem('kansai_trip_token', token);
+}
+
+function clearToken() {
+    localStorage.removeItem('kansai_trip_token');
+    localStorage.removeItem('kansai_trip_token_expires');
+}
+
+function isTokenExpired() {
+    const expires = localStorage.getItem('kansai_trip_token_expires');
+    if (!expires) return true;
+    return Date.now() > parseInt(expires, 10);
+}
+
+// ==========================================
+// HEXSCHOOL API SYNC LAYER (跨裝置同步)
+// ==========================================
+// 使用六角學院 Vue3 課程 API (/v2/) 作為資料庫
+// API Path: kansai-trip
+// 需要先登入取得 token，所有行程資料儲存在單一文章的 content 欄位
+// 離線時自動降級為僅 LocalStorage 本地儲存
 let syncIndicatorEl = null;
 
 function setSyncStatus(status) {
@@ -250,62 +315,50 @@ function setSyncStatus(status) {
 async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
-        const res = await fetch(SYNC_ENDPOINT, { method: 'GET', cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const remote = await res.json();
 
-        // Remote has full itinerary data → use as primary source of truth
-        if (remote && remote.itinerary && typeof remote.itinerary === 'object') {
-            db = remote;
-            // Merge checklist state from remote into db
-            if (remote.checklist && typeof remote.checklist === 'object' && db.checklist) {
-                db.checklist.forEach(item => {
-                    if (remote.checklist[item.id] !== undefined) {
-                        item.done = remote.checklist[item.id];
-                    }
-                });
+        // Find the master article that contains our db
+        let masterId = localStorage.getItem('kansai_trip_article_id');
+        let article = null;
+
+        if (masterId) {
+            try {
+                article = await hexAPI.getArticle(masterId);
+            } catch {
+                masterId = null;
+                localStorage.removeItem('kansai_trip_article_id');
             }
-            if (!Array.isArray(db.messages)) db.messages = [];
-            saveToLocalStorage();
-            setSyncStatus('synced');
-            return true;
         }
 
-        // Remote has partial data (checklist + messages only, pre-itinerary sync)
-        // Initialize db from local if needed, then merge remote data
-        if (!db) {
-            const local = loadDbFromLocal();
-            db = local ? local : JSON.parse(JSON.stringify(initialTripData));
-            mergeMessagesFromLocal(db);
-            mergeChecklistState(db);
+        if (!article) {
+            const articles = await hexAPI.getArticles();
+            const found = articles.find(a => a.title === MASTER_ARTICLE_TITLE);
+            if (found) {
+                article = await hexAPI.getArticle(found.id);
+                localStorage.setItem('kansai_trip_article_id', found.id);
+            }
         }
-        if (remote.checklist && typeof remote.checklist === 'object' && db.checklist) {
-            db.checklist.forEach(item => {
-                if (remote.checklist[item.id] !== undefined) {
-                    item.done = remote.checklist[item.id];
+
+        if (article && article.content) {
+            const remoteDb = JSON.parse(article.content);
+            if (remoteDb && remoteDb.itinerary) {
+                const local = loadDbFromLocal();
+                if (local) {
+                    db = remoteDb;
+                    mergeChecklistState(db);
+                    mergeMessagesFromLocal(db);
+                } else {
+                    db = remoteDb;
                 }
-            });
-        }
-        if (Array.isArray(remote.messages)) {
-            const localIds = new Set((db.messages || []).map(m => m.id));
-            remote.messages.forEach(m => {
-                if (m && m.id && !localIds.has(m.id)) {
-                    db.messages.push(m);
-                }
-            });
-            db.messages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-        }
-        saveToLocalStorage();
-
-        // Push local itinerary to remote so next load gets full data
-        if (db && db.itinerary) {
-            saveToRemote().catch(() => {});
+                saveToLocalStorage();
+                setSyncStatus('synced');
+                return true;
+            }
         }
 
-        setSyncStatus('synced');
-        return true;
+        setSyncStatus('offline');
+        return false;
     } catch (err) {
-        console.warn('[Sync] 讀取 Netlify Blobs 失敗，改用 LocalStorage:', err);
+        console.warn('[Sync] 讀取 API 失敗，改用 LocalStorage:', err);
         setSyncStatus('offline');
         return false;
     }
@@ -314,42 +367,126 @@ async function loadFromRemote() {
 async function saveToRemote() {
     try {
         setSyncStatus('syncing');
-        const checklistState = {};
-        if (db && db.checklist) {
-            db.checklist.forEach(item => {
-                checklistState[item.id] = item.done;
-            });
+
+        const cleanDb = JSON.parse(JSON.stringify(db));
+        if (cleanDb.itinerary) {
+            for (const day in cleanDb.itinerary) {
+                cleanDb.itinerary[day].forEach(ev => {
+                    if (ev.photos) {
+                        ev.photos = ev.photos.filter(p => !p.startsWith('data:'));
+                    }
+                });
+            }
         }
-        const body = {
-            checklist: checklistState,
-            messages: (db && db.messages) || [],
-            itinerary: db ? db.itinerary : {},
-            attractionPool: (db && db.attractionPool) || [],
-        };
-        const res = await fetch(SYNC_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const payload = JSON.stringify(cleanDb);
+        let masterId = localStorage.getItem('kansai_trip_article_id');
+
+        if (masterId) {
+            await hexAPI.updateArticle(masterId, {
+                title: MASTER_ARTICLE_TITLE,
+                content: payload,
+                tag: ['itinerary'],
+                isPublic: false,
+            });
+        } else {
+            await hexAPI.createArticle({
+                title: MASTER_ARTICLE_TITLE,
+                content: payload,
+                tag: ['itinerary'],
+                isPublic: false,
+            });
+            const articles = await hexAPI.getArticles();
+            const found = articles.find(a => a.title === MASTER_ARTICLE_TITLE);
+            if (found) {
+                localStorage.setItem('kansai_trip_article_id', found.id);
+            }
+        }
+
         setSyncStatus('synced');
     } catch (err) {
-        console.warn('[Sync] 寫入 Netlify Blobs 失敗，僅存 LocalStorage:', err);
+        console.warn('[Sync] 寫入 API 失敗，僅存 LocalStorage:', err);
         setSyncStatus('offline');
     }
 }
 
-// APP INITIALIZATION — remote-first: try Netlify Blobs, fall back to localStorage
+// LOGIN FLOW
+function ensureLogin() {
+    const token = getToken();
+    if (!token || isTokenExpired()) {
+        document.getElementById('login-modal').classList.add('open');
+        return false;
+    }
+    return true;
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const errorEl = document.getElementById('login-error');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+
+    if (!email || !password) {
+        errorEl.textContent = '請輸入 Email 與密碼';
+        return;
+    }
+
+    try {
+        errorEl.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = '登入中…';
+        await hexAPI.login(email, password);
+        localStorage.setItem('kansai_trip_user_email', email);
+        document.getElementById('login-modal').classList.remove('open');
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+        await initApp();
+    } catch (err) {
+        errorEl.textContent = err.message || '登入失敗，請檢查帳號密碼';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '登入';
+    }
+}
+
+function updateLoginButton() {
+    const btn = document.getElementById('login-btn');
+    const token = getToken();
+    const email = localStorage.getItem('kansai_trip_user_email');
+    if (token && !isTokenExpired() && email) {
+        btn.textContent = `👤 ${email.split('@')[0]}`;
+        btn.title = '已登入';
+    } else {
+        btn.textContent = '🔑 登入';
+        btn.title = '登入以同步資料';
+    }
+}
+
+function handleLogout() {
+    if (confirm('確定要登出嗎？登出後將無法同步資料到雲端。')) {
+        clearToken();
+        localStorage.removeItem('kansai_trip_article_id');
+        localStorage.removeItem('kansai_trip_user_email');
+        location.reload();
+    }
+}
+
+// APP INITIALIZATION — remote-first with HexSchool API, fall back to localStorage
 window.addEventListener('DOMContentLoaded', () => {
     initApp().then(() => { new MapleLeaves(); });
 });
 
 async function initApp() {
-    // Step 1: Try loading from remote (Netlify Blobs)
-    const remoteOk = await loadFromRemote();
+    updateLoginButton();
+    const loggedIn = ensureLogin();
+
+    let remoteOk = false;
+    if (loggedIn) {
+        remoteOk = await loadFromRemote();
+    }
 
     if (!remoteOk) {
-        // Step 2: Remote failed — use localStorage as fallback
         const local = loadDbFromLocal();
         if (local) {
             db = local;
@@ -358,15 +495,13 @@ async function initApp() {
         }
         mergeMessagesFromLocal(db);
         mergeChecklistState(db);
-        saveToLocalStorage(); // ensure local cache is fresh
+        saveToLocalStorage();
     }
 
-    // db must be valid now; ensure all fields exist
     if (!db.messages) db.messages = [];
     if (!db.attractionPool) db.attractionPool = [];
     if (!db.itinerary) db.itinerary = {};
 
-    // Step 3: Render everything
     updateCountdown();
     renderDashboard();
     renderDaysSidebar();
@@ -817,7 +952,7 @@ function toggleChecklistItem(id) {
     if (item) {
         item.done = !item.done;
         saveToLocalStorage();
-        saveToRemote(); // 同步到 Netlify Blobs
+        saveToRemote(); // 同步到 API
         renderChecklists();
     }
 }
@@ -1351,7 +1486,7 @@ function submitMessage(e) {
     db.messages.push(newMsg);
 
     saveToLocalStorage();
-    saveToRemote(); // 同步到 Netlify Blobs
+    saveToRemote(); // 同步到 API
     renderMessages();
 
     input.value = '';
@@ -1361,7 +1496,7 @@ function deleteMessage(id) {
     if (confirm("確定要刪除這條留言嗎？")) {
         db.messages = db.messages.filter(m => m.id !== id);
         saveToLocalStorage();
-        saveToRemote(); // 同步到 Netlify Blobs
+        saveToRemote(); // 同步到 API
         renderMessages();
     }
 }

@@ -21,7 +21,9 @@
                     <h1 id="main-title">關西雙人浪漫楓秋之旅 🍁</h1>
                     <p id="main-dates">11/04 - 11/11 • 京都 & 大阪之旅</p>
                 </div>
-                <!-- Custom theme toggle or download indicator -->
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <button class="login-btn" id="login-btn" onclick="document.getElementById('login-modal').classList.add('open')" title="登入以同步資料">🔑 登入</button>
+                </div>
             </div>
             
             <div class="header-stats">
@@ -392,7 +394,7 @@
             <div class="chat-panel-header">
                 <h3>備忘留言板 💬</h3>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <span id="sync-status-indicator" style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap;" title="Netlify Blobs 同步狀態">同步中…</span>
+                    <span id="sync-status-indicator" style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap;" title="HexSchool API 同步狀態">同步中…</span>
                     <button class="chat-close-btn" onclick="toggleChatWidget()">&times;</button>
                 </div>
             </div>
@@ -405,6 +407,30 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="document.getElementById('login-modal').classList.remove('open')">&times;</button>
+            <h2>登入以啟用雲端同步</h2>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">使用六角學院 Vue3 課程帳號登入</p>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密碼</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div id="login-error" class="form-error"></div>
+                <button type="submit" class="form-submit">登入</button>
+            </form>
+            <div style="text-align:center; margin-top:12px;">
+                <button class="link-btn" onclick="handleLogout()">登出</button>
+            </div>
         </div>
     </div>
 
