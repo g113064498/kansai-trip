@@ -256,11 +256,11 @@ const hexAPI = {
         return data.article || null;
     },
     async createArticle(payload) {
-        const data = await this.request('POST', `${API_BASE}/api/${API_PATH}/admin/article`, payload);
+        const data = await this.request('POST', `${API_BASE}/api/${API_PATH}/admin/article`, { data: payload });
         return data;
     },
     async updateArticle(id, payload) {
-        const data = await this.request('PUT', `${API_BASE}/api/${API_PATH}/admin/article/${id}`, payload);
+        const data = await this.request('PUT', `${API_BASE}/api/${API_PATH}/admin/article/${id}`, { data: payload });
         return data;
     },
 };
