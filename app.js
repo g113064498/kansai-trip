@@ -347,6 +347,7 @@ async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
         const allArticles = await hexAPI.getArticles();
+        console.log('[Sync] allArticles:', allArticles.map(a => ({ id: a.id, title: a.title, tag: a.tag, contentLen: a.content ? a.content.length : 0 })));
         if (!allArticles || allArticles.length === 0) {
             setSyncStatus('offline');
             return false;
@@ -387,18 +388,22 @@ async function loadFromRemote() {
 
         // Load messages article
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
+        console.log('[Sync] msgArt:', msgArt ? { id: msgArt.id, title: msgArt.title, contentPreview: msgArt.content ? msgArt.content.substring(0, 200) : null } : 'NOT FOUND');
         if (msgArt && msgArt.content) {
             try {
                 const msgs = JSON.parse(msgArt.content);
+                console.log('[Sync] parsed msgs count:', msgs.length, msgs);
                 if (Array.isArray(msgs) && msgs.length > 0) {
                     target.messages = msgs;
                     merged = true;
+                }
                 }
             } catch { /* skip */ }
         }
 
         if (merged) {
             db = target;
+            console.log('[Sync] db.messages after merge:', db.messages.length, db.messages);
             saveToLocalStorage();
             setSyncStatus('synced');
             return true;
