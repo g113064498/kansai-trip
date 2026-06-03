@@ -422,18 +422,55 @@ async function saveToRemote() {
     try {
         setSyncStatus('syncing');
         if (!db) return;
+        await saveAllToRemote();
+        setSyncStatus('synced');
+    } catch (err) {
+        console.warn('[Sync] 寫入 API 失敗，僅存 LocalStorage:', err);
+        setSyncStatus('offline');
+    }
+}
 
-        // 1) Save master data
-        const masterPayload = JSON.stringify({
-            flights: db.flights,
-            hotels: db.hotels,
-            budget: db.budget,
-            checklist: db.checklist,
-            attractionPool: db.attractionPool || [],
-        });
-        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', masterPayload, false);
+async function saveAllToRemote() {
+    if (!db) return;
+    const masterPayload = JSON.stringify({
+        flights: db.flights,
+        hotels: db.hotels,
+        budget: db.budget,
+        checklist: db.checklist,
+        attractionPool: db.attractionPool || [],
+    });
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', masterPayload, false);
+    if (db.itinerary) {
+        for (const [date, events] of Object.entries(db.itinerary)) {
+            const clean = events.map(ev => {
+                const e = { ...ev };
+                if (e.photos) e.photos = e.photos.filter(p => !p.startsWith('data:'));
+                return e;
+            });
+            await ensureArticle(ARTICLE_TAGS.ITINERARY, date, JSON.stringify(clean), false);
+        }
+    }
+    if (db.messages && db.messages.length > 0) {
+        await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages), false);
+    }
+}
 
-        // 2) Save each day as separate article
+async function saveMessagesToRemote() {
+    if (!db) return;
+    try {
+        setSyncStatus('syncing');
+        await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages || []), false);
+        setSyncStatus('synced');
+    } catch (err) {
+        console.warn('[Sync] 留言同步失敗:', err);
+        setSyncStatus('offline');
+    }
+}
+
+async function saveItineraryToRemote() {
+    if (!db) return;
+    try {
+        setSyncStatus('syncing');
         if (db.itinerary) {
             for (const [date, events] of Object.entries(db.itinerary)) {
                 const clean = events.map(ev => {
@@ -444,16 +481,17 @@ async function saveToRemote() {
                 await ensureArticle(ARTICLE_TAGS.ITINERARY, date, JSON.stringify(clean), false);
             }
         }
-
-        // 3) Save messages
-        if (db.messages && db.messages.length > 0) {
-            const msgResult = await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages), false);
-            console.log('[Sync] messages save result:', msgResult);
-        }
-
+        const masterPayload = JSON.stringify({
+            flights: db.flights,
+            hotels: db.hotels,
+            budget: db.budget,
+            checklist: db.checklist,
+            attractionPool: db.attractionPool || [],
+        });
+        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', masterPayload, false);
         setSyncStatus('synced');
     } catch (err) {
-        console.warn('[Sync] 寫入 API 失敗，僅存 LocalStorage:', err);
+        console.warn('[Sync] 行程同步失敗:', err);
         setSyncStatus('offline');
     }
 }
@@ -1004,7 +1042,7 @@ function toggleChecklistItem(id) {
     if (item) {
         item.done = !item.done;
         saveToLocalStorage();
-        saveToRemote(); // 同步到 API
+        saveItineraryToRemote();
         renderChecklists();
     }
 }
@@ -1154,7 +1192,7 @@ function saveEvent(e) {
     }
 
     saveToLocalStorage();
-    saveToRemote();
+    saveItineraryToRemote();
     closeEventModal();
     renderItineraryForDay(dayStr);
     updateBudgetCalculations();
@@ -1174,7 +1212,7 @@ function moveEvent(dayStr, index, direction) {
     items[targetIndex] = temp;
 
     saveToLocalStorage();
-    saveToRemote();
+    saveItineraryToRemote();
     renderItineraryForDay(dayStr);
 }
 
@@ -1194,7 +1232,7 @@ function deleteEvent(dayStr, id) {
         
         db.itinerary[dayStr] = items.filter(ev => ev.id !== id);
         saveToLocalStorage();
-        saveToRemote();
+        saveItineraryToRemote();
         renderItineraryForDay(dayStr);
         updateBudgetCalculations();
     }
@@ -1239,7 +1277,7 @@ function addPoolItemToItinerary(poolId) {
     item.status = 'scheduled';
 
     saveToLocalStorage();
-    saveToRemote();
+    saveItineraryToRemote();
     renderItineraryForDay(currentSelectedDay);
     renderPool();
     updateBudgetCalculations();
@@ -1252,7 +1290,7 @@ function deleteFromPool(id) {
     if (confirm("確定要將這個候選景點從清單中完全移除嗎？")) {
         db.attractionPool = db.attractionPool.filter(p => p.id !== id);
         saveToLocalStorage();
-        saveToRemote();
+        saveItineraryToRemote();
         renderPool();
     }
 }
@@ -1538,7 +1576,7 @@ function submitMessage(e) {
     db.messages.push(newMsg);
 
     saveToLocalStorage();
-    saveToRemote(); // 同步到 API
+    saveMessagesToRemote();
     renderMessages();
 
     input.value = '';
@@ -1548,7 +1586,7 @@ function deleteMessage(id) {
     if (confirm("確定要刪除這條留言嗎？")) {
         db.messages = db.messages.filter(m => m.id !== id);
         saveToLocalStorage();
-        saveToRemote(); // 同步到 API
+        saveMessagesToRemote();
         renderMessages();
     }
 }
