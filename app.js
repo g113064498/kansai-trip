@@ -263,6 +263,27 @@ const hexAPI = {
         const data = await this.request('PUT', `${API_BASE}/api/${API_PATH}/admin/article/${id}`, { data: payload });
         return data;
     },
+    // --- Products API ---
+    async getProducts() {
+        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products`);
+        return data.products || [];
+    },
+    async getProduct(id) {
+        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/product/${id}`);
+        return data.product || null;
+    },
+    async createProduct(payload) {
+        const data = await this.request('POST', `${API_BASE}/api/${API_PATH}/admin/product`, { data: payload });
+        return data;
+    },
+    async updateProduct(id, payload) {
+        const data = await this.request('PUT', `${API_BASE}/api/${API_PATH}/admin/product/${id}`, { data: payload });
+        return data;
+    },
+    async deleteProduct(id) {
+        const data = await this.request('DELETE', `${API_BASE}/api/${API_PATH}/admin/product/${id}`);
+        return data;
+    },
 };
 
 function getToken() {
@@ -289,7 +310,7 @@ function isTokenExpired() {
 // 離線時自動降級為僅 LocalStorage 本地儲存
 let syncIndicatorEl = null;
 
-const ARTICLE_TAGS = { ITINERARY: 'itinerary', MESSAGES: 'messages', MASTER: 'master' };
+const ARTICLE_TAGS = { MESSAGES: 'messages', MASTER: 'master' };
 
 function setSyncStatus(status) {
     if (!syncIndicatorEl) {
@@ -308,63 +329,54 @@ function setSyncStatus(status) {
     syncIndicatorEl.style.color = info.color;
 }
 
-function getArticleId(tag, title) {
-    return localStorage.getItem(`article_id:${tag}:${title}`);
-}
+function setCacheId(type, key, id) { localStorage.setItem(`${type}:${key}`, id); }
+function getCacheId(type, key) { return localStorage.getItem(`${type}:${key}`); }
+function removeCacheId(type, key) { localStorage.removeItem(`${type}:${key}`); }
 
-function setArticleId(tag, title, id) {
-    localStorage.setItem(`article_id:${tag}:${title}`, id);
-}
-
-async function ensureArticle(tag, title, content, isPublic) {
+async function ensureArticle(tag, title, content) {
     const now = Math.floor(Date.now() / 1000);
-    const articleData = { title, content, tag: [tag], isPublic, create_at: now, author: 'admin' };
-    const existingId = getArticleId(tag, title);
-    console.log('[ensureArticle]', tag, title, 'existingId:', existingId);
+    const payload = { title, content, tag: [tag], isPublic: false, create_at: now, author: 'admin' };
+    const cacheKey = `art:${tag}:${title}`;
+    const existingId = getCacheId('art', cacheKey);
     if (existingId) {
-        try {
-            await hexAPI.getArticle(existingId);
-            const upd = await hexAPI.updateArticle(existingId, articleData);
-            console.log('[ensureArticle] updated:', upd);
-            return existingId;
-        } catch (e) {
-            console.log('[ensureArticle] update failed, removing cached id:', e.message);
-            localStorage.removeItem(`article_id:${tag}:${title}`);
-        }
+        try { await hexAPI.updateArticle(existingId, payload); return existingId; } catch { removeCacheId('art', cacheKey); }
     }
     const all = await hexAPI.getArticles();
-    console.log('[ensureArticle] all articles count:', all.length, 'tags:', all.map(a => a.tag));
     const found = all.find(a => a.tag && a.tag.includes(tag) && a.title === title);
-    if (found) {
-        setArticleId(tag, title, found.id);
-        const upd = await hexAPI.updateArticle(found.id, articleData);
-        console.log('[ensureArticle] found & updated:', found.id, upd);
-        return found.id;
-    }
-    const res = await hexAPI.createArticle(articleData);
-    console.log('[ensureArticle] created:', res);
+    if (found) { setCacheId('art', cacheKey, found.id); await hexAPI.updateArticle(found.id, payload); return found.id; }
+    await hexAPI.createArticle(payload);
     const updated = await hexAPI.getArticles();
     const created = updated.find(a => a.tag && a.tag.includes(tag) && a.title === title);
-    if (created) setArticleId(tag, title, created.id);
-    console.log('[ensureArticle] created id:', created ? created.id : null);
+    if (created) setCacheId('art', cacheKey, created.id);
+    return created ? created.id : null;
+}
+
+async function ensureProduct(title, content) {
+    const cacheKey = `prod:${title}`;
+    const existingId = getCacheId('prod', cacheKey);
+    if (existingId) {
+        try { await hexAPI.updateProduct(existingId, { title, content, category: '行程', enabled: true }); return existingId; } catch { removeCacheId('prod', cacheKey); }
+    }
+    const all = await hexAPI.getProducts();
+    const found = all.find(p => p.title === title);
+    if (found) { setCacheId('prod', cacheKey, found.id); await hexAPI.updateProduct(found.id, { title, content, category: '行程', enabled: true }); return found.id; }
+    await hexAPI.createProduct({ title, content, category: '行程', origin_price: 0, price: 0, unit: '天', enabled: true });
+    const updated = await hexAPI.getProducts();
+    const created = updated.find(p => p.title === title);
+    if (created) setCacheId('prod', cacheKey, created.id);
     return created ? created.id : null;
 }
 
 async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
-        const allArticles = await hexAPI.getArticles();
-        if (!allArticles || allArticles.length === 0) {
-            setSyncStatus('offline');
-            return false;
-        }
 
-        // Start fresh from initial data, then overwrite with API data
         db = JSON.parse(JSON.stringify(initialTripData));
         if (!db.messages) db.messages = [];
         db.itinerary = {};
 
         // Load master article → flights, hotels, budget, checklist, pool
+        const allArticles = await hexAPI.getArticles();
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
         if (master) {
             try {
@@ -380,91 +392,69 @@ async function loadFromRemote() {
             } catch { /* skip corrupt master */ }
         }
 
-        // Load itinerary articles → db.itinerary
-        const dayArticles = allArticles.filter(a => a.tag && a.tag.includes(ARTICLE_TAGS.ITINERARY));
-        for (const art of dayArticles) {
-            try {
-                const full = await hexAPI.getArticle(art.id);
-                if (full && full.content) {
-                    const events = JSON.parse(full.content);
-                    if (Array.isArray(events)) {
-                        db.itinerary[art.title] = events;
-                    }
-                }
-            } catch { /* skip corrupt day */ }
+        // Load itinerary from Products API
+        const allProducts = await hexAPI.getProducts();
+        for (const prod of allProducts) {
+            if (prod.category === '行程' && prod.title && prod.content) {
+                try {
+                    const events = JSON.parse(prod.content);
+                    if (Array.isArray(events)) db.itinerary[prod.title] = events;
+                } catch { /* skip corrupt product */ }
+            }
         }
 
-        // Load messages article → db.messages
+        // Load messages article
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
         if (msgArt) {
             try {
                 const full = await hexAPI.getArticle(msgArt.id);
                 if (full && full.content) {
                     const msgs = JSON.parse(full.content);
-                    if (Array.isArray(msgs)) {
-                        db.messages = msgs;
-                    }
+                    if (Array.isArray(msgs)) db.messages = msgs;
                 }
-            } catch (e) { console.log('[Load] messages error:', e.message); }
+            } catch { /* skip corrupt messages */ }
         }
 
         saveToLocalStorage();
         setSyncStatus('synced');
         return true;
     } catch (err) {
-        console.warn('[Sync] 讀取 API 失敗，改用 LocalStorage:', err);
+        console.warn('[Sync] 讀取 API 失敗:', err);
         setSyncStatus('offline');
         return false;
     }
 }
 
+function cleanEvents(events) {
+    return events.map(ev => {
+        const e = { ...ev };
+        if (e.photos) e.photos = e.photos.filter(p => !p.startsWith('data:'));
+        return e;
+    });
+}
+
 async function saveToRemote() {
-    try {
-        setSyncStatus('syncing');
-        if (!db) return;
-        await saveAllToRemote();
-        setSyncStatus('synced');
-    } catch (err) {
-        console.warn('[Sync] 寫入 API 失敗，僅存 LocalStorage:', err);
-        setSyncStatus('offline');
-    }
+    try { setSyncStatus('syncing'); if (!db) return; await saveAllToRemote(); setSyncStatus('synced'); }
+    catch (err) { console.warn('[Sync] 寫入 API 失敗:', err); setSyncStatus('offline'); }
 }
 
 async function saveAllToRemote() {
     if (!db) return;
-    const masterPayload = JSON.stringify({
-        flights: db.flights,
-        hotels: db.hotels,
-        budget: db.budget,
-        checklist: db.checklist,
-        attractionPool: db.attractionPool || [],
-    });
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', masterPayload, false);
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, attractionPool: db.attractionPool || [] }));
     if (db.itinerary) {
         for (const [date, events] of Object.entries(db.itinerary)) {
-            const clean = events.map(ev => {
-                const e = { ...ev };
-                if (e.photos) e.photos = e.photos.filter(p => !p.startsWith('data:'));
-                return e;
-            });
-            await ensureArticle(ARTICLE_TAGS.ITINERARY, date, JSON.stringify(clean), false);
+            await ensureProduct(date, JSON.stringify(cleanEvents(events)));
         }
     }
     if (db.messages && db.messages.length > 0) {
-        await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages), false);
+        await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages));
     }
 }
 
 async function saveMessagesToRemote() {
     if (!db) return;
-    try {
-        setSyncStatus('syncing');
-        await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages || []), false);
-        setSyncStatus('synced');
-    } catch (err) {
-        console.warn('[Sync] 留言同步失敗:', err);
-        setSyncStatus('offline');
-    }
+    try { setSyncStatus('syncing'); await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages || [])); setSyncStatus('synced'); }
+    catch (err) { console.warn('[Sync] 留言同步失敗:', err); setSyncStatus('offline'); }
 }
 
 async function saveItineraryToRemote() {
@@ -473,27 +463,12 @@ async function saveItineraryToRemote() {
         setSyncStatus('syncing');
         if (db.itinerary) {
             for (const [date, events] of Object.entries(db.itinerary)) {
-                const clean = events.map(ev => {
-                    const e = { ...ev };
-                    if (e.photos) e.photos = e.photos.filter(p => !p.startsWith('data:'));
-                    return e;
-                });
-                await ensureArticle(ARTICLE_TAGS.ITINERARY, date, JSON.stringify(clean), false);
+                await ensureProduct(date, JSON.stringify(cleanEvents(events)));
             }
         }
-        const masterPayload = JSON.stringify({
-            flights: db.flights,
-            hotels: db.hotels,
-            budget: db.budget,
-            checklist: db.checklist,
-            attractionPool: db.attractionPool || [],
-        });
-        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', masterPayload, false);
+        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, attractionPool: db.attractionPool || [] }));
         setSyncStatus('synced');
-    } catch (err) {
-        console.warn('[Sync] 行程同步失敗:', err);
-        setSyncStatus('offline');
-    }
+    } catch (err) { console.warn('[Sync] 行程同步失敗:', err); setSyncStatus('offline'); }
 }
 
 // LOGIN FLOW
