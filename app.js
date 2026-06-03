@@ -354,6 +354,7 @@ async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
         const allArticles = await hexAPI.getArticles();
+        console.log('[Load] articles:', allArticles.length, allArticles.map(a => a.tag + ':' + a.title));
         if (!allArticles || allArticles.length === 0) {
             setSyncStatus('offline');
             return false;
@@ -366,6 +367,7 @@ async function loadFromRemote() {
 
         // Load master article → flights, hotels, budget, checklist, pool
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
+        console.log('[Load] master:', master ? 'found' : 'NOT FOUND');
         if (master && master.content) {
             try {
                 const m = JSON.parse(master.content);
@@ -379,6 +381,7 @@ async function loadFromRemote() {
 
         // Load itinerary articles → db.itinerary
         const dayArticles = allArticles.filter(a => a.tag && a.tag.includes(ARTICLE_TAGS.ITINERARY));
+        console.log('[Load] itinerary days:', dayArticles.length);
         for (const art of dayArticles) {
             try {
                 const events = JSON.parse(art.content);
@@ -390,13 +393,15 @@ async function loadFromRemote() {
 
         // Load messages article → db.messages
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
+        console.log('[Load] messages article:', msgArt ? 'found' : 'NOT FOUND');
         if (msgArt && msgArt.content) {
             try {
                 const msgs = JSON.parse(msgArt.content);
+                console.log('[Load] messages count:', msgs.length);
                 if (Array.isArray(msgs)) {
                     db.messages = msgs;
                 }
-            } catch { /* skip */ }
+            } catch (e) { console.log('[Load] messages parse error:', e.message); }
         }
 
         saveToLocalStorage();
