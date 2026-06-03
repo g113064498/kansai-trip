@@ -736,12 +736,14 @@ function renderDaysSidebar() {
     const sidebar = document.getElementById('days-sidebar');
     sidebar.innerHTML = '';
     
-    const days = Object.keys(db.itinerary).sort();
-    
-    days.forEach((dayStr, index) => {
-        const date = new Date(dayStr);
-        const dayNum = index + 1;
-        const weekdayStr = ["日", "一", "二", "三", "四", "五", "六"][date.getDay()];
+    // Always show Day 1-8 (2026-11-04 to 2026-11-11)
+    const baseDate = new Date('2026-11-04');
+    for (let i = 0; i < 8; i++) {
+        const d = new Date(baseDate);
+        d.setDate(d.getDate() + i);
+        const dayStr = d.toISOString().split('T')[0];
+        const weekdayStr = ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
+        const dayNum = i + 1;
         
         const btn = document.createElement('button');
         btn.className = `day-tab-btn ${dayStr === currentSelectedDay ? 'active' : ''}`;
@@ -753,7 +755,7 @@ function renderDaysSidebar() {
         `;
         
         sidebar.appendChild(btn);
-    });
+    }
 }
 
 function selectDay(dayStr) {
