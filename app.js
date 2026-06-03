@@ -397,7 +397,6 @@ async function loadFromRemote() {
                     target.messages = msgs;
                     merged = true;
                 }
-                }
             } catch { /* skip */ }
         }
 
