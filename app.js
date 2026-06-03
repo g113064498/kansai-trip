@@ -354,7 +354,6 @@ async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
         const allArticles = await hexAPI.getArticles();
-        console.log('[Load] articles:', allArticles.length, allArticles.map(a => a.tag + ':' + a.title));
         if (!allArticles || allArticles.length === 0) {
             setSyncStatus('offline');
             return false;
@@ -367,41 +366,46 @@ async function loadFromRemote() {
 
         // Load master article → flights, hotels, budget, checklist, pool
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
-        console.log('[Load] master:', master ? 'found' : 'NOT FOUND');
-        if (master && master.content) {
+        if (master) {
             try {
-                const m = JSON.parse(master.content);
-                if (m.flights) db.flights = m.flights;
-                if (m.hotels) db.hotels = m.hotels;
-                if (m.budget) db.budget = m.budget;
-                if (m.checklist) db.checklist = m.checklist;
-                if (m.attractionPool) db.attractionPool = m.attractionPool;
+                const full = await hexAPI.getArticle(master.id);
+                if (full && full.content) {
+                    const m = JSON.parse(full.content);
+                    if (m.flights) db.flights = m.flights;
+                    if (m.hotels) db.hotels = m.hotels;
+                    if (m.budget) db.budget = m.budget;
+                    if (m.checklist) db.checklist = m.checklist;
+                    if (m.attractionPool) db.attractionPool = m.attractionPool;
+                }
             } catch { /* skip corrupt master */ }
         }
 
         // Load itinerary articles → db.itinerary
         const dayArticles = allArticles.filter(a => a.tag && a.tag.includes(ARTICLE_TAGS.ITINERARY));
-        console.log('[Load] itinerary days:', dayArticles.length);
         for (const art of dayArticles) {
             try {
-                const events = JSON.parse(art.content);
-                if (Array.isArray(events)) {
-                    db.itinerary[art.title] = events;
+                const full = await hexAPI.getArticle(art.id);
+                if (full && full.content) {
+                    const events = JSON.parse(full.content);
+                    if (Array.isArray(events)) {
+                        db.itinerary[art.title] = events;
+                    }
                 }
             } catch { /* skip corrupt day */ }
         }
 
         // Load messages article → db.messages
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
-        console.log('[Load] messages article:', msgArt ? { id: msgArt.id, title: msgArt.title, tag: msgArt.tag, contentLen: msgArt.content ? msgArt.content.length : -1, contentPreview: msgArt.content ? msgArt.content.substring(0, 300) : 'EMPTY' } : 'NOT FOUND');
-        if (msgArt && msgArt.content) {
+        if (msgArt) {
             try {
-                const msgs = JSON.parse(msgArt.content);
-                console.log('[Load] parsed msgs:', typeof msgs, Array.isArray(msgs) ? msgs.length : 'not array', msgs);
-                if (Array.isArray(msgs)) {
-                    db.messages = msgs;
+                const full = await hexAPI.getArticle(msgArt.id);
+                if (full && full.content) {
+                    const msgs = JSON.parse(full.content);
+                    if (Array.isArray(msgs)) {
+                        db.messages = msgs;
+                    }
                 }
-            } catch (e) { console.log('[Load] messages parse error:', e.message); }
+            } catch (e) { console.log('[Load] messages error:', e.message); }
         }
 
         saveToLocalStorage();
