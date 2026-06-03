@@ -393,11 +393,11 @@ async function loadFromRemote() {
 
         // Load messages article → db.messages
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
-        console.log('[Load] messages article:', msgArt ? 'found' : 'NOT FOUND');
+        console.log('[Load] messages article:', msgArt ? { id: msgArt.id, title: msgArt.title, tag: msgArt.tag, contentLen: msgArt.content ? msgArt.content.length : -1, contentPreview: msgArt.content ? msgArt.content.substring(0, 300) : 'EMPTY' } : 'NOT FOUND');
         if (msgArt && msgArt.content) {
             try {
                 const msgs = JSON.parse(msgArt.content);
-                console.log('[Load] messages count:', msgs.length);
+                console.log('[Load] parsed msgs:', typeof msgs, Array.isArray(msgs) ? msgs.length : 'not array', msgs);
                 if (Array.isArray(msgs)) {
                     db.messages = msgs;
                 }
