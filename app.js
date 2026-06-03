@@ -1229,32 +1229,38 @@ function addPoolItemToItinerary(poolId) {
     const item = db.attractionPool.find(p => p.id === poolId);
     if (!item) return;
 
-    // Prompt day selection
     const days = Object.keys(db.itinerary).sort();
-    let promptText = "請輸入您想排入的天數數字 (例如 1 代表 Day 1, 2 代表 Day 2)：\n\n";
+    let promptText = "請輸入您想排入的天數數字：\n\n";
     days.forEach((dayStr, index) => {
         promptText += `[${index + 1}] Day ${index + 1} (${dayStr.substring(5)})\n`;
     });
-
-    const userSelection = prompt(promptText, "1");
-    if (userSelection === null) return; // Cancel
-
-    const selectionIndex = parseInt(userSelection) - 1;
-    if (isNaN(selectionIndex) || selectionIndex < 0 || selectionIndex >= days.length) {
-        alert("無效的數字，請重新輸入！");
-        return;
+    if (days.length === 0) {
+        promptText += "\n目前尚無行程日，請輸入數字建立新天：\n";
     }
 
-    const targetDay = days[selectionIndex];
-    
-    // Convert pool item to event
+    const userSelection = prompt(promptText, "1");
+    if (userSelection === null) return;
+
+    const selectionIndex = parseInt(userSelection) - 1;
+    let targetDay;
+
+    if (days.length > 0 && selectionIndex >= 0 && selectionIndex < days.length) {
+        targetDay = days[selectionIndex];
+    } else {
+        // Create new day based on selection
+        const baseDate = new Date('2026-11-04');
+        baseDate.setDate(baseDate.getDate() + selectionIndex);
+        targetDay = baseDate.toISOString().split('T')[0];
+        if (!db.itinerary[targetDay]) db.itinerary[targetDay] = [];
+    }
+
     const eventId = 'evt-p-' + Date.now();
     const newEvent = {
         id: eventId,
-        time: "10:00 - 12:00", // Default time slot
+        time: "10:00 - 12:00",
         title: item.title,
         desc: item.desc,
-        cost: 0, // Keep day budget separate (tickets generally prepaid or separate)
+        cost: 0,
         category: item.category,
         location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
     };
