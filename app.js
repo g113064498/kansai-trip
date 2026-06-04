@@ -794,8 +794,7 @@ function renderItineraryForDay(dayStr) {
         return;
     }
 
-    // Sort items by time string loosely
-    items.sort((a, b) => a.time.localeCompare(b.time));
+    // Display items in their stored order (manual reorder preserved)
 
     items.forEach((item, index) => {
         const div = document.createElement('div');
