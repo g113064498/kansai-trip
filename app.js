@@ -736,12 +736,9 @@ function renderDaysSidebar() {
     const sidebar = document.getElementById('days-sidebar');
     sidebar.innerHTML = '';
     
-    // Always show Day 1-8 (2026-11-04 to 2026-11-11)
-    const baseDate = new Date('2026-11-04');
     for (let i = 0; i < 8; i++) {
-        const d = new Date(baseDate);
-        d.setDate(d.getDate() + i);
-        const dayStr = d.toISOString().split('T')[0];
+        const d = new Date(2026, 10, 4 + i); // 2026-11-04 + i
+        const dayStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         const weekdayStr = ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
         const dayNum = i + 1;
         
@@ -758,14 +755,21 @@ function renderDaysSidebar() {
     }
 }
 
+function getDayNumber(dayStr) {
+    const parts = dayStr.split('-').map(Number);
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    const base = new Date(2026, 10, 4); // 2026-11-04
+    return Math.round((d - base) / 86400000) + 1;
+}
+
 function selectDay(dayStr) {
     currentSelectedDay = dayStr;
     renderDaysSidebar();
     
-    const date = new Date(dayStr);
+    const parts = dayStr.split('-').map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
     const weekdayStr = ["日", "一", "二", "三", "四", "五", "六"][date.getDay()];
-    const baseDate = new Date('2026-11-04');
-    const dayNum = Math.floor((date - baseDate) / 86400000) + 1;
+    const dayNum = getDayNumber(dayStr);
     
     document.getElementById('current-day-heading').innerHTML = `Day ${dayNum} - ${dayStr.replace(/-/g, '/')} (${weekdayStr})`;
     
