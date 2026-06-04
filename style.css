@@ -1143,6 +1143,11 @@ header p {
     .pool-grid {
         margin-top: 15px;
     }
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
     .itinerary-layout .scheduler-main .card .flex {
         flex-direction: column;
         align-items: flex-start;
