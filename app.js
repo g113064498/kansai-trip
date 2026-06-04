@@ -875,6 +875,16 @@ function renderPool() {
     const container = document.getElementById('pool-items-container');
     container.innerHTML = '';
     
+    function isItemInItinerary(itemTitle) {
+        const cleanTitle = itemTitle.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+        for (const events of Object.values(db.itinerary || {})) {
+            for (const ev of events) {
+                if (ev.title && ev.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '') === cleanTitle) return true;
+            }
+        }
+        return false;
+    }
+    
     let items = db.attractionPool;
     
     // Filter logic
@@ -921,7 +931,7 @@ function renderPool() {
             <p class="pool-card-desc">${item.desc}</p>
             <div class="pool-card-actions">
                 <div style="font-size:0.8rem; color:var(--text-muted)">
-                    狀態：${item.status === 'scheduled' ? '🟢 已排入行程' : '⚪ 候選未排'}
+                    狀態：${isItemInItinerary(item.title) ? '🟢 已排入行程' : '⚪ 候選未排'}
                 </div>
                 <div class="flex" style="gap:5px;">
                     <button class="btn btn-outline" style="padding:6px 12px; font-size:0.8rem;" onclick="deleteFromPool('${item.id}')">
@@ -1274,7 +1284,6 @@ function addPoolItemToItinerary(poolId) {
     };
 
     db.itinerary[targetDay].push(newEvent);
-    item.status = 'scheduled';
 
     saveToLocalStorage();
     saveItineraryToRemote();
