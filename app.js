@@ -764,8 +764,8 @@ function selectDay(dayStr) {
     
     const date = new Date(dayStr);
     const weekdayStr = ["日", "一", "二", "三", "四", "五", "六"][date.getDay()];
-    const daysList = Object.keys(db.itinerary).sort();
-    const dayNum = daysList.indexOf(dayStr) + 1;
+    const baseDate = new Date('2026-11-04');
+    const dayNum = Math.floor((date - baseDate) / 86400000) + 1;
     
     document.getElementById('current-day-heading').innerHTML = `Day ${dayNum} - ${dayStr.replace(/-/g, '/')} (${weekdayStr})`;
     
