@@ -1135,6 +1135,14 @@ header p {
     .pool-card-actions .flex .btn {
         flex: 1;
     }
+    .pool-filter-bar {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border-color);
+    }
+    .pool-grid {
+        margin-top: 15px;
+    }
     .itinerary-layout .scheduler-main .card .flex {
         flex-direction: column;
         align-items: flex-start;
