@@ -397,7 +397,12 @@ async function loadFromRemote() {
                     if (m.hotels) db.hotels = m.hotels;
                     if (m.budget) db.budget = m.budget;
                     if (m.checklist) db.checklist = m.checklist;
-                    if (m.attractionPool) db.attractionPool = m.attractionPool;
+                    if (m.attractionPool && Array.isArray(m.attractionPool)) {
+                        // Merge pool items by ID, keep API version if exists
+                        const apiIds = new Set(m.attractionPool.map(p => p.id));
+                        const initialOnly = db.attractionPool.filter(p => !apiIds.has(p.id));
+                        db.attractionPool = [...m.attractionPool, ...initialOnly];
+                    }
                 }
             } catch { /* skip corrupt master */ }
         }
