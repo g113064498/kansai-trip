@@ -424,6 +424,7 @@ async function loadFromRemote() {
         setSyncStatus('syncing');
 
         db = JSON.parse(JSON.stringify(initialTripData));
+        
         if (!db.messages) db.messages = [];
         // Remove pool items that user has previously deleted
         const deletedIds = getDeletedPoolIds();
@@ -477,18 +478,14 @@ async function loadFromRemote() {
             db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
         }
 
-        // Load itinerary from Products API (API is source of truth, but preserve any local events not yet synced)
-        const localBeforeMerge = JSON.parse(JSON.stringify(db.itinerary || {}));
+        // Load itinerary from Products API (API is source of truth)
         const allProducts = await hexAPI.getProducts();
         for (const prod of allProducts) {
             if (prod.category === '行程' && prod.title && prod.content) {
                 try {
                     const events = JSON.parse(prod.content);
                     if (Array.isArray(events) && events.length > 0) {
-                        const localEvents = localBeforeMerge[prod.title] || [];
-                        const apiIds = new Set(events.map(e => e.id));
-                        const unsyncedLocal = localEvents.filter(e => e.id && !apiIds.has(e.id));
-                        db.itinerary[prod.title] = [...events, ...unsyncedLocal];
+                        db.itinerary[prod.title] = events;
                     }
                 } catch { /* skip corrupt product */ }
             }
@@ -573,27 +570,33 @@ async function saveItineraryToRemote() {
         await syncInFlight.catch(() => {});
     }
     syncInFlight = (async () => {
-        try {
-            setSyncStatus('syncing');
-            const currentDates = Object.keys(db.itinerary || {});
-            for (const date of currentDates) {
-                const events = db.itinerary[date];
-                if (events && events.length > 0) {
-                    await ensureProduct(date, JSON.stringify(cleanEvents(events)));
-                }
+        setSyncStatus('syncing');
+        const currentDates = Object.keys(db.itinerary || {});
+        for (const date of currentDates) {
+            const events = db.itinerary[date];
+            if (events && events.length > 0) {
+                await ensureProduct(date, JSON.stringify(cleanEvents(events)));
             }
-            const allProducts = await hexAPI.getProducts();
-            for (const prod of allProducts) {
-                if (prod.category === '行程' && !currentDates.includes(prod.title)) {
-                    await hexAPI.deleteProduct(prod.id);
-                    removeCacheId('prod', `prod:${prod.title}`);
-                }
+        }
+        const allProducts = await hexAPI.getProducts();
+        for (const prod of allProducts) {
+            if (prod.category === '行程' && !currentDates.includes(prod.title)) {
+                await hexAPI.deleteProduct(prod.id);
+                removeCacheId('prod', `prod:${prod.title}`);
             }
-            await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
-            setSyncStatus('synced');
-        } catch (err) { console.warn('[Sync] 行程同步失敗:', err); setSyncStatus('offline'); }
+        }
+        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
+        setSyncStatus('synced');
     })();
-    try { await syncInFlight; } finally { syncInFlight = null; }
+    try { 
+        await syncInFlight; 
+    } catch (err) {
+        console.warn('[Sync] 行程同步失敗:', err);
+        setSyncStatus('offline');
+        throw err;  // 重新拋出錯誤，讓呼叫者知道失敗了
+    } finally { 
+        syncInFlight = null; 
+    }
 }
 
 // LOGIN FLOW
@@ -1338,7 +1341,7 @@ function moveEvent(dayStr, index, direction) {
 }
 
 // DELETE EVENT
-function deleteEvent(dayStr, id) {
+async function deleteEvent(dayStr, id) {
     if (confirm("確定要將這個日程項目移除嗎？")) {
         const items = db.itinerary[dayStr] || [];
         const item = items.find(e => e.id === id);
@@ -1355,9 +1358,20 @@ function deleteEvent(dayStr, id) {
 
         db.itinerary[dayStr] = items.filter(ev => ev.id !== id);
         saveToLocalStorage();
-        saveItineraryToRemote();
-        renderItineraryForDay(dayStr);
-        updateBudgetCalculations();
+        
+        try {
+            await saveItineraryToRemote();
+            renderItineraryForDay(dayStr);
+            updateBudgetCalculations();
+        } catch (err) {
+            console.error('[Delete] 同步 API 失敗：', err);
+            alert('刪除失敗：無法同步到伺服器，請檢查網路連線或重新登入');
+            // 恢復本地狀態
+            db.itinerary[dayStr] = items;
+            saveToLocalStorage();
+            renderItineraryForDay(dayStr);
+            updateBudgetCalculations();
+        }
     }
 }
 
@@ -1408,25 +1422,35 @@ async function addPoolItemToItinerary(poolId) {
         location: item.desc || item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
     };
 
+    // 先備份當前狀態
+    const backup = JSON.parse(JSON.stringify(db.itinerary[targetDay]));
+    
     db.itinerary[targetDay].push(newEvent);
-
     saveToLocalStorage();
+
     try {
         await saveItineraryToRemote();
-    } catch (e) {
-        console.error('[Add] 同步 API 失敗：', e);
-    }
-    if (targetDay !== currentSelectedDay) {
-        currentSelectedDay = targetDay;
-        selectDay(targetDay);
-    } else {
-        renderItineraryForDay(currentSelectedDay);
-    }
-    renderPool();
-    updateBudgetCalculations();
+        
+        if (targetDay !== currentSelectedDay) {
+            currentSelectedDay = targetDay;
+            selectDay(targetDay);
+        } else {
+            renderItineraryForDay(currentSelectedDay);
+        }
+        renderPool();
+        updateBudgetCalculations();
 
-    const targetDayLabel = selectionIndex < days.length ? `Day ${selectionIndex + 1}` : `Day ${selectionIndex + 1} (新建立 ${targetDay})`;
-    alert(`已成功將「${item.title}」排入 ${targetDayLabel} 的日程中！`);
+        const targetDayLabel = selectionIndex < days.length ? `Day ${selectionIndex + 1}` : `Day ${selectionIndex + 1} (新建立 ${targetDay})`;
+        alert(`已成功將「${item.title}」排入 ${targetDayLabel} 的日程中！`);
+    } catch (err) {
+        console.error('[Add] 同步 API 失敗：', err);
+        // 恢復本地狀態
+        db.itinerary[targetDay] = backup;
+        saveToLocalStorage();
+        renderItineraryForDay(currentSelectedDay);
+        renderPool();
+        alert('加入失敗：無法同步到伺服器，請檢查網路連線或重新登入');
+    }
 }
 
 // DELETE FROM POOL
