@@ -400,14 +400,15 @@ async function ensureProduct(title, content) {
         num: 1
     };
     console.log('[Product] 準備儲存:', title, '內容長度:', content.length);
+    console.log('[Product] 內容預覽:', content.substring(0, 100) + '...');
     const existingId = getCacheId('prod', cacheKey);
     if (existingId) {
         try { 
-            await hexAPI.updateProduct(existingId, productData); 
-            console.log('[Product] 更新成功:', title);
+            const response = await hexAPI.updateProduct(existingId, productData);
+            console.log('[Product] 更新成功:', title, 'API 回應:', response);
             return existingId; 
         } catch (e) { 
-            console.warn('[Product] 更新失敗，清除快取:', title, e.message);
+            console.error('[Product] 更新失敗，清除快取:', title, '錯誤:', e.message, '完整錯誤:', e);
             removeCacheId('prod', cacheKey); 
         }
     }
@@ -415,11 +416,20 @@ async function ensureProduct(title, content) {
     const found = all.find(p => p.title === title);
     if (found) { 
         setCacheId('prod', cacheKey, found.id); 
-        await hexAPI.updateProduct(found.id, productData); 
-        console.log('[Product] 找到並更新:', title);
+        try {
+            const response = await hexAPI.updateProduct(found.id, productData);
+            console.log('[Product] 找到並更新:', title, 'API 回應:', response);
+        } catch (e) {
+            console.error('[Product] 找到但更新失敗:', title, '錯誤:', e.message);
+        }
         return found.id; 
     }
-    await hexAPI.createProduct(productData);
+    try {
+        const response = await hexAPI.createProduct(productData);
+        console.log('[Product] 建立產品:', title, 'API 回應:', response);
+    } catch (e) {
+        console.error('[Product] 建立失敗:', title, '錯誤:', e.message);
+    }
     const updated = await hexAPI.getProducts();
     const created = updated.find(p => p.title === title);
     if (created) {
@@ -517,14 +527,18 @@ async function loadFromRemote() {
 
         // Load itinerary from Products API (API is source of truth)
         const allProducts = await hexAPI.getProducts();
+        console.log('[Load] 從 API 載入行程產品，總數:', allProducts.length);
         for (const prod of allProducts) {
             if (prod.category === '行程' && prod.title && prod.content) {
                 try {
                     const events = JSON.parse(prod.content);
+                    console.log('[Load] 載入日期:', prod.title, '事件數量:', events.length, '事件:', events.map(e => e.title));
                     if (Array.isArray(events) && events.length > 0) {
                         db.itinerary[prod.title] = events;
                     }
-                } catch { /* skip corrupt product */ }
+                } catch (e) {
+                    console.error('[Load] 解析行程產品失敗:', prod.title, '錯誤:', e);
+                }
             }
         }
 
@@ -610,26 +624,33 @@ async function saveItineraryToRemote() {
     syncInFlight = (async () => {
         setSyncStatus('syncing');
         const currentDates = Object.keys(db.itinerary || {});
+        console.log('[Sync] 開始同步，日期數量:', currentDates.length, '日期:', currentDates);
         for (const date of currentDates) {
             const events = db.itinerary[date];
+            console.log('[Sync] 處理日期:', date, '事件數量:', events?.length);
             if (events && events.length > 0) {
                 await ensureProduct(date, JSON.stringify(cleanEvents(events)));
+            } else {
+                console.log('[Sync] 日期', date, '沒有事件，跳過');
             }
         }
         const allProducts = await hexAPI.getProducts();
+        console.log('[Sync] 取得所有產品，總數:', allProducts.length);
         for (const prod of allProducts) {
             if (prod.category === '行程' && !currentDates.includes(prod.title)) {
+                console.log('[Sync] 刪除多餘產品:', prod.title);
                 await hexAPI.deleteProduct(prod.id);
                 removeCacheId('prod', `prod:${prod.title}`);
             }
         }
         await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
         setSyncStatus('synced');
+        console.log('[Sync] 同步完成');
     })();
     try { 
         await syncInFlight; 
     } catch (err) {
-        console.warn('[Sync] 行程同步失敗:', err);
+        console.error('[Sync] 行程同步失敗:', err);
         setSyncStatus('offline');
         throw err;
     } finally { 
@@ -1384,6 +1405,9 @@ async function deleteEvent(dayStr, id) {
     if (confirm("確定要將這個日程項目移除嗎？")) {
         const items = db.itinerary[dayStr] || [];
         const item = items.find(e => e.id === id);
+        console.log('[Delete] 開始刪除:', dayStr, '事件 ID:', id, '事件標題:', item?.title);
+        console.log('[Delete] 刪除前事件數量:', items.length);
+        
         if (item) {
             const itemClean = (item.title || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
             const poolItem = db.attractionPool.find(p => {
@@ -1396,10 +1420,13 @@ async function deleteEvent(dayStr, id) {
         }
 
         db.itinerary[dayStr] = items.filter(ev => ev.id !== id);
+        console.log('[Delete] 刪除後事件數量:', db.itinerary[dayStr].length);
+        console.log('[Delete] 刪除後事件列表:', db.itinerary[dayStr].map(e => e.title));
         saveToLocalStorage();
         
         try {
             await saveItineraryToRemote();
+            console.log('[Delete] 同步成功');
             renderItineraryForDay(dayStr);
             updateBudgetCalculations();
         } catch (err) {
