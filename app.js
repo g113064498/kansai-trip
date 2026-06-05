@@ -379,18 +379,45 @@ async function ensureArticle(tag, title, content) {
 
 async function ensureProduct(title, content) {
     const cacheKey = `prod:${title}`;
-    const productData = { title, content, category: '行程', origin_price: 0, price: 0, unit: '天', enabled: true };
+    const productData = { 
+        title, 
+        content, 
+        category: '行程', 
+        origin_price: 0, 
+        price: 0, 
+        unit: '天', 
+        is_enabled: 1,
+        num: 1
+    };
+    console.log('[Product] 準備儲存:', title, '內容長度:', content.length);
     const existingId = getCacheId('prod', cacheKey);
     if (existingId) {
-        try { await hexAPI.updateProduct(existingId, productData); return existingId; } catch { removeCacheId('prod', cacheKey); }
+        try { 
+            await hexAPI.updateProduct(existingId, productData); 
+            console.log('[Product] 更新成功:', title);
+            return existingId; 
+        } catch (e) { 
+            console.warn('[Product] 更新失敗，清除快取:', title, e.message);
+            removeCacheId('prod', cacheKey); 
+        }
     }
     const all = await hexAPI.getProducts();
     const found = all.find(p => p.title === title);
-    if (found) { setCacheId('prod', cacheKey, found.id); await hexAPI.updateProduct(found.id, productData); return found.id; }
+    if (found) { 
+        setCacheId('prod', cacheKey, found.id); 
+        await hexAPI.updateProduct(found.id, productData); 
+        console.log('[Product] 找到並更新:', title);
+        return found.id; 
+    }
     await hexAPI.createProduct(productData);
     const updated = await hexAPI.getProducts();
     const created = updated.find(p => p.title === title);
-    if (created) setCacheId('prod', cacheKey, created.id);
+    if (created) {
+        setCacheId('prod', cacheKey, created.id);
+        console.log('[Product] 建立成功:', title);
+    } else {
+        console.error('[Product] 建立後找不到:', title);
+    }
     return created ? created.id : null;
 }
 
