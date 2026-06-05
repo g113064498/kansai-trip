@@ -755,6 +755,7 @@ async function initApp() {
     if (!db.attractionPool) db.attractionPool = [];
     if (!db.itinerary) db.itinerary = {};
 
+    console.log('[Init] 開始渲染 UI，當前選中日期:', currentSelectedDay);
     updateCountdown();
     renderDashboard();
     renderDaysSidebar();
@@ -763,6 +764,7 @@ async function initApp() {
     renderChecklists();
     updateBudgetCalculations();
     renderMessages();
+    console.log('[Init] UI 渲染完成');
 }
 
 // SAVE STATE
@@ -953,6 +955,7 @@ function selectDay(dayStr) {
 
 // RENDER ITINERARY FOR A DAY
 function renderItineraryForDay(dayStr) {
+    console.log('[Render] 渲染日期:', dayStr, '事件數量:', db.itinerary[dayStr]?.length);
     const container = document.getElementById('timeline-container');
     container.innerHTML = '';
     
