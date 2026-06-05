@@ -477,24 +477,16 @@ async function loadFromRemote() {
             db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
         }
 
-        // Load itinerary from Products API (merge with initial data, no overwrite)
+        // Load itinerary from Products API (API is source of truth, initial data only for days without API entry)
         const allProducts = await hexAPI.getProducts();
+        const apiDays = new Set();
         for (const prod of allProducts) {
             if (prod.category === '行程' && prod.title && prod.content) {
+                apiDays.add(prod.title);
                 try {
                     const events = JSON.parse(prod.content);
                     if (Array.isArray(events) && events.length > 0) {
-                        if (!db.itinerary[prod.title]) {
-                            db.itinerary[prod.title] = events;
-                        } else {
-                            // Merge: add events that don't already exist by ID
-                            const existingIds = new Set(db.itinerary[prod.title].map(e => e.id));
-                            for (const ev of events) {
-                                if (!existingIds.has(ev.id)) {
-                                    db.itinerary[prod.title].push(ev);
-                                }
-                            }
-                        }
+                        db.itinerary[prod.title] = events;
                     }
                 } catch { /* skip corrupt product */ }
             }
