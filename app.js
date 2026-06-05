@@ -263,7 +263,7 @@ function getToken() {
 }
 
 function clearToken() {
-    document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
 }
 
 function isTokenExpired() {
@@ -358,11 +358,12 @@ async function ensureProduct(title, content) {
     const all = await hexAPI.getProducts();
     const found = all.find(p => p.title === title);
     if (found) {
-        setCacheId('prod', cacheKey, found.id);
         try {
             await hexAPI.updateProduct(found.id, productData);
+            setCacheId('prod', cacheKey, found.id);
             return found.id;
         } catch (e) {
+            removeCacheId('prod', cacheKey);
             console.warn('[Product] 更新失敗:', title, e.message);
         }
     }
@@ -521,7 +522,7 @@ async function saveAllToRemote() {
             await ensureProduct(date, JSON.stringify(cleanEvents(events)));
         }
     }
-    if (db.messages && db.messages.length > 0) {
+    if (db.messages) {
         await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages));
     }
 }
@@ -549,8 +550,9 @@ async function saveItineraryToRemote() {
             }
         }
         const allProducts = await hexAPI.getProducts();
+        const emptyDates = currentDates.filter(d => !db.itinerary[d] || db.itinerary[d].length === 0);
         for (const prod of allProducts) {
-            if (prod.category === '行程' && !currentDates.includes(prod.title)) {
+            if (prod.category === '行程' && (!currentDates.includes(prod.title) || emptyDates.includes(prod.title))) {
                 await hexAPI.deleteProduct(prod.id);
                 removeCacheId('prod', `prod:${prod.title}`);
             }
@@ -644,10 +646,14 @@ async function initApp() {
     updateLoginButton();
     const loggedIn = ensureLogin();
 
-    if (loggedIn) {
-        await loadFromRemote();
-    } else {
-        // Not logged in: use initial data as a read-only view
+    try {
+        if (loggedIn) {
+            await loadFromRemote();
+        } else {
+            db = JSON.parse(JSON.stringify(initialTripData));
+        }
+    } catch (e) {
+        console.error('[Init] 載入失敗，使用初始資料:', e);
         db = JSON.parse(JSON.stringify(initialTripData));
     }
 
@@ -942,13 +948,13 @@ function renderPool() {
     function isItemInItinerary(itemTitle) {
         const clean = s => (s || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
         const target = clean(itemTitle);
-        if (!target || target.length < 2) return false;
+        if (!target || target.length < 3) return false;
         for (const events of Object.values(db.itinerary || {})) {
             for (const ev of events) {
                 const evClean = clean(ev.title);
                 if (!evClean) continue;
                 if (evClean === target) return true;
-                if (evClean.includes(target) || target.includes(evClean)) return true;
+                if (evClean.length > 4 && target.length > 4 && (evClean.includes(target) || target.includes(evClean))) return true;
             }
         }
         return false;
@@ -1114,9 +1120,10 @@ function toggleChecklistItem(id) {
     const item = db.checklist.find(c => c.id === id);
     if (item) {
         item.done = !item.done;
-        saveToLocalStorage();
-        saveItineraryToRemote();
         renderChecklists();
+        saveItineraryToRemote().catch(err => {
+            console.warn('[Checklist] 同步失敗:', err.message);
+        });
     }
 }
 
@@ -1264,11 +1271,12 @@ function saveEvent(e) {
         db.itinerary[dayStr].push({ id: newId, title, time, category, cost, location, desc, photos });
     }
 
-    saveToLocalStorage();
-    saveItineraryToRemote();
     closeEventModal();
     renderItineraryForDay(dayStr);
     updateBudgetCalculations();
+    saveItineraryToRemote().catch(err => {
+        console.warn('[SaveEvent] 同步失敗:', err.message);
+    });
 }
 
 // MOVE EVENT (UP / DOWN)
@@ -1284,9 +1292,10 @@ function moveEvent(dayStr, index, direction) {
     items[index] = items[targetIndex];
     items[targetIndex] = temp;
 
-    saveToLocalStorage();
-    saveItineraryToRemote();
     renderItineraryForDay(dayStr);
+    saveItineraryToRemote().catch(err => {
+        console.warn('[MoveEvent] 同步失敗:', err.message);
+    });
 }
 
 // DELETE EVENT
@@ -1368,7 +1377,7 @@ async function addPoolItemToItinerary(poolId) {
         desc: item.desc,
         cost: 0,
         category: item.category,
-        location: item.desc || item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
+        location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
     };
 
     // 先備份當前狀態
@@ -1402,13 +1411,10 @@ async function addPoolItemToItinerary(poolId) {
 }
 
 // DELETE FROM POOL
-function getDeletedPoolIds() {
-    return new Set();
-}
-
 async function deleteFromPool(id) {
     if (!confirm("確定要將這個候選景點從清單中完全移除嗎？")) return;
     const item = db.attractionPool.find(p => p.id === id);
+    const backup = [...db.attractionPool];
     db.attractionPool = db.attractionPool.filter(p => p.id !== id);
     renderPool();
     try {
@@ -1426,7 +1432,10 @@ async function deleteFromPool(id) {
         setSyncStatus('synced');
     } catch (e) {
         console.warn('[Pool] delete failed:', e.message);
+        db.attractionPool = backup;
+        renderPool();
         setSyncStatus('offline');
+        alert('刪除失敗：無法同步到伺服器');
     }
 }
 
@@ -1459,9 +1468,11 @@ function importDataFromJSON(event) {
             // Simple validation structure
             if (parsedData.flights && parsedData.hotels && parsedData.itinerary) {
                 db = parsedData;
-                saveToLocalStorage();
-                initApp();
-                alert("行程資料已成功匯入！");
+                initApp().then(() => {
+                    alert("行程資料已成功匯入！");
+                }).catch(err => {
+                    alert("匯入後初始化失敗：" + err.message);
+                });
             } else {
                 alert("匯入失敗：這似乎不是正確的日程 JSON 格式。");
             }
@@ -1709,19 +1720,20 @@ function submitMessage(e) {
     
     if (!db.messages) db.messages = [];
     db.messages.push(newMsg);
-
-    saveToLocalStorage();
-    saveMessagesToRemote();
     renderMessages();
-
     input.value = '';
+
+    saveMessagesToRemote().catch(err => {
+        console.warn('[Message] 同步失敗:', err.message);
+    });
 }
 
 function deleteMessage(id) {
     if (confirm("確定要刪除這條留言嗎？")) {
         db.messages = db.messages.filter(m => m.id !== id);
-        saveToLocalStorage();
-        saveMessagesToRemote();
         renderMessages();
+        saveMessagesToRemote().catch(err => {
+            console.warn('[Message] 同步失敗:', err.message);
+        });
     }
 }
