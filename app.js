@@ -308,6 +308,19 @@ function hideSyncOverlay() {
     if (overlay) overlay.style.display = 'none';
 }
 
+function showToast(message, duration) {
+    duration = duration || 1500;
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() { toast.classList.add('show'); });
+    setTimeout(function() {
+        toast.classList.remove('show');
+        setTimeout(function() { toast.remove(); }, 300);
+    }, duration);
+}
+
 function setCacheId(type, key, id) { localStorage.setItem(`${type}:${key}`, id); }
 function getCacheId(type, key) { return localStorage.getItem(`${type}:${key}`); }
 function removeCacheId(type, key) { localStorage.removeItem(`${type}:${key}`); }
@@ -1326,7 +1339,7 @@ async function deleteEvent(dayStr, id) {
             await saveItineraryToRemote();
             renderItineraryForDay(dayStr);
             updateBudgetCalculations();
-            alert('刪除成功！');
+            showToast('刪除成功！');
         } catch (err) {
             alert('刪除失敗：無法同步到伺服器，請檢查網路連線或重新登入');
             // 恢復本地狀態
@@ -1435,7 +1448,7 @@ async function deleteFromPool(id) {
             }
         }
         setSyncStatus('synced');
-        alert('刪除成功！');
+        showToast('刪除成功！');
     } catch (e) {
         console.warn('[Pool] delete failed:', e.message);
         db.attractionPool = backup;
