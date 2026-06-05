@@ -511,20 +511,6 @@ async function loadFromRemote() {
             }
         }
 
-        // ONE-TIME CLEANUP: delete all old itinerary products from API
-        await cleanupItineraryEvents(allProducts);
-
-        // After cleanup, re-sync initialTripData (flights + hotels only) to API
-        for (const [date, events] of Object.entries(initialTripData.itinerary || {})) {
-            if (events && events.length > 0) {
-                try {
-                    await ensureProduct(date, JSON.stringify(cleanEvents(events)));
-                } catch (e) {
-                    console.warn('[Resync] 重新建立產品失敗:', date, e.message);
-                }
-            }
-        }
-
         // Load messages article
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
         if (msgArt) {
@@ -545,44 +531,6 @@ async function loadFromRemote() {
         console.warn('[Sync] 讀取 API 失敗:', err);
         setSyncStatus('offline');
         return false;
-    }
-}
-
-// Keep only events that are flights or hotel check-ins
-function isKeepEvent(ev) {
-    if (!ev) return false;
-    if (ev.category === 'hotel') return true;
-    if (ev.category === 'transport') {
-        const t = ev.title || '';
-        return t.includes('飛往') || t.includes('航班') || t.includes('飛機') || t.includes('Check-in');
-    }
-    return false;
-}
-
-// One-time API cleanup: delete ALL itinerary products from API
-// The new initialTripData (flights + hotels only) will be re-synced after
-async function cleanupItineraryEvents(allProducts) {
-    try {
-        const products = allProducts || await hexAPI.getProducts();
-        let deleted = 0;
-        for (const prod of products) {
-            if (prod.category !== '行程') continue;
-            try {
-                console.log('[Cleanup] 刪除行程產品:', prod.title);
-                await hexAPI.deleteProduct(prod.id);
-                removeCacheId('prod', `prod:${prod.title}`);
-                deleted++;
-            } catch (e) {
-                console.warn('[Cleanup] 刪除產品失敗:', prod.title, e.message);
-            }
-        }
-        if (deleted > 0) {
-            console.log('[Cleanup] 共刪除', deleted, '個行程產品');
-            // Clear local itinerary so the new trimmed data takes effect
-            db.itinerary = {};
-        }
-    } catch (e) {
-        console.warn('[Cleanup] 清理行程產品失敗:', e.message);
     }
 }
 
