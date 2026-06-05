@@ -355,6 +355,16 @@ function setSyncStatus(status) {
     syncIndicatorEl.style.color = info.color;
 }
 
+function showSyncOverlay() {
+    const overlay = document.getElementById('sync-overlay');
+    if (overlay) overlay.style.display = 'flex';
+}
+
+function hideSyncOverlay() {
+    const overlay = document.getElementById('sync-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
 function setCacheId(type, key, id) { localStorage.setItem(`${type}:${key}`, id); }
 function getCacheId(type, key) { return localStorage.getItem(`${type}:${key}`); }
 function removeCacheId(type, key) { localStorage.removeItem(`${type}:${key}`); }
@@ -596,6 +606,7 @@ async function saveItineraryToRemote() {
     if (syncInFlight) {
         await syncInFlight.catch(() => {});
     }
+    showSyncOverlay();
     syncInFlight = (async () => {
         setSyncStatus('syncing');
         const currentDates = Object.keys(db.itinerary || {});
@@ -620,9 +631,10 @@ async function saveItineraryToRemote() {
     } catch (err) {
         console.warn('[Sync] 行程同步失敗:', err);
         setSyncStatus('offline');
-        throw err;  // 重新拋出錯誤，讓呼叫者知道失敗了
+        throw err;
     } finally { 
         syncInFlight = null; 
+        hideSyncOverlay();
     }
 }
 
