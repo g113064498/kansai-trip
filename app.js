@@ -529,8 +529,10 @@ async function saveAllToRemote() {
 
 async function saveMessagesToRemote() {
     if (!db) return;
+    showSyncOverlay();
     try { setSyncStatus('syncing'); await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages || [])); setSyncStatus('synced'); }
     catch (err) { console.warn('[Sync] 留言同步失敗:', err); setSyncStatus('offline'); }
+    finally { hideSyncOverlay(); }
 }
 
 let syncInFlight = null;
@@ -645,6 +647,7 @@ window.addEventListener('DOMContentLoaded', () => {
 async function initApp() {
     updateLoginButton();
     const loggedIn = ensureLogin();
+    showSyncOverlay();
 
     try {
         if (loggedIn) {
@@ -669,6 +672,7 @@ async function initApp() {
     renderChecklists();
     updateBudgetCalculations();
     renderMessages();
+    hideSyncOverlay();
 }
 
 // SAVE STATE
@@ -1322,6 +1326,7 @@ async function deleteEvent(dayStr, id) {
             await saveItineraryToRemote();
             renderItineraryForDay(dayStr);
             updateBudgetCalculations();
+            alert('刪除成功！');
         } catch (err) {
             alert('刪除失敗：無法同步到伺服器，請檢查網路連線或重新登入');
             // 恢復本地狀態
@@ -1430,6 +1435,7 @@ async function deleteFromPool(id) {
             }
         }
         setSyncStatus('synced');
+        alert('刪除成功！');
     } catch (e) {
         console.warn('[Pool] delete failed:', e.message);
         db.attractionPool = backup;
