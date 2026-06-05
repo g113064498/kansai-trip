@@ -384,6 +384,11 @@ async function loadFromRemote() {
 
         db = JSON.parse(JSON.stringify(initialTripData));
         if (!db.messages) db.messages = [];
+        // Remove pool items that user has previously deleted
+        const deletedIds = getDeletedPoolIds();
+        if (deletedIds.size > 0 && db.attractionPool) {
+            db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
+        }
 
         // Load master article → flights, hotels, budget, checklist, pool
         const allArticles = await hexAPI.getArticles();
@@ -400,7 +405,7 @@ async function loadFromRemote() {
                     if (m.attractionPool && Array.isArray(m.attractionPool)) {
                         // Merge pool items by ID, keep API version if exists
                         const apiIds = new Set(m.attractionPool.map(p => p.id));
-                        const initialOnly = db.attractionPool.filter(p => !apiIds.has(p.id));
+                        const initialOnly = db.attractionPool.filter(p => !apiIds.has(p.id) && !deletedIds.has(p.id));
                         db.attractionPool = [...m.attractionPool, ...initialOnly];
                     }
                 }
@@ -1320,9 +1325,20 @@ function addPoolItemToItinerary(poolId) {
 }
 
 // DELETE FROM POOL
+function getDeletedPoolIds() {
+    try { return new Set(JSON.parse(localStorage.getItem('deletedPoolIds') || '[]')); }
+    catch { return new Set(); }
+}
+function addDeletedPoolId(id) {
+    const s = getDeletedPoolIds();
+    s.add(id);
+    localStorage.setItem('deletedPoolIds', JSON.stringify([...s]));
+}
+
 function deleteFromPool(id) {
     if (confirm("確定要將這個候選景點從清單中完全移除嗎？")) {
         db.attractionPool = db.attractionPool.filter(p => p.id !== id);
+        addDeletedPoolId(id);
         saveToLocalStorage();
         saveItineraryToRemote();
         renderPool();
