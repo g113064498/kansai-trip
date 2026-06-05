@@ -158,56 +158,21 @@ const initialTripData = {
 // [INITIAL_DATA_END]
 
 // GLOBAL DATABASE STATE
-// db starts as null; populated by initApp() which tries remote first, then localStorage
+// db starts as null; populated by initApp() which loads from API only
 let db = null;
 let activeTab = 'dashboard';
 let currentSelectedDay = "2026-11-04";
 let currentPoolFilter = 'all';
 
-// Helper: build db from local storage (fast fallback)
-function loadDbFromLocal() {
+// Clean up old localStorage data on page load
+(function cleanupOldLocalStorage() {
     try {
-        const raw = localStorage.getItem('kansai_trip_db');
-        if (raw) {
-            const saved = JSON.parse(raw);
-            if (saved && saved.itinerary && saved.flights && saved.hotels) return saved;
-        }
-    } catch (e) { console.warn('[DB] local parse error:', e); }
-    return null;
-}
-
-// Helper: merge checklist state from separate key
-function mergeChecklistState(target) {
-    try {
-        const raw = localStorage.getItem('kansai_trip_checklist_state');
-        if (raw) {
-            const state = JSON.parse(raw);
-            if (target.checklist) {
-                target.checklist.forEach(item => {
-                    if (state[item.id] !== undefined) item.done = state[item.id];
-                });
-            }
-        }
+        localStorage.removeItem('kansai_trip_db');
+        localStorage.removeItem('kansai_trip_messages');
+        localStorage.removeItem('kansai_trip_checklist_state');
+        localStorage.removeItem('deletedPoolIds');
     } catch (e) { /* ignore */ }
-}
-
-// Helper: merge messages from separate key
-function mergeMessagesFromLocal(target) {
-    try {
-        const raw = localStorage.getItem('kansai_trip_messages');
-        if (raw) {
-            const saved = JSON.parse(raw);
-            if (Array.isArray(saved) && saved.length > 0) {
-                target.messages = saved;
-            }
-        }
-    } catch (e) { /* ignore */ }
-    if (!Array.isArray(target.messages)) target.messages = [];
-    const hasWelcome = target.messages.some(m => m && m.id === 'msg-1');
-    if (!hasWelcome && Array.isArray(initialTripData.messages) && initialTripData.messages.length > 0) {
-        target.messages.unshift(initialTripData.messages[0]);
-    }
-}
+})();
 
 // ==========================================
 // HEXSCHOOL API HELPER (六角學院 Vue3 課程 API)
@@ -484,13 +449,8 @@ async function loadFromRemote() {
         setSyncStatus('syncing');
 
         db = JSON.parse(JSON.stringify(initialTripData));
-        
+
         if (!db.messages) db.messages = [];
-        // Remove pool items that user has previously deleted
-        const deletedIds = getDeletedPoolIds();
-        if (deletedIds.size > 0 && db.attractionPool) {
-            db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
-        }
 
         // Load master article → flights, hotels, budget, checklist, pool
         const allArticles = await hexAPI.getArticles();
@@ -527,15 +487,11 @@ async function loadFromRemote() {
             if (apiPoolItems.length > 0) {
                 // Use API products, merge with initial data for items not in API
                 const apiTitles = new Set(apiPoolItems.map(i => i.title));
-                const initialOnly = db.attractionPool.filter(p => !apiTitles.has(p.title) && !deletedIds.has(p.id));
+                const initialOnly = db.attractionPool.filter(p => !apiTitles.has(p.title));
                 db.attractionPool = [...apiPoolItems, ...initialOnly];
-            } else {
-                // No API products, use initial data (minus deleted)
-                db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
             }
         } catch (e) {
-            // Customer API failed, fall back to initial data
-            db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
+            // Customer API failed, keep initial data as-is
         }
 
         // Load itinerary from Products API (API is source of truth)
@@ -582,10 +538,8 @@ async function loadFromRemote() {
 async function syncInitialPoolToAPI() {
     // For initial pool items (not from API), create products so they can be deleted
     if (!db || !db.attractionPool) return;
-    const deletedIds = getDeletedPoolIds();
     for (const item of db.attractionPool) {
         if (item._productId || item.id.startsWith('api-')) continue; // Already from API
-        if (deletedIds.has(item.id)) continue; // User deleted this
         // Check if product already exists
         const cacheKey = `pool:${item.id}`;
         if (getCacheId('pool', cacheKey)) continue; // Already synced
@@ -737,7 +691,7 @@ function handleLogout() {
     }
 }
 
-// APP INITIALIZATION — remote-first with HexSchool API, fall back to localStorage
+// APP INITIALIZATION — loads from HexSchool API only
 window.addEventListener('DOMContentLoaded', () => {
     initApp().then(() => { new MapleLeaves(); });
 });
@@ -746,22 +700,11 @@ async function initApp() {
     updateLoginButton();
     const loggedIn = ensureLogin();
 
-    let remoteOk = false;
     if (loggedIn) {
-        remoteOk = await loadFromRemote();
-    }
-
-    if (!remoteOk) {
-        const local = loadDbFromLocal();
-        if (local) {
-            db = local;
-        } else {
-            db = JSON.parse(JSON.stringify(initialTripData));
-        }
-        mergeMessagesFromLocal(db);
-        mergeChecklistState(db);
-        saveToLocalStorage();
-        if (loggedIn) saveToRemote();
+        await loadFromRemote();
+    } else {
+        // Not logged in: use initial data as a read-only view
+        db = JSON.parse(JSON.stringify(initialTripData));
     }
 
     if (!db.messages) db.messages = [];
@@ -781,20 +724,9 @@ async function initApp() {
 }
 
 // SAVE STATE
+// No-op: we don't use localStorage for trip data anymore (API is source of truth)
 function saveToLocalStorage() {
-    if (!db || !db.checklist) return;
-    // Save checklist checkboxes to local storage
-    const checklistState = {};
-    db.checklist.forEach(item => {
-        checklistState[item.id] = item.done;
-    });
-    localStorage.setItem('kansai_trip_checklist_state', JSON.stringify(checklistState));
-    
-    // Save messages to local storage
-    localStorage.setItem('kansai_trip_messages', JSON.stringify(db.messages));
-    
-    // Still save the whole db for backward compatibility / standalone HTML backups
-    localStorage.setItem('kansai_trip_db', JSON.stringify(db));
+    // Intentionally empty — all data lives in the HexSchool API
 }
 
 // TAB SWITCHER
@@ -1537,21 +1469,13 @@ async function addPoolItemToItinerary(poolId) {
 
 // DELETE FROM POOL
 function getDeletedPoolIds() {
-    try { return new Set(JSON.parse(localStorage.getItem('deletedPoolIds') || '[]')); }
-    catch { return new Set(); }
-}
-function addDeletedPoolId(id) {
-    const s = getDeletedPoolIds();
-    s.add(id);
-    localStorage.setItem('deletedPoolIds', JSON.stringify([...s]));
+    return new Set();
 }
 
 async function deleteFromPool(id) {
     if (!confirm("確定要將這個候選景點從清單中完全移除嗎？")) return;
     const item = db.attractionPool.find(p => p.id === id);
     db.attractionPool = db.attractionPool.filter(p => p.id !== id);
-    addDeletedPoolId(id);
-    saveToLocalStorage();
     renderPool();
     try {
         setSyncStatus('syncing');
