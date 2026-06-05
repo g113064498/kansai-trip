@@ -511,6 +511,9 @@ async function loadFromRemote() {
             }
         }
 
+        // ONE-TIME CLEANUP: strip non-flight, non-hotel events from old API products
+        await cleanupItineraryEvents(allProducts);
+
         // Load messages article
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
         if (msgArt) {
@@ -523,7 +526,6 @@ async function loadFromRemote() {
             } catch { /* skip corrupt messages */ }
         }
 
-        saveToLocalStorage();
         // Sync initial pool items to API as products (so they can be deleted)
         try { await syncInitialPoolToAPI(); } catch (e) { console.warn('[Sync] initial pool sync failed:', e); }
         setSyncStatus('synced');
@@ -532,6 +534,70 @@ async function loadFromRemote() {
         console.warn('[Sync] 讀取 API 失敗:', err);
         setSyncStatus('offline');
         return false;
+    }
+}
+
+// Keep only events that are flights or hotel check-ins
+function isKeepEvent(ev) {
+    if (!ev) return false;
+    if (ev.category === 'hotel') return true;
+    if (ev.category === 'transport') {
+        const t = ev.title || '';
+        return t.includes('飛往') || t.includes('航班') || t.includes('飛機') || t.includes('Check-in');
+    }
+    return false;
+}
+
+// One-time API cleanup: remove non-flight, non-hotel events from all itinerary products
+async function cleanupItineraryEvents(allProducts) {
+    try {
+        const products = allProducts || await hexAPI.getProducts();
+        let cleaned = 0;
+        for (const prod of products) {
+            if (prod.category !== '行程' || !prod.content) continue;
+            try {
+                const events = JSON.parse(prod.content);
+                if (!Array.isArray(events) || events.length === 0) continue;
+                const kept = events.filter(isKeepEvent);
+                if (kept.length === events.length) continue; // already clean
+
+                console.log('[Cleanup]', prod.title, ':', events.length, '→', kept.length, '個事件');
+                if (kept.length === 0) {
+                    await hexAPI.deleteProduct(prod.id);
+                    removeCacheId('prod', `prod:${prod.title}`);
+                } else {
+                    await hexAPI.updateProduct(prod.id, {
+                        title: prod.title,
+                        content: JSON.stringify(kept),
+                        category: '行程',
+                        origin_price: 0,
+                        price: 0,
+                        unit: '天',
+                        is_enabled: 1,
+                        num: 1
+                    });
+                    setCacheId('prod', `prod:${prod.title}`, prod.id);
+                }
+                cleaned++;
+            } catch (e) {
+                console.warn('[Cleanup] 處理產品失敗:', prod.title, e.message);
+            }
+        }
+        if (cleaned > 0) {
+            console.log('[Cleanup] 共清理', cleaned, '個行程產品');
+            // Clear the local itinerary cache so it reloads from API
+            for (const date of Object.keys(db.itinerary)) {
+                const events = db.itinerary[date] || [];
+                const kept = events.filter(isKeepEvent);
+                if (kept.length === 0) {
+                    delete db.itinerary[date];
+                } else {
+                    db.itinerary[date] = kept;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[Cleanup] 清理行程產品失敗:', e.message);
     }
 }
 
