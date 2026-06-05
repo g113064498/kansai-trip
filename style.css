@@ -510,7 +510,7 @@ header p {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    padding: 16px 20px;
+    padding: 20px 24px;
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
     position: relative;
@@ -518,25 +518,27 @@ header p {
 
 .timeline-card .timeline-actions {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 14px;
+    right: 14px;
     display: flex;
     gap: 4px;
     z-index: 2;
 }
 
 .timeline-card.has-photo {
-    padding: 16px 16px 16px 0;
+    padding: 20px 20px 20px 24px;
 }
 
 .timeline-card-body {
     display: flex;
-    gap: 16px;
+    gap: 20px;
+    align-items: stretch;
 }
 
 .timeline-card-text {
     flex: 1;
     min-width: 0;
+    padding-right: 60px;
 }
 
 .timeline-card-photos {
@@ -545,7 +547,7 @@ header p {
     gap: 8px;
     flex-shrink: 0;
     width: 200px;
-    padding: 4px;
+    padding: 4px 4px 4px 0;
 }
 
 .timeline-card-photos .timeline-photo-item {
@@ -572,8 +574,14 @@ header p {
 }
 
 @media (max-width: 767px) {
+    .timeline-card {
+        padding: 16px;
+    }
     .timeline-card.has-photo {
         padding: 16px 12px;
+    }
+    .timeline-card-text {
+        padding-right: 50px;
     }
     .timeline-card-body {
         flex-direction: column;
@@ -584,6 +592,7 @@ header p {
         flex-direction: row;
         height: 110px;
         padding: 0;
+        gap: 6px;
     }
     .timeline-card-photos .timeline-photo-item {
         flex: 1;
