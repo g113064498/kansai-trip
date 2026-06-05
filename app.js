@@ -253,7 +253,8 @@ const hexAPI = {
     async login(email, password) {
         const data = await this.request('POST', `${API_BASE}/admin/signin`, { username: email, password });
         if (data.token && data.expired) {
-            document.cookie = `hexToken=${data.token}; expires=${new Date(data.expired)}`;
+            const expiredMs = data.expired > 1e12 ? data.expired : data.expired * 1000;
+            document.cookie = `hexToken=${data.token}; expires=${new Date(expiredMs).toUTCString()}; path=/; SameSite=Lax`;
         }
         return data;
     },
@@ -512,9 +513,9 @@ async function loadFromRemote() {
         }
 
         saveToLocalStorage();
-        setSyncStatus('synced');
         // Sync initial pool items to API as products (so they can be deleted)
-        syncInitialPoolToAPI();
+        try { await syncInitialPoolToAPI(); } catch (e) { console.warn('[Sync] initial pool sync failed:', e); }
+        setSyncStatus('synced');
         return true;
     } catch (err) {
         console.warn('[Sync] 讀取 API 失敗:', err);
@@ -571,29 +572,34 @@ async function saveMessagesToRemote() {
     catch (err) { console.warn('[Sync] 留言同步失敗:', err); setSyncStatus('offline'); }
 }
 
+let syncInFlight = null;
 async function saveItineraryToRemote() {
     if (!db) return;
-    try {
-        setSyncStatus('syncing');
-        const currentDates = Object.keys(db.itinerary || {});
-        // Create/update products for current itinerary days
-        for (const date of currentDates) {
-            const events = db.itinerary[date];
-            if (events && events.length > 0) {
-                await ensureProduct(date, JSON.stringify(cleanEvents(events)));
+    if (syncInFlight) {
+        await syncInFlight.catch(() => {});
+    }
+    syncInFlight = (async () => {
+        try {
+            setSyncStatus('syncing');
+            const currentDates = Object.keys(db.itinerary || {});
+            for (const date of currentDates) {
+                const events = db.itinerary[date];
+                if (events && events.length > 0) {
+                    await ensureProduct(date, JSON.stringify(cleanEvents(events)));
+                }
             }
-        }
-        // Delete products for days no longer in itinerary
-        const allProducts = await hexAPI.getProducts();
-        for (const prod of allProducts) {
-            if (prod.category === '行程' && !currentDates.includes(prod.title)) {
-                await hexAPI.deleteProduct(prod.id);
-                removeCacheId('prod', `prod:${prod.title}`);
+            const allProducts = await hexAPI.getProducts();
+            for (const prod of allProducts) {
+                if (prod.category === '行程' && !currentDates.includes(prod.title)) {
+                    await hexAPI.deleteProduct(prod.id);
+                    removeCacheId('prod', `prod:${prod.title}`);
+                }
             }
-        }
-        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
-        setSyncStatus('synced');
-    } catch (err) { console.warn('[Sync] 行程同步失敗:', err); setSyncStatus('offline'); }
+            await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
+            setSyncStatus('synced');
+        } catch (err) { console.warn('[Sync] 行程同步失敗:', err); setSyncStatus('offline'); }
+    })();
+    try { await syncInFlight; } finally { syncInFlight = null; }
 }
 
 // LOGIN FLOW
@@ -1371,16 +1377,22 @@ function addPoolItemToItinerary(poolId) {
     const userSelection = prompt(promptText, "1");
     if (userSelection === null) return;
 
-    const selectionIndex = parseInt(userSelection) - 1;
+    const selectionIndex = parseInt(userSelection, 10) - 1;
+    if (isNaN(selectionIndex) || selectionIndex < 0) {
+        alert('請輸入有效的正整數（從 1 開始）');
+        return;
+    }
     let targetDay;
 
-    if (days.length > 0 && selectionIndex >= 0 && selectionIndex < days.length) {
+    if (days.length > 0 && selectionIndex < days.length) {
         targetDay = days[selectionIndex];
     } else {
-        // Create new day based on selection
-        const baseDate = new Date('2026-11-04');
-        baseDate.setDate(baseDate.getDate() + selectionIndex);
-        targetDay = baseDate.toISOString().split('T')[0];
+        const baseDate = new Date(2026, 10, 4 + selectionIndex);
+        if (isNaN(baseDate.getTime())) {
+            alert('日期超出範圍');
+            return;
+        }
+        targetDay = `${baseDate.getFullYear()}-${String(baseDate.getMonth() + 1).padStart(2, '0')}-${String(baseDate.getDate()).padStart(2, '0')}`;
         if (!db.itinerary[targetDay]) db.itinerary[targetDay] = [];
     }
 
@@ -1392,18 +1404,24 @@ function addPoolItemToItinerary(poolId) {
         desc: item.desc,
         cost: 0,
         category: item.category,
-        location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
+        location: item.desc || item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
     };
 
     db.itinerary[targetDay].push(newEvent);
 
     saveToLocalStorage();
     saveItineraryToRemote();
-    renderItineraryForDay(currentSelectedDay);
+    if (targetDay !== currentSelectedDay) {
+        currentSelectedDay = targetDay;
+        selectDay(targetDay);
+    } else {
+        renderItineraryForDay(currentSelectedDay);
+    }
     renderPool();
     updateBudgetCalculations();
-    
-    alert(`已成功將「${item.title}」排入 Day ${selectionIndex + 1} 的日程中！`);
+
+    const targetDayLabel = selectionIndex < days.length ? `Day ${selectionIndex + 1}` : `Day ${selectionIndex + 1} (新建立 ${targetDay})`;
+    alert(`已成功將「${item.title}」排入 ${targetDayLabel} 的日程中！`);
 }
 
 // DELETE FROM POOL
@@ -1418,22 +1436,28 @@ function addDeletedPoolId(id) {
 }
 
 async function deleteFromPool(id) {
-    if (confirm("確定要將這個候選景點從清單中完全移除嗎？")) {
-        const item = db.attractionPool.find(p => p.id === id);
-        db.attractionPool = db.attractionPool.filter(p => p.id !== id);
-        addDeletedPoolId(id);
-        saveToLocalStorage();
-        renderPool();
-        // If this item came from the API, delete the product
+    if (!confirm("確定要將這個候選景點從清單中完全移除嗎？")) return;
+    const item = db.attractionPool.find(p => p.id === id);
+    db.attractionPool = db.attractionPool.filter(p => p.id !== id);
+    addDeletedPoolId(id);
+    saveToLocalStorage();
+    renderPool();
+    try {
+        setSyncStatus('syncing');
         if (item && item._productId) {
-            try {
-                await hexAPI.deleteProduct(item._productId);
+            await hexAPI.deleteProduct(item._productId);
+            removeCacheId('pool', `pool:${id}`);
+        } else if (item) {
+            const newProductId = await ensurePoolProduct(item);
+            if (newProductId) {
+                await hexAPI.deleteProduct(newProductId);
                 removeCacheId('pool', `pool:${id}`);
-            } catch (e) { console.warn('[Pool] delete product failed:', e.message); }
-        } else {
-            // Otherwise save the updated pool to master article
-            saveItineraryToRemote();
+            }
         }
+        setSyncStatus('synced');
+    } catch (e) {
+        console.warn('[Pool] delete failed:', e.message);
+        setSyncStatus('offline');
     }
 }
 
