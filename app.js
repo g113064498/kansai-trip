@@ -294,6 +294,21 @@ const hexAPI = {
         const data = await this.request('DELETE', `${API_BASE}/api/${API_PATH}/admin/product/${id}`);
         return data;
     },
+    // --- Customer Products API (read-only, no auth) ---
+    async getCustomerProducts() {
+        const url = `${API_BASE}/api/${API_PATH}/products`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success === false) throw new Error(data.message || 'API 請求失敗');
+        return data.products || [];
+    },
+    async getCustomerProductsAll() {
+        const url = `${API_BASE}/api/${API_PATH}/products/all`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success === false) throw new Error(data.message || 'API 請求失敗');
+        return data.products || [];
+    },
 };
 
 function getToken() {
@@ -378,6 +393,31 @@ async function ensureProduct(title, content) {
     return created ? created.id : null;
 }
 
+async function ensurePoolProduct(item) {
+    const productData = {
+        title: item.title,
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category }),
+        category: '候選景點',
+        origin_price: item.cost || 0,
+        price: 0,
+        unit: '景點',
+        is_enabled: 1
+    };
+    const cacheKey = `pool:${item.id}`;
+    const existingId = getCacheId('pool', cacheKey);
+    if (existingId) {
+        try { await hexAPI.updateProduct(existingId, productData); return existingId; } catch { removeCacheId('pool', cacheKey); }
+    }
+    const all = await hexAPI.getProducts();
+    const found = all.find(p => p.title === item.title && p.category === '候選景點');
+    if (found) { setCacheId('pool', cacheKey, found.id); await hexAPI.updateProduct(found.id, productData); return found.id; }
+    await hexAPI.createProduct(productData);
+    const updated = await hexAPI.getProducts();
+    const created = updated.find(p => p.title === item.title && p.category === '候選景點');
+    if (created) setCacheId('pool', cacheKey, created.id);
+    return created ? created.id : null;
+}
+
 async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
@@ -402,14 +442,38 @@ async function loadFromRemote() {
                     if (m.hotels) db.hotels = m.hotels;
                     if (m.budget) db.budget = m.budget;
                     if (m.checklist) db.checklist = m.checklist;
-                    if (m.attractionPool && Array.isArray(m.attractionPool)) {
-                        // Merge pool items by ID, keep API version if exists
-                        const apiIds = new Set(m.attractionPool.map(p => p.id));
-                        const initialOnly = db.attractionPool.filter(p => !apiIds.has(p.id) && !deletedIds.has(p.id));
-                        db.attractionPool = [...m.attractionPool, ...initialOnly];
-                    }
                 }
             } catch { /* skip corrupt master */ }
+        }
+
+        // Load pool from Customer Products API (no auth, faster)
+        try {
+            const customerProducts = await hexAPI.getCustomerProductsAll();
+            const poolProducts = customerProducts.filter(p => p.category === '候選景點');
+            const apiPoolItems = poolProducts.map(p => {
+                const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
+                return {
+                    id: 'api-' + p.id,
+                    city: data.city || 'Kyoto',
+                    title: p.title,
+                    desc: data.desc || '',
+                    cost: data.cost || p.origin_price || 0,
+                    category: data.category || 'sightseeing',
+                    _productId: p.id
+                };
+            });
+            if (apiPoolItems.length > 0) {
+                // Use API products, merge with initial data for items not in API
+                const apiTitles = new Set(apiPoolItems.map(i => i.title));
+                const initialOnly = db.attractionPool.filter(p => !apiTitles.has(p.title) && !deletedIds.has(p.id));
+                db.attractionPool = [...apiPoolItems, ...initialOnly];
+            } else {
+                // No API products, use initial data (minus deleted)
+                db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
+            }
+        } catch (e) {
+            // Customer API failed, fall back to initial data
+            db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
         }
 
         // Load itinerary from Products API (merge with initial data, no overwrite)
@@ -449,11 +513,29 @@ async function loadFromRemote() {
 
         saveToLocalStorage();
         setSyncStatus('synced');
+        // Sync initial pool items to API as products (so they can be deleted)
+        syncInitialPoolToAPI();
         return true;
     } catch (err) {
         console.warn('[Sync] 讀取 API 失敗:', err);
         setSyncStatus('offline');
         return false;
+    }
+}
+
+async function syncInitialPoolToAPI() {
+    // For initial pool items (not from API), create products so they can be deleted
+    if (!db || !db.attractionPool) return;
+    const deletedIds = getDeletedPoolIds();
+    for (const item of db.attractionPool) {
+        if (item._productId || item.id.startsWith('api-')) continue; // Already from API
+        if (deletedIds.has(item.id)) continue; // User deleted this
+        // Check if product already exists
+        const cacheKey = `pool:${item.id}`;
+        if (getCacheId('pool', cacheKey)) continue; // Already synced
+        try {
+            await ensurePoolProduct(item);
+        } catch (e) { /* skip */ }
     }
 }
 
@@ -472,7 +554,7 @@ async function saveToRemote() {
 
 async function saveAllToRemote() {
     if (!db) return;
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, attractionPool: db.attractionPool || [] }));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
     if (db.itinerary) {
         for (const [date, events] of Object.entries(db.itinerary)) {
             await ensureProduct(date, JSON.stringify(cleanEvents(events)));
@@ -509,7 +591,7 @@ async function saveItineraryToRemote() {
                 removeCacheId('prod', `prod:${prod.title}`);
             }
         }
-        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, attractionPool: db.attractionPool || [] }));
+        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
         setSyncStatus('synced');
     } catch (err) { console.warn('[Sync] 行程同步失敗:', err); setSyncStatus('offline'); }
 }
@@ -1335,13 +1417,23 @@ function addDeletedPoolId(id) {
     localStorage.setItem('deletedPoolIds', JSON.stringify([...s]));
 }
 
-function deleteFromPool(id) {
+async function deleteFromPool(id) {
     if (confirm("確定要將這個候選景點從清單中完全移除嗎？")) {
+        const item = db.attractionPool.find(p => p.id === id);
         db.attractionPool = db.attractionPool.filter(p => p.id !== id);
         addDeletedPoolId(id);
         saveToLocalStorage();
-        saveItineraryToRemote();
         renderPool();
+        // If this item came from the API, delete the product
+        if (item && item._productId) {
+            try {
+                await hexAPI.deleteProduct(item._productId);
+                removeCacheId('pool', `pool:${id}`);
+            } catch (e) { console.warn('[Pool] delete product failed:', e.message); }
+        } else {
+            // Otherwise save the updated pool to master article
+            saveItineraryToRemote();
+        }
     }
 }
 
