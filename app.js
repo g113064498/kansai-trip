@@ -394,13 +394,13 @@ async function loadFromRemote() {
 
         // Load itinerary from Products API (merge with initial data)
         const allProducts = await hexAPI.getProducts();
-        const productDays = allProducts.filter(p => p.category === '行程' && p.title && p.content);
-        if (productDays.length > 0) {
-            db.itinerary = {};
-            for (const prod of productDays) {
+        for (const prod of allProducts) {
+            if (prod.category === '行程' && prod.title && prod.content) {
                 try {
                     const events = JSON.parse(prod.content);
-                    if (Array.isArray(events)) db.itinerary[prod.title] = events;
+                    if (Array.isArray(events) && events.length > 0) {
+                        db.itinerary[prod.title] = events;
+                    }
                 } catch { /* skip corrupt product */ }
             }
         }
