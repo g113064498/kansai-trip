@@ -61,39 +61,17 @@ const initialTripData = {
     itinerary: {
         "2026-11-04": [
             { id: "s1", time: "09:40 - 13:10", title: "飛往大阪關西機場 (MM024) ✈️", desc: "桃園捷運 ➜ T1 樂桃櫃檯 ➜ 抵達關西二航廈", cost: 0, category: "transport", location: "Kansai International Airport" },
-            { id: "s2", time: "14:15 - 15:30", title: "搭乘 JR Haruka 前往京都", desc: "從 KIX 購買 Haruka 自由席/指定席直達京都車站（約 75 分鐘）", cost: 3800, category: "transport", location: "京都駅" },
-            { id: "s3", time: "16:00 - 16:30", title: "飯店 Check-in: Hop Inn Kyoto Shijo Omiya 🏨", desc: "京都車站搭公車（約 20 分鐘）或計程車（約 ¥1500）至四條大宮飯店寄物入住", cost: 0, category: "hotel", location: "Hop Inn Kyoto Shijo Omiya" },
-            { id: "s4", time: "18:00 - 20:30", title: "晚餐：Sukiyaki Kimura (木村壽喜燒) 🍲", desc: "Threads 推薦壽喜燒老店 (12:00-20:30, 週一週五公休)。位置在河原町/錦市場附近", cost: 6000, category: "food", location: "Sukiyaki Kimura" }
+            { id: "s3", time: "16:00 - 16:30", title: "飯店 Check-in: Hop Inn Kyoto Shijo Omiya 🏨", desc: "京都車站搭公車（約 20 分鐘）或計程車（約 ¥1500）至四條大宮飯店寄物入住", cost: 0, category: "hotel", location: "Hop Inn Kyoto Shijo Omiya" }
         ],
-        "2026-11-05": [
-            { id: "s5", time: "06:00 - 08:30", title: "清晨清水寺避人潮參拜 🌸", desc: "06:00 清水寺就開門了，清晨人少空氣好，非常適合拍照。接著沿著二、三年坂散步。 (6點去比較沒人！)", cost: 400, category: "sightseeing", location: "清水寺" },
-            { id: "s6", time: "09:00 - 11:30", title: "錦市場散策美食探索 串燒/玉子燒", desc: "京都的廚房，吃點章魚燒、玉子燒等在地小吃", cost: 2000, category: "food", location: "錦市場" },
-            { id: "s7", time: "16:00 - 18:30", title: "鴨川散步 ➜ 花見小路 ➜ 八坂神社 🏮", desc: "傍晚日落時分鴨川河畔非常漂亮，接著散步去花見小路看祇園老街，最後到點燈後的八坂神社（晚上很美，24小時開放）", cost: 0, category: "sightseeing", location: "八坂神社" }
-        ],
-        "2026-11-06": [
-            { id: "s13", time: "07:00 - 09:30", title: "伏見稻荷大社 🦊 千本鳥居", desc: "千本鳥居非常壯觀，24小時開放。建議早上 7 點前抵達避開大量團體遊客 (10點後人超多)", cost: 0, category: "sightseeing", location: "伏見稻荷大社" },
-            { id: "s14", time: "11:30 - 13:00", title: "午餐：麵屋 豬一 🍜", desc: "11:00-14:30 / 17:30-21:00。超人氣排隊拉麵店，不接受預約，湯頭清甜精緻，Threads 熱推！", cost: 3500, category: "food", location: "麵屋 豬一" }
-        ],
+        "2026-11-05": [],
+        "2026-11-06": [],
         "2026-11-07": [
-            { id: "s8", time: "11:00 - 12:00", title: "從京都退房前往大阪", desc: "從四條大宮搭乘 Hankyu 阪急京都線至淡路或大阪梅田，轉乘 JR 大阪環狀線至鶴橋/天王寺", cost: 800, category: "transport", location: "Color Tsuruhashi" },
-            { id: "s9", time: "12:30 - 13:00", title: "大阪飯店 Check-in / 寄行李 🏨", desc: "在 Color Tsuruhashi / Cu Tennoji 寄放行李後，開始大阪行程", cost: 0, category: "hotel", location: "Color Tsuruhashi" },
-            { id: "s15", time: "14:00 - 18:00", title: "心齋橋 & 道頓堀 採購逛街 🛍️", desc: "逛逛 Shinsaibashi PARCO、大丸百貨、Uniqlo、Daiso、唐吉訶德，並與固力果跑跑人招牌拍照。晚餐可吃千房大阪燒！", cost: 10000, category: "shopping", location: "心齋橋" }
+            { id: "s9", time: "12:30 - 13:00", title: "大阪飯店 Check-in / 寄行李 🏨", desc: "在 Color Tsuruhashi / Cu Tennoji 寄放行李後，開始大阪行程", cost: 0, category: "hotel", location: "Color Tsuruhashi" }
         ],
-        "2026-11-08": [
-            { id: "s16", time: "08:00 - 16:00", title: "達摩勝尾寺一日遊 🔴", desc: "08:00-17:00 (門票 ¥500)。滿山滿谷紅色達摩。交通：搭御堂筋線到終點站「箕面萱野」，8號月台搭30號直達車。⚠️注意：回程最後一班公車 17:05。計程車固定費率約 ¥3200。回程可在 箕面Q's MALL 吃飯。", cost: 4200, category: "sightseeing", location: "勝尾寺" }
-        ],
-        "2026-11-09": [
-            { id: "s17", time: "09:30 - 11:30", title: "難波八阪神社 🦁️ 大獅子頭", desc: "06:30-17:00。巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地", cost: 0, category: "sightseeing", location: "難波八阪神社" },
-            { id: "s18", time: "13:00 - 17:00", title: "橘子街 (Orange Street) 潮牌探索", desc: "雲集了各大時尚潮牌與特色文青咖啡廳，適合逛街採購服飾", cost: 15000, category: "shopping", location: "Orange Street" },
-            { id: "s19", time: "19:00 - 21:00", title: "梅田藍天大樓空中庭園看夜景 🌌", desc: "09:30-22:30（門票 ¥2000）。39樓售票，41樓為空中庭園展望台，看夜景極美。 (與 Harukas 300 擇一)", cost: 4000, category: "sightseeing", location: "梅田藍天大樓" }
-        ],
-        "2026-11-10": [
-            { id: "s20", time: "09:00 - 12:00", title: "大阪城公園 🏯 散步", desc: "09:00-17:00。入園免費，上天守閣需要門票（約 ¥600）。雄偉的大阪象徵。", cost: 1200, category: "sightseeing", location: "大阪城天守閣" },
-            { id: "s21", time: "13:00 - 16:30", title: "天神橋筋商店街 藥妝採買與中村屋可樂餅", desc: "最長商店街！可逛 OS Drug (極便宜只收現)、買中村屋可樂餅、吃千草大阪燒。", cost: 10000, category: "shopping", location: "天神橋筋商店街" }
-        ],
+        "2026-11-08": [],
+        "2026-11-09": [],
+        "2026-11-10": [],
         "2026-11-11": [
-            { id: "s10", time: "10:00 - 12:30", title: "天王寺/阿倍野最後採買與午餐", desc: "阿倍野 Q's Mall 或近鐵百貨最後伴手禮採買，吃完午餐後回飯店拿行李", cost: 5000, category: "shopping", location: "天王寺" },
-            { id: "s11", time: "13:00 - 13:45", title: "搭乘 Haruka 或是關空快速前往關西機場 🚄", desc: "從天王寺站搭乘直達關西機場，樂桃在第二航廈，最晚 13:25 前要到櫃台辦登機", cost: 2000, category: "transport", location: "KIX" },
             { id: "s12", time: "15:25 - 17:55", title: "搭乘 MM027 航班返台 ✈️", desc: "回到溫暖的家，結束美好旅程", cost: 0, category: "transport", location: "台北桃園 (TPE)" }
         ]
     },
