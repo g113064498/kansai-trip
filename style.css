@@ -513,16 +513,6 @@ header p {
     padding: 20px 24px;
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
-    position: relative;
-}
-
-.timeline-card .timeline-actions {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    display: flex;
-    gap: 4px;
-    z-index: 2;
 }
 
 .timeline-card.has-photo {
@@ -538,7 +528,17 @@ header p {
 .timeline-card-text {
     flex: 1;
     min-width: 0;
+    position: relative;
     padding-right: 60px;
+}
+
+.timeline-card-text .timeline-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 4px;
+    z-index: 2;
 }
 
 .timeline-card-photos {
@@ -598,9 +598,9 @@ header p {
         flex: 1;
         height: 100%;
     }
-    .timeline-card .timeline-actions {
-        top: 8px;
-        right: 8px;
+    .timeline-card-text .timeline-actions {
+        top: 0;
+        right: 0;
     }
 }
 
@@ -648,11 +648,6 @@ header p {
     display: flex;
     align-items: center;
     gap: 5px;
-}
-
-.timeline-actions {
-    display: flex;
-    gap: 8px;
 }
 
 .action-btn {
