@@ -389,56 +389,91 @@ async function ensureArticle(tag, title, content) {
 
 async function ensureProduct(title, content) {
     const cacheKey = `prod:${title}`;
-    const productData = { 
-        title, 
-        content, 
-        category: '行程', 
-        origin_price: 0, 
-        price: 0, 
-        unit: '天', 
+    const productData = {
+        title,
+        content,
+        category: '行程',
+        origin_price: 0,
+        price: 0,
+        unit: '天',
         is_enabled: 1,
         num: 1
     };
     console.log('[Product] 準備儲存:', title, '內容長度:', content.length);
-    console.log('[Product] 內容預覽:', content.substring(0, 100) + '...');
+
+    // Helper: verify product was actually saved by reading it back
+    async function verifySave(productId) {
+        try {
+            const verified = await hexAPI.getProduct(productId);
+            if (verified && verified.content === content) {
+                console.log('[Product] 驗證成功:', title, '已確認內容匹配');
+                return true;
+            }
+            console.warn('[Product] 驗證失敗:', title, 'API 返回內容與預期不符');
+            return false;
+        } catch (e) {
+            console.error('[Product] 驗證時發生錯誤:', title, e.message);
+            return false;
+        }
+    }
+
+    // Try to update using cached ID
     const existingId = getCacheId('prod', cacheKey);
     if (existingId) {
-        try { 
+        try {
             const response = await hexAPI.updateProduct(existingId, productData);
-            console.log('[Product] 更新成功:', title, 'API 回應:', response);
-            return existingId; 
-        } catch (e) { 
-            console.error('[Product] 更新失敗，清除快取:', title, '錯誤:', e.message, '完整錯誤:', e);
-            removeCacheId('prod', cacheKey); 
+            console.log('[Product] 更新成功(快取):', title);
+            // Verify the update was actually persisted
+            if (await verifySave(existingId)) {
+                return existingId;
+            }
+            // Verification failed, clear cache and fall through
+            removeCacheId('prod', cacheKey);
+        } catch (e) {
+            console.error('[Product] 更新失敗，清除快取:', title, '錯誤:', e.message);
+            removeCacheId('prod', cacheKey);
         }
     }
+
+    // Find by title from API
     const all = await hexAPI.getProducts();
     const found = all.find(p => p.title === title);
-    if (found) { 
-        setCacheId('prod', cacheKey, found.id); 
+    if (found) {
+        setCacheId('prod', cacheKey, found.id);
         try {
-            const response = await hexAPI.updateProduct(found.id, productData);
-            console.log('[Product] 找到並更新:', title, 'API 回應:', response);
+            await hexAPI.updateProduct(found.id, productData);
+            console.log('[Product] 找到並更新:', title);
+            // Verify
+            if (await verifySave(found.id)) {
+                return found.id;
+            }
+            // If verification fails, the API might be having issues
+            console.error('[Product] 更新後驗證失敗:', title);
+            throw new Error('產品更新後驗證失敗，API 可能沒有正確儲存');
         } catch (e) {
-            console.error('[Product] 找到但更新失敗:', title, '錯誤:', e.message);
+            console.error('[Product] 更新失敗:', title, e.message);
+            throw e;
         }
-        return found.id; 
     }
+
+    // Create new product
     try {
         const response = await hexAPI.createProduct(productData);
-        console.log('[Product] 建立產品:', title, 'API 回應:', response);
+        console.log('[Product] 建立產品:', title, '回應:', response);
     } catch (e) {
         console.error('[Product] 建立失敗:', title, '錯誤:', e.message);
+        throw e;
     }
     const updated = await hexAPI.getProducts();
     const created = updated.find(p => p.title === title);
     if (created) {
         setCacheId('prod', cacheKey, created.id);
         console.log('[Product] 建立成功:', title);
+        return created.id;
     } else {
         console.error('[Product] 建立後找不到:', title);
+        throw new Error('產品建立後找不到');
     }
-    return created ? created.id : null;
 }
 
 async function ensurePoolProduct(item) {
