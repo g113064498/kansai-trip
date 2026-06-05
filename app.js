@@ -986,10 +986,15 @@ function renderPool() {
     container.innerHTML = '';
     
     function isItemInItinerary(itemTitle) {
-        const cleanTitle = itemTitle.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+        const clean = s => (s || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+        const target = clean(itemTitle);
+        if (!target || target.length < 2) return false;
         for (const events of Object.values(db.itinerary || {})) {
             for (const ev of events) {
-                if (ev.title && ev.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '') === cleanTitle) return true;
+                const evClean = clean(ev.title);
+                if (!evClean) continue;
+                if (evClean === target) return true;
+                if (evClean.includes(target) || target.includes(evClean)) return true;
             }
         }
         return false;
@@ -1334,16 +1339,18 @@ function moveEvent(dayStr, index, direction) {
 function deleteEvent(dayStr, id) {
     if (confirm("確定要將這個日程項目移除嗎？")) {
         const items = db.itinerary[dayStr] || [];
-        // If it was linked to the attraction pool, change status to 'pool'
         const item = items.find(e => e.id === id);
         if (item) {
-            const poolItem = db.attractionPool.find(p => p.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'') === item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''));
+            const itemClean = (item.title || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+            const poolItem = db.attractionPool.find(p => {
+                const pClean = (p.title || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+                return pClean && (pClean === itemClean || pClean.includes(itemClean) || itemClean.includes(pClean));
+            });
             if (poolItem) {
-                poolItem.status = 'pool';
                 renderPool();
             }
         }
-        
+
         db.itinerary[dayStr] = items.filter(ev => ev.id !== id);
         saveToLocalStorage();
         saveItineraryToRemote();
