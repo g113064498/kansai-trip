@@ -477,16 +477,18 @@ async function loadFromRemote() {
             db.attractionPool = db.attractionPool.filter(p => !deletedIds.has(p.id));
         }
 
-        // Load itinerary from Products API (API is source of truth, initial data only for days without API entry)
+        // Load itinerary from Products API (API is source of truth, but preserve any local events not yet synced)
+        const localBeforeMerge = JSON.parse(JSON.stringify(db.itinerary || {}));
         const allProducts = await hexAPI.getProducts();
-        const apiDays = new Set();
         for (const prod of allProducts) {
             if (prod.category === '行程' && prod.title && prod.content) {
-                apiDays.add(prod.title);
                 try {
                     const events = JSON.parse(prod.content);
                     if (Array.isArray(events) && events.length > 0) {
-                        db.itinerary[prod.title] = events;
+                        const localEvents = localBeforeMerge[prod.title] || [];
+                        const apiIds = new Set(events.map(e => e.id));
+                        const unsyncedLocal = localEvents.filter(e => e.id && !apiIds.has(e.id));
+                        db.itinerary[prod.title] = [...events, ...unsyncedLocal];
                     }
                 } catch { /* skip corrupt product */ }
             }
@@ -1360,7 +1362,7 @@ function deleteEvent(dayStr, id) {
 }
 
 // ADD POOL ITEM TO ITINERARY
-function addPoolItemToItinerary(poolId) {
+async function addPoolItemToItinerary(poolId) {
     const item = db.attractionPool.find(p => p.id === poolId);
     if (!item) return;
 
@@ -1409,7 +1411,11 @@ function addPoolItemToItinerary(poolId) {
     db.itinerary[targetDay].push(newEvent);
 
     saveToLocalStorage();
-    saveItineraryToRemote();
+    try {
+        await saveItineraryToRemote();
+    } catch (e) {
+        console.error('[Add] 同步 API 失敗：', e);
+    }
     if (targetDay !== currentSelectedDay) {
         currentSelectedDay = targetDay;
         selectDay(targetDay);
