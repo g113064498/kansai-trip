@@ -391,13 +391,14 @@ async function ensureProduct(title, content) {
 
 async function ensurePoolProduct(item) {
     const productData = {
-        title: item.title,
+        title: item.title || '未命名景點',
         content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
         unit: '景點',
-        is_enabled: item.isEnabled ? 1 : 0
+        is_enabled: item.isEnabled ? 1 : 0,
+        num: 1
     };
     const cacheKey = `pool:${item.id}`;
     const existingId = getCacheId('pool', cacheKey);
@@ -471,7 +472,7 @@ async function loadFromRemote() {
                     id: item.id,
                     _poolId: item.id,
                     time: item.time || '10:00 - 12:00',
-                    title: item.title,
+            title: item.title || '未命名景點',
                     desc: item.desc,
                     cost: item.cost || 0,
                     category: item.category,
@@ -618,7 +619,7 @@ function editPoolTime(poolId, itemId, el) {
             try {
                 const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };
                 await hexAPI.updateProduct(item._productId, { content: JSON.stringify(content), is_enabled: item.isEnabled ? 1 : 0 });
-            } catch (e) { console.warn('[EditTime] 同步失敗:', e.message); }
+            } catch (e) { console.warn('[EditTime] 同步失敗:', e.message); showToast('時間編輯失敗：' + e.message, 2000); }
         }
     };
     input.addEventListener('blur', save);
@@ -673,7 +674,7 @@ async function savePoolEdit(e) {
         } catch (err) {
             db.attractionPool = db.attractionPool.filter(p => p.id !== newItem.id);
             renderPool();
-            alert('新增失敗：無法同步到伺服器');
+            showToast('新增失敗：' + err.message, 3000);
         } finally {
             hideSyncOverlay();
         }
@@ -717,7 +718,7 @@ async function savePoolEdit(e) {
         }
         showToast('已儲存！');
     } catch (err) {
-        alert('儲存失敗：無法同步到伺服器');
+        showToast('儲存失敗：' + err.message, 3000);
     } finally {
         hideSyncOverlay();
     }
@@ -1117,9 +1118,9 @@ function renderItineraryForDay(dayStr) {
 
         const hasPhotos = item.photos && item.photos.length > 0;
         const isPool = !!item._poolId;
-        const editBtn = isPool ? '' : `<button class="action-btn edit" title="編輯" onclick="openEditEventModal('${dayStr}', '${item.id}')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>`;
+        const editBtn = isPool
+            ? `<button class="action-btn edit" title="編輯" onclick="openPoolEditModal('${item._poolId}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
+            : `<button class="action-btn edit" title="編輯" onclick="openEditEventModal('${dayStr}', '${item.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`;
         div.innerHTML = `
             <div class="timeline-card ${hasPhotos ? 'has-photo' : ''}">
                 <div class="timeline-actions">
