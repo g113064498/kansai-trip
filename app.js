@@ -1628,7 +1628,7 @@ async function addPoolItemToItinerary(poolId) {
     try {
         const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay, photos: item.photos || [], location: item.location || '', time: item.time || '' };
         const productData = {
-            title: item.title,
+            title: item.title || '未命名景點',
             content: JSON.stringify(content),
             category: '候選景點',
             origin_price: item.cost || 0,
@@ -1663,7 +1663,7 @@ async function addPoolItemToItinerary(poolId) {
         db.itinerary[targetDay] = db.itinerary[targetDay].filter(e => e._poolId !== item.id);
         selectDay(targetDay);
         renderPool();
-        alert('加入失敗：無法同步到伺服器');
+        showToast('加入失敗：' + err.message, 3000);
     } finally {
         hideSyncOverlay();
         saveToLocalStorage();
