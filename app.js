@@ -453,7 +453,7 @@ async function loadFromRemote() {
                 cost: data.cost || p.origin_price || 0,
                 category: data.category || 'sightseeing',
                 isEnabled: p.is_enabled == 1 || p.is_enabled === true,
-                day: data.day || '',
+                day: (p.is_enabled == 1 && p.unit && p.unit !== '景點') ? p.unit : '',
                 photos: data.photos || [],
                 location: data.location || '',
                 time: data.time || '',
@@ -1651,7 +1651,7 @@ async function addPoolItemToItinerary(poolId) {
             category: '候選景點',
             origin_price: item.cost || 0,
             price: 0,
-            unit: '景點',
+            unit: targetDay,
             is_enabled: 1,
             num: 1
         };
