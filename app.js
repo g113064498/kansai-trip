@@ -451,7 +451,7 @@ async function loadFromRemote() {
                 desc: data.desc || '',
                 cost: data.cost || p.origin_price || 0,
                 category: data.category || 'sightseeing',
-                isEnabled: p.is_enabled === 1 || p.is_enabled === true,
+                isEnabled: p.is_enabled == 1 || p.is_enabled === true,
                 day: data.day || '',
                 photos: data.photos || [],
                 location: data.location || '',
