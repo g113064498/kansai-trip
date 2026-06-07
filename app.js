@@ -759,53 +759,6 @@ async function saveItineraryToRemote() {
     }
 }
 
-async function saveMessagesToRemote() {
-    if (!db) return;
-    showSyncOverlay();
-    try { setSyncStatus('syncing'); await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages || [])); setSyncStatus('synced'); }
-    catch (err) { console.warn('[Sync] 留言同步失敗:', err); setSyncStatus('offline'); }
-    finally { hideSyncOverlay(); }
-}
-
-let syncInFlight = null;
-async function saveItineraryToRemote() {
-    if (!db) return;
-    if (syncInFlight) {
-        await syncInFlight.catch(() => {});
-    }
-    showSyncOverlay();
-    syncInFlight = (async () => {
-        setSyncStatus('syncing');
-        const currentDates = Object.keys(db.itinerary || {});
-        for (const date of currentDates) {
-            const events = db.itinerary[date];
-            if (events && events.length > 0) {
-                await ensureProduct(date, JSON.stringify(cleanEvents(events)));
-            }
-        }
-        const allProducts = await hexAPI.getProducts();
-        const emptyDates = currentDates.filter(d => !db.itinerary[d] || db.itinerary[d].length === 0);
-        for (const prod of allProducts) {
-            if (prod.category === '行程' && (!currentDates.includes(prod.title) || emptyDates.includes(prod.title))) {
-                await hexAPI.deleteProduct(prod.id);
-                removeCacheId('prod', `prod:${prod.title}`);
-            }
-        }
-        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
-        setSyncStatus('synced');
-    })();
-    try { 
-        await syncInFlight; 
-    } catch (err) {
-        console.error('[Sync] 行程同步失敗:', err);
-        setSyncStatus('offline');
-        throw err;
-    } finally { 
-        syncInFlight = null; 
-        hideSyncOverlay();
-    }
-}
-
 // LOGIN FLOW
 function ensureLogin() {
     const token = getToken();
@@ -1505,22 +1458,28 @@ function saveEvent(e) {
 }
 
 // MOVE EVENT (UP / DOWN)
-function moveEvent(dayStr, index, direction) {
+async function moveEvent(dayStr, index, direction) {
     const items = db.itinerary[dayStr];
     if (!items) return;
 
     const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= items.length) return; // Out of bounds
+    if (targetIndex < 0 || targetIndex >= items.length) return;
 
-    // Swap
     const temp = items[index];
     items[index] = items[targetIndex];
     items[targetIndex] = temp;
 
     renderItineraryForDay(dayStr);
-    saveItineraryToRemote().catch(err => {
+    try {
+        await saveItineraryToRemote();
+    } catch (err) {
+        // Rollback
+        const t = items[index];
+        items[index] = items[targetIndex];
+        items[targetIndex] = t;
+        renderItineraryForDay(dayStr);
         console.warn('[MoveEvent] 同步失敗:', err.message);
-    });
+    }
 }
 
 // DELETE EVENT (pool items: set isEnabled=false; flights/hotels: remove from itinerary)
