@@ -444,6 +444,7 @@ async function loadFromRemote() {
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
         const apiPoolItems = poolProducts.map(p => {
             const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
+            console.log('[Load] 池產品:', p.title, 'is_enabled=', p.is_enabled, 'day=', data.day);
             return {
                 id: 'api-' + p.id,
                 city: data.city || 'Kyoto',
@@ -1638,12 +1639,15 @@ async function addPoolItemToItinerary(poolId) {
             num: 1
         };
         if (item._productId) {
+            console.log('[Add] 更新產品:', item._productId, 'is_enabled=1 day=' + targetDay);
             await hexAPI.updateProduct(item._productId, productData);
+            console.log('[Add] 更新成功');
         } else {
             const newId = await ensurePoolProduct(item);
             if (!newId) throw new Error('建立產品失敗');
             item._productId = newId;
             newEntry._productId = newId;
+            console.log('[Add] 建立產品:', newId, 'is_enabled=1 day=' + targetDay);
             await hexAPI.updateProduct(newId, {
                 title: item.title || '未命名景點',
                 content: JSON.stringify(content),
