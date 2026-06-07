@@ -618,7 +618,16 @@ function editPoolTime(poolId, itemId, el) {
         if (item._productId) {
             try {
                 const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };
-                await hexAPI.updateProduct(item._productId, { content: JSON.stringify(content), is_enabled: item.isEnabled ? 1 : 0 });
+                await hexAPI.updateProduct(item._productId, {
+                    title: item.title || '未命名景點',
+                    content: JSON.stringify(content),
+                    category: '候選景點',
+                    origin_price: item.cost || 0,
+                    price: 0,
+                    unit: '景點',
+                    is_enabled: item.isEnabled ? 1 : 0,
+                    num: 1
+                });
             } catch (e) { console.warn('[EditTime] 同步失敗:', e.message); showToast('時間編輯失敗：' + e.message, 2000); }
         }
     };
@@ -1537,7 +1546,17 @@ async function deleteEvent(dayStr, id) {
             poolItem.isEnabled = false;
             poolItem.day = '';
             if (poolItem._productId) {
-                hexAPI.updateProduct(poolItem._productId, { is_enabled: 0 }).catch(function(){});
+                const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
+                hexAPI.updateProduct(poolItem._productId, {
+                    title: poolItem.title || '未命名景點',
+                    content: JSON.stringify(content),
+                    category: '候選景點',
+                    origin_price: poolItem.cost || 0,
+                    price: 0,
+                    unit: '景點',
+                    is_enabled: 0,
+                    num: 1
+                }).catch(function(e){ console.warn('[Delete] 更新 is_enabled 失敗:', e.message); });
             }
         }
         renderItineraryForDay(dayStr);
@@ -1625,7 +1644,16 @@ async function addPoolItemToItinerary(poolId) {
             if (!newId) throw new Error('建立產品失敗');
             item._productId = newId;
             newEntry._productId = newId;
-            await hexAPI.updateProduct(newId, { content: JSON.stringify(content), is_enabled: 1 });
+            await hexAPI.updateProduct(newId, {
+                title: item.title || '未命名景點',
+                content: JSON.stringify(content),
+                category: '候選景點',
+                origin_price: item.cost || 0,
+                price: 0,
+                unit: '景點',
+                is_enabled: 1,
+                num: 1
+            });
         }
         updateBudgetCalculations();
         showToast(`已將「${item.title}」排入 Day ${selectionIndex + 1}！`, 2000);
