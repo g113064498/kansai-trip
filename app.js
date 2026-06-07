@@ -466,6 +466,16 @@ async function loadFromRemote() {
         const initialOnly = (db.attractionPool || []).filter(p => !apiTitles.has(p.title));
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
+        // Fix: items with isEnabled but no day → reset to pool
+        for (const item of db.attractionPool) {
+            if (item.isEnabled && !item.day) {
+                item.isEnabled = false;
+                if (item._productId) {
+                    hexAPI.updateProduct(item._productId, { is_enabled: 0 }).catch(function(){});
+                }
+            }
+        }
+
         // Add enabled pool items to itinerary by day
         for (const item of db.attractionPool) {
             if (item.isEnabled && item.day && db.itinerary.hasOwnProperty(item.day)) {
