@@ -76,64 +76,64 @@ const initialTripData = {
         ]
     },
     attractionPool: [
-        { id: "p1", city: "Kyoto", title: "清水寺 🌸", desc: "06:00-18:00。京都最具代表性寺廟，主殿舞台景觀壯麗，推薦清晨前去避開人潮。", cost: 400, category: "sightseeing", status: "scheduled" },
-        { id: "p2", city: "Kyoto", title: "二、三年坂 🏮", desc: "24小時開放。傳統石板坡道，古色古香。建議清晨 6 點去完全沒人，極好拍照。", cost: 0, category: "sightseeing", status: "scheduled" },
-        { id: "p3", city: "Kyoto", title: "伏見稻荷大社 🦊", desc: "24小時開放。千本鳥居非常壯觀，建議早上 7 點前抵達避開大量團體遊客。", cost: 0, category: "sightseeing", status: "scheduled" },
-        { id: "p4", city: "Kyoto", title: "平安神宮 ⛩️", desc: "06:00-17:00。擁有巨大的紅色大鳥居，庭園景色優美。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p5", city: "Kyoto", title: "八坂神社", desc: "24小時開放。晚上會點燈，非常浪漫，適合夜間散步。", cost: 0, category: "sightseeing", status: "scheduled" },
-        { id: "p6", city: "Kyoto", title: "鴨川 Shijō Bridge 🌊", desc: "下午快日落時去非常美麗，可以坐在河畔吹風放鬆。", cost: 0, category: "sightseeing", status: "scheduled" },
-        { id: "p7", city: "Kyoto", title: "北野天滿宮 🍁", desc: "07:00-20:00。主祀學問之神菅原道真，秋天也是賞楓名所。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p8", city: "Kyoto", title: "京都御苑 🌲", desc: "前皇室御花園，佔地廣大，散步極為舒服。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p9", city: "Kyoto", title: "錦市場 🍢", desc: "京都的廚房，有各式海鮮、小吃。注意有店家不開放邊走邊吃。", cost: 0, category: "food", status: "scheduled" },
-        { id: "p10", city: "Kyoto", title: "Onimaru Kyoto Shijo Kawaramachi 🍙", desc: "精緻好吃的飯糰店，Threads 熱門打卡美食。", cost: 800, category: "food", status: "pool" },
-        { id: "p11", city: "Kyoto", title: "Sukiyaki Kimura 🍲", desc: "12:00-20:30（週一、週五公休）。Threads 推薦的傳統平價壽喜燒老店。", cost: 3000, category: "food", status: "scheduled" },
-        { id: "p12", city: "Kyoto", title: "麵屋 豬一 🍜", desc: "11:00-14:30 / 17:30-21:00。超人氣排隊拉麵店，不接受預約，湯頭清甜精緻。", cost: 1500, category: "food", status: "scheduled" },
-        { id: "p13", city: "Osaka", title: "大阪城公園 🏯", desc: "09:00-17:00。入園免費，上天守閣需要門票（約 ¥600）。雄偉的大阪象徵。", cost: 600, category: "sightseeing", status: "scheduled" },
-        { id: "p14", city: "Osaka", title: "大阪歷史博物館 🏛️", desc: "常設展展出大阪的歷史變遷，與大阪城公園相鄰。", cost: 600, category: "sightseeing", status: "pool" },
-        { id: "p15", city: "Osaka", title: "心齋橋 & 道頓堀 🛍️", desc: "購物美食天堂。有 Shinsaibashi PARCO、大丸百貨、Uniqlo、Daiso、唐吉訶德與跑跑人招牌。晚餐可吃千房大阪燒。", cost: 0, category: "shopping", status: "scheduled" },
-        { id: "p16", city: "Osaka", title: "大阪日本橋電器街 🎮", desc: "11:00-19:00。類似東京秋葉原，充滿動漫、遊戲周邊與電子產品。", cost: 0, category: "shopping", status: "pool" },
-        { id: "p17", city: "Osaka", title: "通天閣 & 新世界 🗼", desc: "傳統大阪老街風情。可以在 Spaworld 門口樓梯拍照，通天閣有滑梯。⚠️備註：炸串聽說容易踩雷，請小心挑選。", cost: 1000, category: "sightseeing", status: "pool" },
-        { id: "p18", city: "Osaka", title: "四天王寺 🛕", desc: "08:30-16:00. 日本最古老的官寺之一。步行 15 分鐘（1.1公里）可達通天閣。", cost: 300, category: "sightseeing", status: "pool" },
-        { id: "p19", city: "Osaka", title: "黑門市場 ⚠️", desc: "⚠️避坑指南：近年海鮮價格高漲，專門宰觀光客，多數網友極不推薦去，建議改去木津市場或天滿市場。", cost: 0, category: "food", status: "pool" },
-        { id: "p20", city: "Osaka", title: "勝尾寺 🔴", desc: "08:00-17:00。滿山滿谷紅色達摩。交通：搭御堂筋線到「箕面萱野」，轉8號月台30號公車（約 22 分鐘，單程 ¥800，最晚回程 17:05）。計程車單程約 ¥3200。回程可到 箕面Q's MALL 用餐。", cost: 500, category: "sightseeing", status: "scheduled" },
-        { id: "p21", city: "Osaka", title: "橘子街 (Orange Street) 🍊", desc: "雲集了各大時尚潮牌與特色文青咖啡廳，適合逛街採購衣服鞋子。", cost: 0, category: "shopping", status: "scheduled" },
-        { id: "p22", city: "Osaka", title: "梅田藍天大樓 🌌", desc: "09:30-22:30（門票 ¥2000）。39樓售票，41樓為空中庭園展望台，看夜景極美。⚠️與 Harukas 300 擇一即可。", cost: 2000, category: "sightseeing", status: "scheduled" },
-        { id: "p23", city: "Osaka", title: "難波八阪神社 🦁️", desc: "06:30-17:00。巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地。", cost: 0, category: "sightseeing", status: "scheduled" },
-        { id: "p24", city: "Osaka", title: "天滿市場 & 天神橋筋商店街 🛍️", desc: "日本最長商店街！OS藥妝（10:00-17:45，極便宜，只收現金不能退稅）、中村屋可樂餅（09:00-18:00，週日休）、千草大阪燒（11:00-21:00，週二休）。", cost: 0, category: "shopping", status: "scheduled" },
-        { id: "p25", city: "Osaka", title: "大阪天滿宮 ⛩️", desc: "關西求學業、事業最知名的神社，主祀天神菅原道真。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p26", city: "Osaka", title: "Abeno Harukas 300 展望台 🏙️", desc: "09:00-22:00。日本最高大樓的 360 度觀景台，看大阪市區夜景首選。⚠️與藍天大樓二選一。", cost: 2000, category: "sightseeing", status: "pool" },
-        { id: "p27", city: "Kyoto", title: "DONGURI Shijo-Omiya Store 🍴", desc: "四條大宮站附近的知名京都御好燒（大阪燒/鐵板燒）連鎖店。店內裝潢有日式居酒屋風情，御好燒與炒麵味道濃郁，營業至深夜。", cost: 3000, category: "food", status: "pool" },
-        { id: "p28", city: "Kyoto", title: "GION GOZU 四条店 🍴", desc: "位於祇園四條附近的精緻甜點烘焙店，主打以宇治抹茶或新鮮水果製作的乳酪蛋糕與法式糕點，非常適合外帶享用。", cost: 1000, category: "food", status: "pool" },
-        { id: "p29", city: "Osaka", title: "HARBS Namba Parks 🍴", desc: "位於難波 Parks 商場內的名店，招牌「水果千層蛋糕（Mille Crepes）」鮮奶油清爽不膩，搭配豐富新鮮水果，是關西必吃的甜點。", cost: 1200, category: "food", status: "pool" },
-        { id: "p30", city: "Osaka", title: "HARBS 心齋橋Parco店 🍴", desc: "位於心齋橋 Parco 百貨內，交通極為便利。逛街逛累時，非常適合進來享用一片招牌千層蛋糕與下午茶咖啡。", cost: 1200, category: "food", status: "pool" },
-        { id: "p31", city: "Osaka", title: "Kusaka Curry Namba DINING MAISON 🍴", desc: "高島屋難波店美食街的高評價日式咖哩店，以濃郁滑順的特製熟成咖哩醬和酥脆的炸豬排聞名，口味層次豐富。", cost: 1500, category: "food", status: "pool" },
-        { id: "p32", city: "Kyoto", title: "Mamemono and Taiyaki 🍴", desc: "位於嵐山的超人氣鯛魚燒店，主打「賞味期限一分鐘」的牛油鯛魚燒。現烤外皮酥脆，裡面夾著冰涼的厚牛油與紅豆餡，香濃美味。", cost: 500, category: "food", status: "pool" },
-        { id: "p33", city: "Osaka", title: "Os Drug 天滿店 🛍️", desc: "天神橋筋商店街內的超便宜藥妝店。雖然店面小且只收現金，但許多熱門藥妝的價格比連鎖退稅藥妝店還要便宜許多！", cost: 0, category: "shopping", status: "pool" },
-        { id: "p34", city: "Kyoto", title: "Shabucho 🍴", desc: "京都極受歡迎的個人或雙人涮涮鍋/壽喜燒餐廳。提供美味的國產牛與精緻配料，湯頭清淡甘甜，深受遊客與在地人喜愛。", cost: 5000, category: "food", status: "pool" },
-        { id: "p35", city: "Kyoto", title: "Shabuwara 壽喜燒 涮涮鍋 花月店 🍴", desc: "位於四條大宮附近的高評價日式火鍋餐廳，主打優質的壽喜燒與涮涮鍋。肉質鮮美、服務貼心，適合情侶悠閒享用晚餐。", cost: 6000, category: "food", status: "pool" },
-        { id: "p36", city: "Osaka", title: "お好み焼 ( 大阪燒 ) 千草 🍴", desc: "天滿站附近的隱藏版老字號大阪燒店，曾獲米其林推薦。招牌「千草燒」外皮焦香、內裡高麗菜清甜，醬汁濃郁美味。", cost: 1500, category: "food", status: "pool" },
-        { id: "p37", city: "Kyoto", title: "ペアキーホルダー専門店 2/8b 京都三条店 🛍️", desc: "專門販售成雙成對皮製鑰匙圈與吊飾的文創雜貨鋪。可以現場客製化刻字，非常適合情侶挑選專屬的旅行紀念禮物。", cost: 3000, category: "shopping", status: "pool" },
-        { id: "p38", city: "Kyoto", title: "二條城 📍", desc: "曾為德川家康在京都的寓所，二之丸御殿內以「鶯聲地板」聞名。庭園秋楓景色優美，且會舉辦數位藝術光雕夜間展演。", cost: 800, category: "sightseeing", status: "pool" },
-        { id: "p39", city: "Kyoto", title: "京都塔 📍", desc: "京都車站前醒目的白色地標，頂部觀景台可 360 度俯瞰京都市區與遠山。塔下大樓內有美食街與豐富的伴手禮店。", cost: 900, category: "sightseeing", status: "pool" },
-        { id: "p40", city: "Osaka", title: "唐吉訶德 道頓堀店 🛍️", desc: "道頓堀運河旁、醒目黃色惠比壽摩天輪的大型驚安殿堂。24小時營業，藥妝、零食、伴手禮應有盡有，是採購與退稅首選。", cost: 0, category: "shopping", status: "pool" },
-        { id: "p41", city: "Osaka", title: "大阪燒 千房 🍴", desc: "道頓堀超知名大阪燒連鎖品牌，以美乃滋拉花特技聞名。用餐氣氛熱絡，食材新鮮，適合體驗道地大阪鐵板美食。", cost: 2000, category: "food", status: "pool" },
-        { id: "p42", city: "Kyoto", title: "天橋立View Land 📍", desc: "日本三景之一「天橋立」的絕佳觀景樂園。從山上俯瞰，天橋立沙洲宛如一條飛龍。設有經典的「倒過來看」觀景台。", cost: 850, category: "sightseeing", status: "pool" },
-        { id: "p43", city: "Osaka", title: "心齋橋PARCO 🛍️", desc: "與大丸百貨相連的時尚商場，6樓設有吉卜力共和國、卡普空與蠟筆小新等超人氣動漫角色專賣店，B2美食街氣氛極佳。", cost: 0, category: "shopping", status: "pool" },
-        { id: "p44", city: "Kyoto", title: "東寺(教王護國寺) 📍", desc: "擁有日本最高木造五重塔的古老寺廟。秋季會開放限定的夜間特別拜觀與紅楓點燈，倒映在水池中的五重塔與紅葉美不勝收。", cost: 1000, category: "sightseeing", status: "pool" },
-        { id: "p45", city: "Kyoto", title: "渡月橋 📍", desc: "嵐山地標性木造橋樑，背靠嵐山紅楓。秋天楓紅滿山時景色絕美，是京都最經典的賞楓與拍照景點之一。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p46", city: "Kyoto", title: "西本願寺 📍", desc: "世界文化遺產，寺內擁有兩棵樹齡超過400年的巨大「御影堂大銀杏」。秋天金黃大樹與古樸寺廟殿堂交織，景致極為壯觀。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p47", city: "Kyoto", title: "貴船神社 📍", desc: "位於京都北郊山區的神社，以石階兩旁的紅色獻燈與水占卜聞名。秋季楓葉隧道點燈非常浪漫，是祈求姻緣與戀愛運的聖地。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p48", city: "Osaka", title: "購物中心 HEP FIVE 🛍️", desc: "梅田地標性紅色摩天輪商場，主要客群為年輕流行服飾。摩天輪可在高空俯瞰大阪市中心夜景，非常適合情侶約會。", cost: 600, category: "shopping", status: "pool" },
-        { id: "p49", city: "Kyoto", title: "高台寺 🏮", desc: "09:00-17:30（17:00 停止報到）。參觀完清水寺後可順道前往。特別夜間觀賞期間延長至 22:00 亮燈（最後入場 21:30）。", cost: 800, category: "sightseeing", status: "pool" },
-        { id: "p50", city: "Kyoto", title: "慈照寺（銀閣寺） 🍁", desc: "08:30-17:00（夏季 3月-11月）。世界文化遺產，枯山水庭園與銀沙灘著名，哲學之道起點。", cost: 1000, category: "sightseeing", status: "pool" },
-        { id: "p51", city: "Kyoto", title: "永觀堂（禪林寺） 🍁", desc: "09:00-16:00（17:00 關閉大門）。秋季紅葉名所「紅葉的永觀堂」。寺廟內除花園外禁止拍照錄影，參觀者自備鞋袋。", cost: 1000, category: "sightseeing", status: "pool" },
-        { id: "p52", city: "Kyoto", title: "北野天滿宮 🍁", desc: "07:00-17:00。主祀學問之神菅原道真，秋天也是賞楓名所。御土居紅葉隧道極美。", cost: 1000, category: "sightseeing", status: "pool" },
-        { id: "p53", city: "Kyoto", title: "金閣寺（鹿苑寺） ✨", desc: "09:00-17:00。金碧輝煌的舍利塔倒映在鏡湖池，京都最具代表性的地標之一。", cost: 500, category: "sightseeing", status: "pool" },
-        { id: "p54", city: "Kyoto", title: "賀茂御祖神社（下鴨神社） ⛩️", desc: "10:00-16:00。世界文化遺產，京都最古老神社之一。參觀時間約一小時，附近有糺之森。", cost: 1000, category: "sightseeing", status: "pool" },
-        { id: "p55", city: "Kyoto", title: "京都御苑 🌲", desc: "24 小時開放。皇室舊御花園，佔地廣大、環境清幽，春季賞櫻秋季賞楓名所，免費入場。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p56", city: "Kyoto", title: "二條城 🏯", desc: "08:45-16:00（17:00 關閉）。入城券+二之丸御殿參觀券 1,300 日圓。二之丸御殿及本丸御殿內禁止攝影，建議事先購買網路預售票。", cost: 1300, category: "sightseeing", status: "pool" },
-        { id: "p57", city: "Kyoto", title: "西本願寺 🍁", desc: "05:30-17:00，免費。世界文化遺產，擁有兩棵樹齡超過 400 年的巨大御影堂銀杏。", cost: 0, category: "sightseeing", status: "pool" },
-        { id: "p58", city: "Kyoto", title: "東寺（教王護國寺） 🗼", desc: "大門 05:00-17:00，一般參拜免費。日本最高木造五重塔，秋季夜間拜觀點燈極美。", cost: 0, category: "sightseeing", status: "pool" },
+        { id: "p1", city: "Kyoto", title: "清水寺 🌸", desc: "06:00-18:00。京都最具代表性寺廟，主殿舞台景觀壯麗，推薦清晨前去避開人潮。", cost: 400, category: "sightseeing", isEnabled: true },
+        { id: "p2", city: "Kyoto", title: "二、三年坂 🏮", desc: "24小時開放。傳統石板坡道，古色古香。建議清晨 6 點去完全沒人，極好拍照。", cost: 0, category: "sightseeing", isEnabled: true },
+        { id: "p3", city: "Kyoto", title: "伏見稻荷大社 🦊", desc: "24小時開放。千本鳥居非常壯觀，建議早上 7 點前抵達避開大量團體遊客。", cost: 0, category: "sightseeing", isEnabled: true },
+        { id: "p4", city: "Kyoto", title: "平安神宮 ⛩️", desc: "06:00-17:00。擁有巨大的紅色大鳥居，庭園景色優美。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p5", city: "Kyoto", title: "八坂神社", desc: "24小時開放。晚上會點燈，非常浪漫，適合夜間散步。", cost: 0, category: "sightseeing", isEnabled: true },
+        { id: "p6", city: "Kyoto", title: "鴨川 Shijō Bridge 🌊", desc: "下午快日落時去非常美麗，可以坐在河畔吹風放鬆。", cost: 0, category: "sightseeing", isEnabled: true },
+        { id: "p7", city: "Kyoto", title: "北野天滿宮 🍁", desc: "07:00-20:00。主祀學問之神菅原道真，秋天也是賞楓名所。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p8", city: "Kyoto", title: "京都御苑 🌲", desc: "前皇室御花園，佔地廣大，散步極為舒服。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p9", city: "Kyoto", title: "錦市場 🍢", desc: "京都的廚房，有各式海鮮、小吃。注意有店家不開放邊走邊吃。", cost: 0, category: "food", isEnabled: true },
+        { id: "p10", city: "Kyoto", title: "Onimaru Kyoto Shijo Kawaramachi 🍙", desc: "精緻好吃的飯糰店，Threads 熱門打卡美食。", cost: 800, category: "food", isEnabled: false },
+        { id: "p11", city: "Kyoto", title: "Sukiyaki Kimura 🍲", desc: "12:00-20:30（週一、週五公休）。Threads 推薦的傳統平價壽喜燒老店。", cost: 3000, category: "food", isEnabled: true },
+        { id: "p12", city: "Kyoto", title: "麵屋 豬一 🍜", desc: "11:00-14:30 / 17:30-21:00。超人氣排隊拉麵店，不接受預約，湯頭清甜精緻。", cost: 1500, category: "food", isEnabled: true },
+        { id: "p13", city: "Osaka", title: "大阪城公園 🏯", desc: "09:00-17:00。入園免費，上天守閣需要門票（約 ¥600）。雄偉的大阪象徵。", cost: 600, category: "sightseeing", isEnabled: true },
+        { id: "p14", city: "Osaka", title: "大阪歷史博物館 🏛️", desc: "常設展展出大阪的歷史變遷，與大阪城公園相鄰。", cost: 600, category: "sightseeing", isEnabled: false },
+        { id: "p15", city: "Osaka", title: "心齋橋 & 道頓堀 🛍️", desc: "購物美食天堂。有 Shinsaibashi PARCO、大丸百貨、Uniqlo、Daiso、唐吉訶德與跑跑人招牌。晚餐可吃千房大阪燒。", cost: 0, category: "shopping", isEnabled: true },
+        { id: "p16", city: "Osaka", title: "大阪日本橋電器街 🎮", desc: "11:00-19:00。類似東京秋葉原，充滿動漫、遊戲周邊與電子產品。", cost: 0, category: "shopping", isEnabled: false },
+        { id: "p17", city: "Osaka", title: "通天閣 & 新世界 🗼", desc: "傳統大阪老街風情。可以在 Spaworld 門口樓梯拍照，通天閣有滑梯。⚠️備註：炸串聽說容易踩雷，請小心挑選。", cost: 1000, category: "sightseeing", isEnabled: false },
+        { id: "p18", city: "Osaka", title: "四天王寺 🛕", desc: "08:30-16:00. 日本最古老的官寺之一。步行 15 分鐘（1.1公里）可達通天閣。", cost: 300, category: "sightseeing", isEnabled: false },
+        { id: "p19", city: "Osaka", title: "黑門市場 ⚠️", desc: "⚠️避坑指南：近年海鮮價格高漲，專門宰觀光客，多數網友極不推薦去，建議改去木津市場或天滿市場。", cost: 0, category: "food", isEnabled: false },
+        { id: "p20", city: "Osaka", title: "勝尾寺 🔴", desc: "08:00-17:00。滿山滿谷紅色達摩。交通：搭御堂筋線到「箕面萱野」，轉8號月台30號公車（約 22 分鐘，單程 ¥800，最晚回程 17:05）。計程車單程約 ¥3200。回程可到 箕面Q's MALL 用餐。", cost: 500, category: "sightseeing", isEnabled: true },
+        { id: "p21", city: "Osaka", title: "橘子街 (Orange Street) 🍊", desc: "雲集了各大時尚潮牌與特色文青咖啡廳，適合逛街採購衣服鞋子。", cost: 0, category: "shopping", isEnabled: true },
+        { id: "p22", city: "Osaka", title: "梅田藍天大樓 🌌", desc: "09:30-22:30（門票 ¥2000）。39樓售票，41樓為空中庭園展望台，看夜景極美。⚠️與 Harukas 300 擇一即可。", cost: 2000, category: "sightseeing", isEnabled: true },
+        { id: "p23", city: "Osaka", title: "難波八阪神社 🦁️", desc: "06:30-17:00。巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地。", cost: 0, category: "sightseeing", isEnabled: true },
+        { id: "p24", city: "Osaka", title: "天滿市場 & 天神橋筋商店街 🛍️", desc: "日本最長商店街！OS藥妝（10:00-17:45，極便宜，只收現金不能退稅）、中村屋可樂餅（09:00-18:00，週日休）、千草大阪燒（11:00-21:00，週二休）。", cost: 0, category: "shopping", isEnabled: true },
+        { id: "p25", city: "Osaka", title: "大阪天滿宮 ⛩️", desc: "關西求學業、事業最知名的神社，主祀天神菅原道真。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p26", city: "Osaka", title: "Abeno Harukas 300 展望台 🏙️", desc: "09:00-22:00。日本最高大樓的 360 度觀景台，看大阪市區夜景首選。⚠️與藍天大樓二選一。", cost: 2000, category: "sightseeing", isEnabled: false },
+        { id: "p27", city: "Kyoto", title: "DONGURI Shijo-Omiya Store 🍴", desc: "四條大宮站附近的知名京都御好燒（大阪燒/鐵板燒）連鎖店。店內裝潢有日式居酒屋風情，御好燒與炒麵味道濃郁，營業至深夜。", cost: 3000, category: "food", isEnabled: false },
+        { id: "p28", city: "Kyoto", title: "GION GOZU 四条店 🍴", desc: "位於祇園四條附近的精緻甜點烘焙店，主打以宇治抹茶或新鮮水果製作的乳酪蛋糕與法式糕點，非常適合外帶享用。", cost: 1000, category: "food", isEnabled: false },
+        { id: "p29", city: "Osaka", title: "HARBS Namba Parks 🍴", desc: "位於難波 Parks 商場內的名店，招牌「水果千層蛋糕（Mille Crepes）」鮮奶油清爽不膩，搭配豐富新鮮水果，是關西必吃的甜點。", cost: 1200, category: "food", isEnabled: false },
+        { id: "p30", city: "Osaka", title: "HARBS 心齋橋Parco店 🍴", desc: "位於心齋橋 Parco 百貨內，交通極為便利。逛街逛累時，非常適合進來享用一片招牌千層蛋糕與下午茶咖啡。", cost: 1200, category: "food", isEnabled: false },
+        { id: "p31", city: "Osaka", title: "Kusaka Curry Namba DINING MAISON 🍴", desc: "高島屋難波店美食街的高評價日式咖哩店，以濃郁滑順的特製熟成咖哩醬和酥脆的炸豬排聞名，口味層次豐富。", cost: 1500, category: "food", isEnabled: false },
+        { id: "p32", city: "Kyoto", title: "Mamemono and Taiyaki 🍴", desc: "位於嵐山的超人氣鯛魚燒店，主打「賞味期限一分鐘」的牛油鯛魚燒。現烤外皮酥脆，裡面夾著冰涼的厚牛油與紅豆餡，香濃美味。", cost: 500, category: "food", isEnabled: false },
+        { id: "p33", city: "Osaka", title: "Os Drug 天滿店 🛍️", desc: "天神橋筋商店街內的超便宜藥妝店。雖然店面小且只收現金，但許多熱門藥妝的價格比連鎖退稅藥妝店還要便宜許多！", cost: 0, category: "shopping", isEnabled: false },
+        { id: "p34", city: "Kyoto", title: "Shabucho 🍴", desc: "京都極受歡迎的個人或雙人涮涮鍋/壽喜燒餐廳。提供美味的國產牛與精緻配料，湯頭清淡甘甜，深受遊客與在地人喜愛。", cost: 5000, category: "food", isEnabled: false },
+        { id: "p35", city: "Kyoto", title: "Shabuwara 壽喜燒 涮涮鍋 花月店 🍴", desc: "位於四條大宮附近的高評價日式火鍋餐廳，主打優質的壽喜燒與涮涮鍋。肉質鮮美、服務貼心，適合情侶悠閒享用晚餐。", cost: 6000, category: "food", isEnabled: false },
+        { id: "p36", city: "Osaka", title: "お好み焼 ( 大阪燒 ) 千草 🍴", desc: "天滿站附近的隱藏版老字號大阪燒店，曾獲米其林推薦。招牌「千草燒」外皮焦香、內裡高麗菜清甜，醬汁濃郁美味。", cost: 1500, category: "food", isEnabled: false },
+        { id: "p37", city: "Kyoto", title: "ペアキーホルダー専門店 2/8b 京都三条店 🛍️", desc: "專門販售成雙成對皮製鑰匙圈與吊飾的文創雜貨鋪。可以現場客製化刻字，非常適合情侶挑選專屬的旅行紀念禮物。", cost: 3000, category: "shopping", isEnabled: false },
+        { id: "p38", city: "Kyoto", title: "二條城 📍", desc: "曾為德川家康在京都的寓所，二之丸御殿內以「鶯聲地板」聞名。庭園秋楓景色優美，且會舉辦數位藝術光雕夜間展演。", cost: 800, category: "sightseeing", isEnabled: false },
+        { id: "p39", city: "Kyoto", title: "京都塔 📍", desc: "京都車站前醒目的白色地標，頂部觀景台可 360 度俯瞰京都市區與遠山。塔下大樓內有美食街與豐富的伴手禮店。", cost: 900, category: "sightseeing", isEnabled: false },
+        { id: "p40", city: "Osaka", title: "唐吉訶德 道頓堀店 🛍️", desc: "道頓堀運河旁、醒目黃色惠比壽摩天輪的大型驚安殿堂。24小時營業，藥妝、零食、伴手禮應有盡有，是採購與退稅首選。", cost: 0, category: "shopping", isEnabled: false },
+        { id: "p41", city: "Osaka", title: "大阪燒 千房 🍴", desc: "道頓堀超知名大阪燒連鎖品牌，以美乃滋拉花特技聞名。用餐氣氛熱絡，食材新鮮，適合體驗道地大阪鐵板美食。", cost: 2000, category: "food", isEnabled: false },
+        { id: "p42", city: "Kyoto", title: "天橋立View Land 📍", desc: "日本三景之一「天橋立」的絕佳觀景樂園。從山上俯瞰，天橋立沙洲宛如一條飛龍。設有經典的「倒過來看」觀景台。", cost: 850, category: "sightseeing", isEnabled: false },
+        { id: "p43", city: "Osaka", title: "心齋橋PARCO 🛍️", desc: "與大丸百貨相連的時尚商場，6樓設有吉卜力共和國、卡普空與蠟筆小新等超人氣動漫角色專賣店，B2美食街氣氛極佳。", cost: 0, category: "shopping", isEnabled: false },
+        { id: "p44", city: "Kyoto", title: "東寺(教王護國寺) 📍", desc: "擁有日本最高木造五重塔的古老寺廟。秋季會開放限定的夜間特別拜觀與紅楓點燈，倒映在水池中的五重塔與紅葉美不勝收。", cost: 1000, category: "sightseeing", isEnabled: false },
+        { id: "p45", city: "Kyoto", title: "渡月橋 📍", desc: "嵐山地標性木造橋樑，背靠嵐山紅楓。秋天楓紅滿山時景色絕美，是京都最經典的賞楓與拍照景點之一。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p46", city: "Kyoto", title: "西本願寺 📍", desc: "世界文化遺產，寺內擁有兩棵樹齡超過400年的巨大「御影堂大銀杏」。秋天金黃大樹與古樸寺廟殿堂交織，景致極為壯觀。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p47", city: "Kyoto", title: "貴船神社 📍", desc: "位於京都北郊山區的神社，以石階兩旁的紅色獻燈與水占卜聞名。秋季楓葉隧道點燈非常浪漫，是祈求姻緣與戀愛運的聖地。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p48", city: "Osaka", title: "購物中心 HEP FIVE 🛍️", desc: "梅田地標性紅色摩天輪商場，主要客群為年輕流行服飾。摩天輪可在高空俯瞰大阪市中心夜景，非常適合情侶約會。", cost: 600, category: "shopping", isEnabled: false },
+        { id: "p49", city: "Kyoto", title: "高台寺 🏮", desc: "09:00-17:30（17:00 停止報到）。參觀完清水寺後可順道前往。特別夜間觀賞期間延長至 22:00 亮燈（最後入場 21:30）。", cost: 800, category: "sightseeing", isEnabled: false },
+        { id: "p50", city: "Kyoto", title: "慈照寺（銀閣寺） 🍁", desc: "08:30-17:00（夏季 3月-11月）。世界文化遺產，枯山水庭園與銀沙灘著名，哲學之道起點。", cost: 1000, category: "sightseeing", isEnabled: false },
+        { id: "p51", city: "Kyoto", title: "永觀堂（禪林寺） 🍁", desc: "09:00-16:00（17:00 關閉大門）。秋季紅葉名所「紅葉的永觀堂」。寺廟內除花園外禁止拍照錄影，參觀者自備鞋袋。", cost: 1000, category: "sightseeing", isEnabled: false },
+        { id: "p52", city: "Kyoto", title: "北野天滿宮 🍁", desc: "07:00-17:00。主祀學問之神菅原道真，秋天也是賞楓名所。御土居紅葉隧道極美。", cost: 1000, category: "sightseeing", isEnabled: false },
+        { id: "p53", city: "Kyoto", title: "金閣寺（鹿苑寺） ✨", desc: "09:00-17:00。金碧輝煌的舍利塔倒映在鏡湖池，京都最具代表性的地標之一。", cost: 500, category: "sightseeing", isEnabled: false },
+        { id: "p54", city: "Kyoto", title: "賀茂御祖神社（下鴨神社） ⛩️", desc: "10:00-16:00。世界文化遺產，京都最古老神社之一。參觀時間約一小時，附近有糺之森。", cost: 1000, category: "sightseeing", isEnabled: false },
+        { id: "p55", city: "Kyoto", title: "京都御苑 🌲", desc: "24 小時開放。皇室舊御花園，佔地廣大、環境清幽，春季賞櫻秋季賞楓名所，免費入場。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p56", city: "Kyoto", title: "二條城 🏯", desc: "08:45-16:00（17:00 關閉）。入城券+二之丸御殿參觀券 1,300 日圓。二之丸御殿及本丸御殿內禁止攝影，建議事先購買網路預售票。", cost: 1300, category: "sightseeing", isEnabled: false },
+        { id: "p57", city: "Kyoto", title: "西本願寺 🍁", desc: "05:30-17:00，免費。世界文化遺產，擁有兩棵樹齡超過 400 年的巨大御影堂銀杏。", cost: 0, category: "sightseeing", isEnabled: false },
+        { id: "p58", city: "Kyoto", title: "東寺（教王護國寺） 🗼", desc: "大門 05:00-17:00，一般參拜免費。日本最高木造五重塔，秋季夜間拜觀點燈極美。", cost: 0, category: "sightseeing", isEnabled: false },
     ],
     checklist: [
         { id: "c1", category: "both", item: "中華民國護照 (確認效期6個月以上) 🛂", done: false },
@@ -392,12 +392,12 @@ async function ensureProduct(title, content) {
 async function ensurePoolProduct(item) {
     const productData = {
         title: item.title,
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category }),
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '' }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
         unit: '景點',
-        is_enabled: 1
+        is_enabled: item.isEnabled ? 1 : 0
     };
     const cacheKey = `pool:${item.id}`;
     const existingId = getCacheId('pool', cacheKey);
@@ -419,10 +419,9 @@ async function loadFromRemote() {
         setSyncStatus('syncing');
 
         db = JSON.parse(JSON.stringify(initialTripData));
-
         if (!db.messages) db.messages = [];
 
-        // Load master article → flights, hotels, budget, checklist, pool
+        // Load master article → flights, hotels, budget, checklist
         const allArticles = await hexAPI.getArticles();
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
         if (master) {
@@ -438,42 +437,43 @@ async function loadFromRemote() {
             } catch { /* skip corrupt master */ }
         }
 
-        // Load pool from Customer Products API (no auth, faster)
-        try {
-            const customerProducts = await hexAPI.getCustomerProductsAll();
-            const poolProducts = customerProducts.filter(p => p.category === '候選景點');
-            const apiPoolItems = poolProducts.map(p => {
-                const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
-                return {
-                    id: 'api-' + p.id,
-                    city: data.city || 'Kyoto',
-                    title: p.title,
-                    desc: data.desc || '',
-                    cost: data.cost || p.origin_price || 0,
-                    category: data.category || 'sightseeing',
-                    _productId: p.id
-                };
-            });
-            if (apiPoolItems.length > 0) {
-                // Use API products, merge with initial data for items not in API
-                const apiTitles = new Set(apiPoolItems.map(i => i.title));
-                const initialOnly = db.attractionPool.filter(p => !apiTitles.has(p.title));
-                db.attractionPool = [...apiPoolItems, ...initialOnly];
-            }
-        } catch (e) {
-            // Customer API failed, keep initial data as-is
-        }
-
-        // Load itinerary from Products API (API is source of truth)
+        // Load pool from Admin Products API (full CRUD)
         const allProducts = await hexAPI.getProducts();
-        for (const prod of allProducts) {
-            if (prod.category === '行程' && prod.title && prod.content) {
-                try {
-                    const events = JSON.parse(prod.content);
-                    if (Array.isArray(events) && events.length > 0) {
-                        db.itinerary[prod.title] = events;
-                    }
-                } catch { /* skip corrupt product */ }
+        const poolProducts = allProducts.filter(p => p.category === '候選景點');
+        const apiPoolItems = poolProducts.map(p => {
+            const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
+            return {
+                id: 'api-' + p.id,
+                city: data.city || 'Kyoto',
+                title: p.title,
+                desc: data.desc || '',
+                cost: data.cost || p.origin_price || 0,
+                category: data.category || 'sightseeing',
+                isEnabled: p.is_enabled === 1 || p.is_enabled === true,
+                day: data.day || '',
+                _productId: p.id
+            };
+        });
+
+        // Merge with initial data (items not yet synced to API)
+        const apiTitles = new Set(apiPoolItems.map(i => i.title));
+        const initialOnly = (db.attractionPool || []).filter(p => !apiTitles.has(p.title));
+        db.attractionPool = [...apiPoolItems, ...initialOnly];
+
+        // Add enabled pool items to itinerary by day
+        for (const item of db.attractionPool) {
+            if (item.isEnabled && item.day && db.itinerary.hasOwnProperty(item.day)) {
+                db.itinerary[item.day].push({
+                    id: item.id,
+                    _poolId: item.id,
+                    time: '10:00 - 12:00',
+                    title: item.title,
+                    desc: item.desc,
+                    cost: item.cost || 0,
+                    category: item.category,
+                    location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
+                    _productId: item._productId
+                });
             }
         }
 
@@ -489,7 +489,7 @@ async function loadFromRemote() {
             } catch { /* skip corrupt messages */ }
         }
 
-        // Sync initial pool items to API as products (so they can be deleted)
+        // Sync initial pool items to API as products (so they can be managed)
         try { await syncInitialPoolToAPI(); } catch (e) { console.warn('[Sync] initial pool sync failed:', e); }
         setSyncStatus('synced');
         return true;
@@ -497,6 +497,40 @@ async function loadFromRemote() {
         console.warn('[Sync] 讀取 API 失敗:', err);
         setSyncStatus('offline');
         return false;
+    }
+}
+
+async function addNewPoolCandidate() {
+    const title = prompt('請輸入候選景點名稱：');
+    if (!title || !title.trim()) return;
+    const citySel = prompt('城市（Kyoto / Osaka）：', 'Kyoto');
+    const city = (citySel === 'Osaka') ? 'Osaka' : 'Kyoto';
+    const newItem = {
+        id: 'new-' + Date.now(),
+        city: city,
+        title: title.trim(),
+        desc: '',
+        cost: 0,
+        category: 'sightseeing',
+        isEnabled: false,
+        day: ''
+    };
+    db.attractionPool.push(newItem);
+    renderPool();
+    showSyncOverlay();
+    try {
+        const newId = await ensurePoolProduct(newItem);
+        if (newId) {
+            newItem._productId = newId;
+            newItem.id = 'api-' + newId;
+        }
+        showToast('已新增候選景點！');
+    } catch (e) {
+        db.attractionPool = db.attractionPool.filter(p => p.id !== newItem.id);
+        renderPool();
+        alert('新增失敗：無法同步到伺服器');
+    } finally {
+        hideSyncOverlay();
     }
 }
 
@@ -530,13 +564,32 @@ async function saveToRemote() {
 async function saveAllToRemote() {
     if (!db) return;
     await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
-    if (db.itinerary) {
-        for (const [date, events] of Object.entries(db.itinerary)) {
-            await ensureProduct(date, JSON.stringify(cleanEvents(events)));
-        }
-    }
     if (db.messages) {
         await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages));
+    }
+}
+
+async function saveMessagesToRemote() {
+    if (!db) return;
+    showSyncOverlay();
+    try { setSyncStatus('syncing'); await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages || [])); setSyncStatus('synced'); }
+    catch (err) { console.warn('[Sync] 留言同步失敗:', err); setSyncStatus('offline'); }
+    finally { hideSyncOverlay(); }
+}
+
+async function saveItineraryToRemote() {
+    if (!db) return;
+    showSyncOverlay();
+    try {
+        setSyncStatus('syncing');
+        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist }));
+        setSyncStatus('synced');
+    } catch (err) {
+        console.warn('[Sync] 行程同步失敗:', err);
+        setSyncStatus('offline');
+        throw err;
+    } finally {
+        hideSyncOverlay();
     }
 }
 
@@ -961,22 +1014,7 @@ function renderItineraryForDay(dayStr) {
 function renderPool() {
     const container = document.getElementById('pool-items-container');
     container.innerHTML = '';
-    
-    function isItemInItinerary(itemTitle) {
-        const clean = s => (s || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
-        const target = clean(itemTitle);
-        if (!target || target.length < 3) return false;
-        for (const events of Object.values(db.itinerary || {})) {
-            for (const ev of events) {
-                const evClean = clean(ev.title);
-                if (!evClean) continue;
-                if (evClean === target) return true;
-                if (evClean.length > 4 && target.length > 4 && (evClean.includes(target) || target.includes(evClean))) return true;
-            }
-        }
-        return false;
-    }
-    
+
     let items = db.attractionPool;
     
     // Filter logic
@@ -1023,7 +1061,7 @@ function renderPool() {
             <p class="pool-card-desc">${item.desc}</p>
             <div class="pool-card-actions">
                 <div style="font-size:0.8rem; color:var(--text-muted)">
-                    狀態：${isItemInItinerary(item.title) ? '🟢 已排入行程' : '⚪ 候選未排'}
+                    狀態：${item.isEnabled ? '🟢 已排入行程' : '⚪ 候選未排'}
                 </div>
                 <div class="flex" style="gap:5px;">
                     <button class="btn btn-outline" style="padding:6px 12px; font-size:0.8rem;" onclick="deleteFromPool('${item.id}')">
@@ -1315,43 +1353,47 @@ function moveEvent(dayStr, index, direction) {
     });
 }
 
-// DELETE EVENT
+// DELETE EVENT (pool items: set isEnabled=false; flights/hotels: remove from itinerary)
 async function deleteEvent(dayStr, id) {
-    if (confirm("確定要將這個日程項目移除嗎？")) {
-        const items = db.itinerary[dayStr] || [];
-        const item = items.find(e => e.id === id);
-        
-        if (item) {
-            const itemClean = (item.title || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
-            const poolItem = db.attractionPool.find(p => {
-                const pClean = (p.title || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
-                return pClean && (pClean === itemClean || pClean.includes(itemClean) || itemClean.includes(pClean));
-            });
-            if (poolItem) {
-                renderPool();
+    if (!confirm("確定要將這個日程項目移除嗎？")) return;
+
+    const items = db.itinerary[dayStr] || [];
+    const item = items.find(e => e.id === id);
+
+    if (item && item._poolId) {
+        // Pool item: just set isEnabled to false
+        const poolItem = db.attractionPool.find(p => p.id === item._poolId);
+        db.itinerary[dayStr] = items.filter(e => e.id !== id);
+        if (poolItem) {
+            poolItem.isEnabled = false;
+            poolItem.day = '';
+            if (poolItem._productId) {
+                hexAPI.updateProduct(poolItem._productId, { is_enabled: 0 }).catch(function(){});
             }
         }
-
-        db.itinerary[dayStr] = items.filter(ev => ev.id !== id);
+        renderItineraryForDay(dayStr);
+        renderPool();
+        showToast('已從行程中移除！');
+    } else {
+        // Flight/hotel: remove from itinerary and save master
+        db.itinerary[dayStr] = items.filter(e => e.id !== id);
         saveToLocalStorage();
-        
         try {
             await saveItineraryToRemote();
             renderItineraryForDay(dayStr);
             updateBudgetCalculations();
             showToast('刪除成功！');
         } catch (err) {
-            alert('刪除失敗：無法同步到伺服器，請檢查網路連線或重新登入');
-            // 恢復本地狀態
             db.itinerary[dayStr] = items;
             saveToLocalStorage();
             renderItineraryForDay(dayStr);
             updateBudgetCalculations();
+            alert('刪除失敗：無法同步到伺服器');
         }
     }
 }
 
-// ADD POOL ITEM TO ITINERARY
+// ADD POOL ITEM TO ITINERARY (set isEnabled=1 and day via API)
 async function addPoolItemToItinerary(poolId) {
     const item = db.attractionPool.find(p => p.id === poolId);
     if (!item) return;
@@ -1361,70 +1403,72 @@ async function addPoolItemToItinerary(poolId) {
     days.forEach((dayStr, index) => {
         promptText += `[${index + 1}] Day ${index + 1} (${dayStr.substring(5)})\n`;
     });
-    if (days.length === 0) {
-        promptText += "\n目前尚無行程日，請輸入數字建立新天：\n";
-    }
 
     const userSelection = prompt(promptText, "1");
     if (userSelection === null) return;
 
     const selectionIndex = parseInt(userSelection, 10) - 1;
-    if (isNaN(selectionIndex) || selectionIndex < 0) {
+    if (isNaN(selectionIndex) || selectionIndex < 0 || selectionIndex >= days.length) {
         alert('請輸入有效的正整數（從 1 開始）');
         return;
     }
-    let targetDay;
+    const targetDay = days[selectionIndex];
 
-    if (days.length > 0 && selectionIndex < days.length) {
-        targetDay = days[selectionIndex];
-    } else {
-        const baseDate = new Date(2026, 10, 4 + selectionIndex);
-        if (isNaN(baseDate.getTime())) {
-            alert('日期超出範圍');
-            return;
-        }
-        targetDay = `${baseDate.getFullYear()}-${String(baseDate.getMonth() + 1).padStart(2, '0')}-${String(baseDate.getDate()).padStart(2, '0')}`;
-        if (!db.itinerary[targetDay]) db.itinerary[targetDay] = [];
-    }
+    const prevEnabled = item.isEnabled;
+    const prevDay = item.day;
 
-    const eventId = 'evt-p-' + Date.now();
-    const newEvent = {
-        id: eventId,
-        time: "10:00 - 12:00",
+    item.isEnabled = true;
+    item.day = targetDay;
+
+    const newEntry = {
+        id: item.id,
+        _poolId: item.id,
+        time: '10:00 - 12:00',
         title: item.title,
         desc: item.desc,
-        cost: 0,
+        cost: item.cost || 0,
         category: item.category,
-        location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'')
+        location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
+        _productId: item._productId
     };
-
-    // 先備份當前狀態
-    const backup = JSON.parse(JSON.stringify(db.itinerary[targetDay]));
-    
-    db.itinerary[targetDay].push(newEvent);
-    saveToLocalStorage();
+    db.itinerary[targetDay].push(newEntry);
+    renderPool();
+    selectDay(targetDay);
+    showSyncOverlay();
 
     try {
-        await saveItineraryToRemote();
-        
-        if (targetDay !== currentSelectedDay) {
-            currentSelectedDay = targetDay;
-            selectDay(targetDay);
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay };
+        const productData = {
+            title: item.title,
+            content: JSON.stringify(content),
+            category: '候選景點',
+            origin_price: item.cost || 0,
+            price: 0,
+            unit: '景點',
+            is_enabled: 1,
+            num: 1
+        };
+        if (item._productId) {
+            await hexAPI.updateProduct(item._productId, productData);
         } else {
-            renderItineraryForDay(currentSelectedDay);
+            const newId = await ensurePoolProduct(item);
+            if (!newId) throw new Error('建立產品失敗');
+            item._productId = newId;
+            newEntry._productId = newId;
+            await hexAPI.updateProduct(newId, { content: JSON.stringify(content), is_enabled: 1 });
         }
-        renderPool();
         updateBudgetCalculations();
-
-        const targetDayLabel = selectionIndex < days.length ? `Day ${selectionIndex + 1}` : `Day ${selectionIndex + 1} (新建立 ${targetDay})`;
-        alert(`已成功將「${item.title}」排入 ${targetDayLabel} 的日程中！`);
+        showToast(`已將「${item.title}」排入 Day ${selectionIndex + 1}！`, 2000);
     } catch (err) {
-        // 恢復本地狀態
-        db.itinerary[targetDay] = backup;
-        saveToLocalStorage();
-        renderItineraryForDay(currentSelectedDay);
+        item.isEnabled = prevEnabled;
+        item.day = prevDay;
+        db.itinerary[targetDay] = db.itinerary[targetDay].filter(e => e._poolId !== item.id);
+        selectDay(targetDay);
         renderPool();
-        alert('加入失敗：無法同步到伺服器，請檢查網路連線或重新登入');
+        alert('加入失敗：無法同步到伺服器');
+    } finally {
+        hideSyncOverlay();
+        saveToLocalStorage();
     }
 }
 

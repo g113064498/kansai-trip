@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=31">
+    <link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
 
@@ -37,7 +37,7 @@
                 </div>
                 <div class="stat-badge" id="budget-summary-badge">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 1 0 0-4Z"/><path d="M6 12h.01M18 12h.01"/></svg>
-                    雙人預算：NT$ <span id="budget-sum">--</span>
+                    單人預算：NT$ <span id="budget-sum">--</span> / ¥<span id="budget-sum-jpy">--</span>
                 </div>
             </div>
         </div>
@@ -199,6 +199,9 @@
                 <div class="pool-grid" id="pool-items-container">
                     <!-- Cards injected by JS -->
                 </div>
+                <div style="text-align:center; margin-top:16px;">
+                    <button class="btn btn-primary" onclick="addNewPoolCandidate()">➕ 新增候選</button>
+                </div>
             </div>
         </section>
 
@@ -206,25 +209,40 @@
         <section id="checklist" class="content-section">
             <!-- Budget Statistics -->
             <div class="budget-grid">
-                <div class="budget-badge">
-                    <div class="budget-badge-label">航班總開支 (雙人)</div>
-                    <div class="budget-badge-value" id="budget-flights">NT$ 20,520</div>
+                <div class="budget-badge clickable" onclick="toggleBudgetDetail()">
+                    <div class="budget-badge-label">航班費用 (單人)</div>
+                    <div class="budget-badge-value" id="budget-flights">NT$ --</div>
+                    <div class="budget-badge-jpy" id="budget-flights-jpy">¥ --</div>
                 </div>
-                <div class="budget-badge">
-                    <div class="budget-badge-label">住宿預估 (雙人)</div>
-                    <div class="budget-badge-value" id="budget-hotels">NT$ 14,490</div>
+                <div class="budget-badge clickable" onclick="toggleBudgetDetail()">
+                    <div class="budget-badge-label">住宿費用 (單人)</div>
+                    <div class="budget-badge-value" id="budget-hotels">NT$ --</div>
+                    <div class="budget-badge-jpy" id="budget-hotels-jpy">¥ --</div>
                 </div>
-                <div class="budget-badge">
-                    <div class="budget-badge-label">行程門票/餐飲門檻</div>
-                    <div class="budget-badge-value" id="budget-activities">NT$ 0</div>
+                <div class="budget-badge clickable" onclick="toggleBudgetDetail()">
+                    <div class="budget-badge-label">行程費用 (單人)</div>
+                    <div class="budget-badge-value" id="budget-activities">NT$ --</div>
+                    <div class="budget-badge-jpy" id="budget-activities-jpy">¥ --</div>
                 </div>
-                <div class="budget-badge">
-                    <div class="budget-badge-label">預計總開支 (雙人)</div>
-                    <div class="budget-badge-value total" id="budget-total">NT$ 35,010</div>
+                <div class="budget-badge total-badge clickable" onclick="toggleBudgetDetail()">
+                    <div class="budget-badge-label">預計總費用 (單人)</div>
+                    <div class="budget-badge-value total" id="budget-total">NT$ --</div>
+                    <div class="budget-badge-jpy" id="budget-total-jpy">¥ --</div>
                 </div>
             </div>
 
-            <!-- Double Checklist -->
+            <!-- Budget Detail Expandable Panel -->
+            <div id="budget-detail-panel" class="budget-detail-panel" style="display:none;">
+                <div class="budget-detail-header">
+                    <h4>預算明細 (單人)</h4>
+                    <button class="btn btn-outline" onclick="toggleBudgetDetail()" style="font-size:0.8rem; padding:4px 12px;">收起 ▲</button>
+                </div>
+                <div id="budget-detail-content" class="budget-detail-content"></div>
+                <div class="budget-exchange-note">
+                    匯率參考：1 JPY ≈ NT$ <span id="exchange-rate-display">0.22</span> ｜行程費用單位為日圓 (¥)，台幣為換算參考值
+                </div>
+            </div>
+<!-- Double Checklist -->
             <div class="checklist-layout">
                 <!-- 兩人必備 & 男生準備 -->
                 <div>
@@ -342,7 +360,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="event-cost-input">花費預算 (NTD 或日圓換算)</label>
+                    <label for="event-cost-input">花費預算 (¥ 日圓)</label>
                     <input type="number" id="event-cost-input" class="form-control" placeholder="0" min="0">
                 </div>
 
@@ -449,6 +467,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=31" defer></script>
+    <script src="app.js?v=32" defer></script>
 </body>
 </html>

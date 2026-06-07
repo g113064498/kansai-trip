@@ -1,4 +1,4 @@
-/* CSS RESET & VARIABLES */
+﻿/* CSS RESET & VARIABLES */
 :root {
     --primary: #FFB7C5; /* Cherry Blossom Pink */
     --primary-dark: #E098A7;
@@ -1776,4 +1776,113 @@ header p {
 .toast-notification.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+}
+
+/* EXPANDABLE BUDGET DETAILS */
+.budget-badge.clickable {
+    cursor: pointer;
+    position: relative;
+}
+.budget-badge.clickable:hover {
+    border-color: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+.budget-badge-jpy {
+    font-size: 0.85rem;
+    color: var(--accent-orange);
+    font-weight: 500;
+    margin-top: 2px;
+}
+.budget-detail-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow-sm);
+}
+.budget-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 10px;
+}
+.budget-detail-header h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary);
+}
+.budget-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.budget-detail-section {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.budget-detail-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-base);
+    font-weight: 700;
+    color: var(--secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+.budget-detail-section-body {
+    padding: 10px 14px;
+}
+.budget-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    font-size: 0.85rem;
+}
+.budget-detail-item:last-child {
+    border-bottom: none;
+}
+.budget-detail-item .item-label {
+    color: var(--text-main);
+    flex: 1;
+}
+.budget-detail-item .item-cost-jpy {
+    color: var(--accent-orange);
+    font-weight: 600;
+    margin-right: 12px;
+    min-width: 80px;
+    text-align: right;
+}
+.budget-detail-item .item-cost-twd {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    min-width: 70px;
+    text-align: right;
+}
+.budget-exchange-note {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+.budget-detail-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.toast-notification.error {
+    background: var(--accent-red);
+}
+.toast-notification.success {
+    background: var(--accent-green);
 }
