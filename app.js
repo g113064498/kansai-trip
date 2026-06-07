@@ -392,7 +392,7 @@ async function ensureProduct(title, content) {
 async function ensurePoolProduct(item) {
     const productData = {
         title: item.title,
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '' }),
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
@@ -454,6 +454,7 @@ async function loadFromRemote() {
                 day: data.day || '',
                 photos: data.photos || [],
                 location: data.location || '',
+                time: data.time || '',
                 _productId: p.id
             };
         });
@@ -469,7 +470,7 @@ async function loadFromRemote() {
                 db.itinerary[item.day].push({
                     id: item.id,
                     _poolId: item.id,
-                    time: '10:00 - 12:00',
+                    time: item.time || '10:00 - 12:00',
                     title: item.title,
                     desc: item.desc,
                     cost: item.cost || 0,
@@ -562,6 +563,7 @@ function openPoolEditModal(poolId) {
     document.getElementById('pool-edit-desc').value = item.desc || '';
     document.getElementById('pool-edit-city').value = item.city || 'Kyoto';
     document.getElementById('pool-edit-category').value = item.category || 'sightseeing';
+    document.getElementById('pool-edit-time').value = item.time || '';
     document.getElementById('pool-edit-location').value = item.location || '';
     document.getElementById('pool-edit-cost').value = item.cost || 0;
     const photos = (item.photos || []).join('\n');
@@ -578,6 +580,7 @@ function openPoolAddModal() {
     document.getElementById('pool-edit-desc').value = '';
     document.getElementById('pool-edit-city').value = 'Kyoto';
     document.getElementById('pool-edit-category').value = 'sightseeing';
+    document.getElementById('pool-edit-time').value = '';
     document.getElementById('pool-edit-location').value = '';
     document.getElementById('pool-edit-cost').value = '';
     document.getElementById('pool-edit-photos').value = '';
@@ -603,6 +606,7 @@ async function savePoolEdit(e) {
     const desc = document.getElementById('pool-edit-desc').value.trim();
     const city = document.getElementById('pool-edit-city').value;
     const category = document.getElementById('pool-edit-category').value;
+    const time = document.getElementById('pool-edit-time').value.trim();
     const location = document.getElementById('pool-edit-location').value.trim();
     const cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
     const photoText = document.getElementById('pool-edit-photos').value;
@@ -616,6 +620,7 @@ async function savePoolEdit(e) {
             desc: desc,
             cost: cost,
             category: category,
+            time: time,
             location: location,
             photos: photos,
             isEnabled: false,
@@ -651,6 +656,7 @@ async function savePoolEdit(e) {
     item.desc = desc;
     item.city = city;
     item.category = category;
+    item.time = time;
     item.location = location;
     item.cost = cost;
     item.photos = photos;
@@ -659,7 +665,7 @@ async function savePoolEdit(e) {
     renderPool();
     showSyncOverlay();
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '' };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
@@ -1552,7 +1558,7 @@ async function addPoolItemToItinerary(poolId) {
     const newEntry = {
         id: item.id,
         _poolId: item.id,
-        time: '10:00 - 12:00',
+        time: item.time || '10:00 - 12:00',
         title: item.title,
         desc: item.desc,
         cost: item.cost || 0,
@@ -1567,7 +1573,7 @@ async function addPoolItemToItinerary(poolId) {
     showSyncOverlay();
 
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay, photos: item.photos || [], location: item.location || '' };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay, photos: item.photos || [], location: item.location || '', time: item.time || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
