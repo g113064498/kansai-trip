@@ -592,6 +592,39 @@ function closePoolEditModal() {
     document.getElementById('pool-edit-modal').classList.remove('open');
 }
 
+function editPoolTime(poolId, itemId, el) {
+    const item = db.attractionPool.find(p => p.id === poolId);
+    if (!item) return;
+    const current = item.time || '10:00 - 12:00';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = current;
+    input.style.cssText = 'width:110px;font-size:0.8rem;padding:2px 6px;border:1px solid var(--primary);border-radius:4px;';
+    el.replaceWith(input);
+    input.focus();
+    input.select();
+    const save = async function() {
+        const newTime = input.value.trim() || current;
+        item.time = newTime;
+        // Update local itinerary entry
+        for (const events of Object.values(db.itinerary || {})) {
+            const ev = events.find(e => e._poolId === poolId);
+            if (ev) { ev.time = newTime; break; }
+        }
+        input.replaceWith(el);
+        el.textContent = newTime;
+        // Save to API
+        if (item._productId) {
+            try {
+                const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };
+                await hexAPI.updateProduct(item._productId, { content: JSON.stringify(content), is_enabled: item.isEnabled ? 1 : 0 });
+            } catch (e) { console.warn('[EditTime] 同步失敗:', e.message); }
+        }
+    };
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+}
+
 function updatePoolPhotoPreview() {
     const textarea = document.getElementById('pool-edit-photos');
     const preview = document.getElementById('pool-edit-photos-preview');
@@ -1099,7 +1132,7 @@ function renderItineraryForDay(dayStr) {
                 </div>
                 <div class="timeline-card-body">
                     <div class="timeline-card-text">
-                        <span class="timeline-time">${item.time}</span>
+                        <span class="timeline-time" ${isPool ? `onclick="editPoolTime('${item._poolId}','${item.id}',this)" style="cursor:pointer;border-bottom:1px dashed var(--text-muted)" title="點擊編輯時間"` : ''}>${item.time}</span>
                         <h4 class="timeline-title">${categoryIcon} ${item.title}</h4>
                         <p class="timeline-desc">${item.desc}</p>
                         ${warningHtml}
