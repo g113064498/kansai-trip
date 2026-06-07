@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=34">
+    <link rel="stylesheet" href="style.css?v=35">
 </head>
 <body>
 
@@ -185,16 +185,12 @@
                     </p>
                 </div>
                 
-                <div style="margin-bottom:12px;">
-                    <button class="btn btn-primary" onclick="addNewPoolCandidate()">➕ 新增候選</button>
-                </div>
-
-                <div class="pool-filter-bar">
-                    <button class="filter-chip active" onclick="filterPool('all', this)">全部</button>
-                    <button class="filter-chip" onclick="filterPool('Kyoto-sightseeing', this)">京都景點</button>
+                <div class="pool-filter-bar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <button class="filter-chip active" onclick="filterPool('Kyoto-sightseeing', this)">京都景點</button>
                     <button class="filter-chip" onclick="filterPool('Kyoto-food', this)">京都美食</button>
                     <button class="filter-chip" onclick="filterPool('Osaka-sightseeing', this)">大阪景點</button>
                     <button class="filter-chip" onclick="filterPool('Osaka-food', this)">大阪美食</button>
+                    <button class="btn btn-primary" style="margin-left:auto;" onclick="addNewPoolCandidate()">➕ 新增候選</button>
                 </div>
 
                 <div class="pool-grid" id="pool-items-container">
@@ -429,8 +425,13 @@
                             <option value="sightseeing">景點</option>
                             <option value="food">美食</option>
                             <option value="shopping">購物</option>
+                            <option value="transport">交通</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="pool-edit-location">地圖位置</label>
+                    <input type="text" id="pool-edit-location" class="form-control" placeholder="例如：清水寺 或 京都市東山区清水1-294">
                 </div>
                 <div class="form-group">
                     <label for="pool-edit-cost">預估花費 (¥)</label>
@@ -516,6 +517,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=34" defer></script>
+    <script src="app.js?v=35" defer></script>
 </body>
 </html>

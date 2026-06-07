@@ -162,7 +162,7 @@ const initialTripData = {
 let db = null;
 let activeTab = 'dashboard';
 let currentSelectedDay = "2026-11-04";
-let currentPoolFilter = 'all';
+let currentPoolFilter = 'Kyoto-sightseeing';
 
 // Clean up old localStorage data on page load
 (function cleanupOldLocalStorage() {
@@ -392,7 +392,7 @@ async function ensureProduct(title, content) {
 async function ensurePoolProduct(item) {
     const productData = {
         title: item.title,
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [] }),
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '' }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
@@ -452,6 +452,7 @@ async function loadFromRemote() {
                 isEnabled: p.is_enabled === 1 || p.is_enabled === true,
                 day: data.day || '',
                 photos: data.photos || [],
+                location: data.location || '',
                 _productId: p.id
             };
         });
@@ -473,7 +474,7 @@ async function loadFromRemote() {
                     cost: item.cost || 0,
                     category: item.category,
                     photos: item.photos || [],
-                    location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
+                    location: item.location || item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
                     _productId: item._productId
                 });
             }
@@ -544,6 +545,7 @@ function openPoolEditModal(poolId) {
     document.getElementById('pool-edit-desc').value = item.desc || '';
     document.getElementById('pool-edit-city').value = item.city || 'Kyoto';
     document.getElementById('pool-edit-category').value = item.category || 'sightseeing';
+    document.getElementById('pool-edit-location').value = item.location || '';
     document.getElementById('pool-edit-cost').value = item.cost || 0;
     const photos = (item.photos || []).join('\n');
     document.getElementById('pool-edit-photos').value = photos;
@@ -572,6 +574,7 @@ async function savePoolEdit(e) {
     item.desc = document.getElementById('pool-edit-desc').value.trim();
     item.city = document.getElementById('pool-edit-city').value;
     item.category = document.getElementById('pool-edit-category').value;
+    item.location = document.getElementById('pool-edit-location').value.trim();
     item.cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
     const photoText = document.getElementById('pool-edit-photos').value;
     item.photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
@@ -580,7 +583,7 @@ async function savePoolEdit(e) {
     renderPool();
     showSyncOverlay();
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [] };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
@@ -1514,7 +1517,7 @@ async function addPoolItemToItinerary(poolId) {
         cost: item.cost || 0,
         category: item.category,
         photos: item.photos || [],
-        location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
+        location: item.location || item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
         _productId: item._productId
     };
     db.itinerary[targetDay].push(newEntry);
@@ -1523,7 +1526,7 @@ async function addPoolItemToItinerary(poolId) {
     showSyncOverlay();
 
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay, photos: item.photos || [] };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay, photos: item.photos || [], location: item.location || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
