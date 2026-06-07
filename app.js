@@ -451,6 +451,7 @@ async function loadFromRemote() {
                 category: data.category || 'sightseeing',
                 isEnabled: p.is_enabled === 1 || p.is_enabled === true,
                 day: data.day || '',
+                photos: data.photos || [],
                 _productId: p.id
             };
         });
@@ -471,6 +472,7 @@ async function loadFromRemote() {
                     desc: item.desc,
                     cost: item.cost || 0,
                     category: item.category,
+                    photos: item.photos || [],
                     location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
                     _productId: item._productId
                 });
@@ -533,6 +535,83 @@ async function addNewPoolCandidate() {
         hideSyncOverlay();
     }
 }
+
+function openPoolEditModal(poolId) {
+    const item = db.attractionPool.find(p => p.id === poolId);
+    if (!item) return;
+    document.getElementById('pool-edit-id').value = poolId;
+    document.getElementById('pool-edit-title').value = item.title || '';
+    document.getElementById('pool-edit-desc').value = item.desc || '';
+    document.getElementById('pool-edit-city').value = item.city || 'Kyoto';
+    document.getElementById('pool-edit-category').value = item.category || 'sightseeing';
+    document.getElementById('pool-edit-cost').value = item.cost || 0;
+    const photos = (item.photos || []).join('\n');
+    document.getElementById('pool-edit-photos').value = photos;
+    updatePoolPhotoPreview();
+    document.getElementById('pool-edit-modal').classList.add('open');
+}
+
+function closePoolEditModal() {
+    document.getElementById('pool-edit-modal').classList.remove('open');
+}
+
+function updatePoolPhotoPreview() {
+    const textarea = document.getElementById('pool-edit-photos');
+    const preview = document.getElementById('pool-edit-photos-preview');
+    const urls = (textarea.value || '').split('\n').map(s => s.trim()).filter(Boolean);
+    preview.innerHTML = urls.map(url => `<img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`).join('');
+}
+
+async function savePoolEdit(e) {
+    e.preventDefault();
+    const poolId = document.getElementById('pool-edit-id').value;
+    const item = db.attractionPool.find(p => p.id === poolId);
+    if (!item) return;
+
+    item.title = document.getElementById('pool-edit-title').value.trim();
+    item.desc = document.getElementById('pool-edit-desc').value.trim();
+    item.city = document.getElementById('pool-edit-city').value;
+    item.category = document.getElementById('pool-edit-category').value;
+    item.cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
+    const photoText = document.getElementById('pool-edit-photos').value;
+    item.photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
+
+    closePoolEditModal();
+    renderPool();
+    showSyncOverlay();
+    try {
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [] };
+        const productData = {
+            title: item.title,
+            content: JSON.stringify(content),
+            category: '候選景點',
+            origin_price: item.cost || 0,
+            price: 0,
+            unit: '景點',
+            is_enabled: item.isEnabled ? 1 : 0,
+            num: 1
+        };
+        if (item._productId) {
+            await hexAPI.updateProduct(item._productId, productData);
+        } else {
+            const newId = await ensurePoolProduct(item);
+            if (newId) item._productId = newId;
+        }
+        showToast('已儲存！');
+    } catch (err) {
+        alert('儲存失敗：無法同步到伺服器');
+    } finally {
+        hideSyncOverlay();
+    }
+}
+
+// Hook up photo preview on input
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('pool-edit-photos');
+    if (photoInput) {
+        photoInput.addEventListener('input', updatePoolPhotoPreview);
+    }
+});
 
 async function syncInitialPoolToAPI() {
     // For initial pool items (not from API), create products so they can be deleted
@@ -1018,12 +1097,14 @@ function renderPool() {
     let items = db.attractionPool;
     
     // Filter logic
-    if (currentPoolFilter === 'Kyoto') {
-        items = items.filter(i => i.city === 'Kyoto');
-    } else if (currentPoolFilter === 'Osaka') {
-        items = items.filter(i => i.city === 'Osaka');
-    } else if (currentPoolFilter === 'food') {
-        items = items.filter(i => i.category === 'food');
+    if (currentPoolFilter === 'Kyoto-sightseeing') {
+        items = items.filter(i => i.city === 'Kyoto' && i.category === 'sightseeing');
+    } else if (currentPoolFilter === 'Kyoto-food') {
+        items = items.filter(i => i.city === 'Kyoto' && (i.category === 'food' || i.category === 'shopping'));
+    } else if (currentPoolFilter === 'Osaka-sightseeing') {
+        items = items.filter(i => i.city === 'Osaka' && i.category === 'sightseeing');
+    } else if (currentPoolFilter === 'Osaka-food') {
+        items = items.filter(i => i.city === 'Osaka' && (i.category === 'food' || i.category === 'shopping'));
     }
 
     if (items.length === 0) {
@@ -1059,11 +1140,15 @@ function renderPool() {
                 </div>
             </div>
             <p class="pool-card-desc">${item.desc}</p>
+            ${(item.photos && item.photos.length > 0) ? `<div class="pool-card-photos" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">${item.photos.map(p => `<img src="${p}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">`).join('')}</div>` : ''}
             <div class="pool-card-actions">
                 <div style="font-size:0.8rem; color:var(--text-muted)">
                     狀態：${item.isEnabled ? '🟢 已排入行程' : '⚪ 候選未排'}
                 </div>
                 <div class="flex" style="gap:5px;">
+                    <button class="btn btn-sm btn-outline" style="padding:5px 10px; font-size:0.78rem;" onclick="openPoolEditModal('${item.id}')">
+                        ✏️ 編輯
+                    </button>
                     <button class="btn btn-outline" style="padding:6px 12px; font-size:0.8rem;" onclick="deleteFromPool('${item.id}')">
                         刪除
                     </button>

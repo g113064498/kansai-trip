@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=33">
+    <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 
@@ -185,18 +185,20 @@
                     </p>
                 </div>
                 
+                <div style="margin-bottom:12px;">
+                    <button class="btn btn-primary" onclick="addNewPoolCandidate()">➕ 新增候選</button>
+                </div>
+
                 <div class="pool-filter-bar">
-                    <button class="filter-chip active" onclick="filterPool('all', this)">全部候選</button>
-                    <button class="filter-chip" onclick="filterPool('Kyoto', this)">京都景點/美食</button>
-                    <button class="filter-chip" onclick="filterPool('Osaka', this)">大阪景點/美食</button>
-                    <button class="filter-chip" onclick="filterPool('food', this)">在地美食 recommendations</button>
+                    <button class="filter-chip active" onclick="filterPool('all', this)">全部</button>
+                    <button class="filter-chip" onclick="filterPool('Kyoto-sightseeing', this)">京都景點</button>
+                    <button class="filter-chip" onclick="filterPool('Kyoto-food', this)">京都美食</button>
+                    <button class="filter-chip" onclick="filterPool('Osaka-sightseeing', this)">大阪景點</button>
+                    <button class="filter-chip" onclick="filterPool('Osaka-food', this)">大阪美食</button>
                 </div>
 
                 <div class="pool-grid" id="pool-items-container">
                     <!-- Cards injected by JS -->
-                </div>
-                <div style="text-align:center; margin-top:16px;">
-                    <button class="btn btn-primary" onclick="addNewPoolCandidate()">➕ 新增候選</button>
                 </div>
             </div>
         </section>
@@ -396,6 +398,57 @@
         </div>
     </div>
 
+    <!-- POOL ITEM EDIT MODAL -->
+    <div class="modal" id="pool-edit-modal">
+        <div class="modal-content" style="max-width:540px;">
+            <div class="modal-header">
+                <h3 class="modal-title">編輯候選景點</h3>
+                <button class="close-modal-btn" onclick="closePoolEditModal()">&times;</button>
+            </div>
+            <form id="pool-edit-form" onsubmit="savePoolEdit(event)">
+                <input type="hidden" id="pool-edit-id">
+                <div class="form-group">
+                    <label for="pool-edit-title">景點名稱</label>
+                    <input type="text" id="pool-edit-title" class="form-control" placeholder="例如：清水寺 🌸" required>
+                </div>
+                <div class="form-group">
+                    <label for="pool-edit-desc">描述</label>
+                    <textarea id="pool-edit-desc" class="form-control" rows="3" placeholder="開放時間、特色、注意事項等"></textarea>
+                </div>
+                <div class="form-group" style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label for="pool-edit-city">城市</label>
+                        <select id="pool-edit-city" class="form-control">
+                            <option value="Kyoto">京都</option>
+                            <option value="Osaka">大阪</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label for="pool-edit-category">分類</label>
+                        <select id="pool-edit-category" class="form-control">
+                            <option value="sightseeing">景點</option>
+                            <option value="food">美食</option>
+                            <option value="shopping">購物</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pool-edit-cost">預估花費 (¥)</label>
+                    <input type="number" id="pool-edit-cost" class="form-control" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>照片（貼上圖片網址，每行一個）</label>
+                    <textarea id="pool-edit-photos" class="form-control" rows="2" placeholder="https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg"></textarea>
+                    <div id="pool-edit-photos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+                    <button type="button" class="btn btn-outline" onclick="closePoolEditModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Floating Side Message Board -->
     <div id="floating-message-board" class="floating-chat-widget">
         <!-- Toggle Button for Mobile -->
@@ -463,6 +516,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=33" defer></script>
+    <script src="app.js?v=34" defer></script>
 </body>
 </html>
