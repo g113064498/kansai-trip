@@ -435,6 +435,7 @@ async function loadFromRemote() {
                     if (m.budget) db.budget = m.budget;
                     if (m.checklist) db.checklist = m.checklist;
                     if (m.dayOrder) db.dayOrder = m.dayOrder;
+                    if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
                 }
             } catch { /* skip corrupt master */ }
         }
@@ -465,21 +466,29 @@ async function loadFromRemote() {
         const initialOnly = (db.attractionPool || []).filter(p => !apiTitles.has(p.title));
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
-        // Fix: items with isEnabled but no day → reset to pool (local only)
+        // Init scheduledItems
+        if (!db.scheduledItems) db.scheduledItems = {};
+
+        // Sync pool item isEnabled from scheduledItems + individual product fields
         for (const item of db.attractionPool) {
-            if (item.isEnabled && !item.day) {
+            if (db.scheduledItems[item.id]) {
+                item.isEnabled = true;
+                item.day = db.scheduledItems[item.id];
+            } else if (item.isEnabled && item.day) {
+                db.scheduledItems[item.id] = item.day;
+            } else {
                 item.isEnabled = false;
             }
         }
 
-        // Add enabled pool items to itinerary by day
+        // Add scheduled pool items to itinerary by day
         for (const item of db.attractionPool) {
             if (item.isEnabled && item.day && db.itinerary.hasOwnProperty(item.day)) {
                 db.itinerary[item.day].push({
                     id: item.id,
                     _poolId: item.id,
                     time: item.time || '10:00 - 12:00',
-            title: item.title || '未命名景點',
+                    title: item.title || '未命名景點',
                     desc: item.desc,
                     cost: item.cost || 0,
                     category: item.category,
@@ -804,7 +813,7 @@ async function saveItineraryToRemote() {
         for (const [day, events] of Object.entries(db.itinerary || {})) {
             dayOrder[day] = (events || []).map(e => e.id);
         }
-        await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder }));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {} }));
         setSyncStatus('synced');
     } catch (err) {
         console.warn('[Sync] 行程同步失敗:', err);
@@ -1552,6 +1561,8 @@ async function deleteEvent(dayStr, id) {
         if (poolItem) {
             poolItem.isEnabled = false;
             poolItem.day = '';
+            if (db.scheduledItems) delete db.scheduledItems[item._poolId];
+            saveItineraryToRemote();
             if (poolItem._productId) {
                 const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
                 hexAPI.updateProduct(poolItem._productId, {
@@ -1662,6 +1673,9 @@ async function addPoolItemToItinerary(poolId) {
                 num: 1
             });
         }
+        if (!db.scheduledItems) db.scheduledItems = {};
+        db.scheduledItems[item.id] = targetDay;
+        saveItineraryToRemote();
         updateBudgetCalculations();
         showToast(`已將「${item.title}」排入 Day ${selectionIndex + 1}！`, 2000);
     } catch (err) {
