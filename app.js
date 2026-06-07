@@ -392,7 +392,7 @@ async function ensureProduct(title, content) {
 async function ensurePoolProduct(item) {
     const productData = {
         title: item.title,
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '' }),
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [] }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
@@ -1513,6 +1513,7 @@ async function addPoolItemToItinerary(poolId) {
         desc: item.desc,
         cost: item.cost || 0,
         category: item.category,
+        photos: item.photos || [],
         location: item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
         _productId: item._productId
     };
@@ -1522,7 +1523,7 @@ async function addPoolItemToItinerary(poolId) {
     showSyncOverlay();
 
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: targetDay, photos: item.photos || [] };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
