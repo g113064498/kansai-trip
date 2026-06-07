@@ -1087,7 +1087,7 @@ function renderItineraryForDay(dayStr) {
                             ${item.location ? `
                                 <div class="timeline-meta-item">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" style="color:inherit; text-decoration:none;">導航地圖</a>
+                                    <a href="${item.location && item.location.startsWith('http') ? item.location : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(item.location)}" target="_blank" style="color:inherit; text-decoration:none;">導航地圖</a>
                                 </div>
                             ` : ''}
                             ${item.cost > 0 ? `
