@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=36">
+    <link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
 
@@ -190,7 +190,7 @@
                     <button class="filter-chip" onclick="filterPool('Kyoto-food', this)">京都美食</button>
                     <button class="filter-chip" onclick="filterPool('Osaka-sightseeing', this)">大阪景點</button>
                     <button class="filter-chip" onclick="filterPool('Osaka-food', this)">大阪美食</button>
-                    <button class="btn btn-primary" style="margin-left:auto;" onclick="addNewPoolCandidate()">➕ 新增候選</button>
+                    <button class="btn btn-primary" style="margin-left:auto;" onclick="openPoolAddModal()">➕ 新增候選</button>
                 </div>
 
                 <div class="pool-grid" id="pool-items-container">
@@ -398,11 +398,12 @@
     <div class="modal" id="pool-edit-modal">
         <div class="modal-content" style="max-width:540px;">
             <div class="modal-header">
-                <h3 class="modal-title">編輯候選景點</h3>
+                <h3 class="modal-title" id="pool-modal-title">編輯候選景點</h3>
                 <button class="close-modal-btn" onclick="closePoolEditModal()">&times;</button>
             </div>
             <form id="pool-edit-form" onsubmit="savePoolEdit(event)">
                 <input type="hidden" id="pool-edit-id">
+                <input type="hidden" id="pool-edit-mode" value="edit">
                 <div class="form-group">
                     <label for="pool-edit-title">景點名稱</label>
                     <input type="text" id="pool-edit-title" class="form-control" placeholder="例如：清水寺 🌸" required>
@@ -425,7 +426,6 @@
                             <option value="sightseeing">景點</option>
                             <option value="food">美食</option>
                             <option value="shopping">購物</option>
-                            <option value="transport">交通</option>
                         </select>
                     </div>
                 </div>
@@ -517,6 +517,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=36" defer></script>
+    <script src="app.js?v=37" defer></script>
 </body>
 </html>

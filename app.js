@@ -555,6 +555,8 @@ async function addNewPoolCandidate() {
 function openPoolEditModal(poolId) {
     const item = db.attractionPool.find(p => p.id === poolId);
     if (!item) return;
+    document.getElementById('pool-modal-title').textContent = '編輯候選景點';
+    document.getElementById('pool-edit-mode').value = 'edit';
     document.getElementById('pool-edit-id').value = poolId;
     document.getElementById('pool-edit-title').value = item.title || '';
     document.getElementById('pool-edit-desc').value = item.desc || '';
@@ -564,6 +566,21 @@ function openPoolEditModal(poolId) {
     document.getElementById('pool-edit-cost').value = item.cost || 0;
     const photos = (item.photos || []).join('\n');
     document.getElementById('pool-edit-photos').value = photos;
+    updatePoolPhotoPreview();
+    document.getElementById('pool-edit-modal').classList.add('open');
+}
+
+function openPoolAddModal() {
+    document.getElementById('pool-modal-title').textContent = '新增候選景點';
+    document.getElementById('pool-edit-mode').value = 'add';
+    document.getElementById('pool-edit-id').value = '';
+    document.getElementById('pool-edit-title').value = '';
+    document.getElementById('pool-edit-desc').value = '';
+    document.getElementById('pool-edit-city').value = 'Kyoto';
+    document.getElementById('pool-edit-category').value = 'sightseeing';
+    document.getElementById('pool-edit-location').value = '';
+    document.getElementById('pool-edit-cost').value = '';
+    document.getElementById('pool-edit-photos').value = '';
     updatePoolPhotoPreview();
     document.getElementById('pool-edit-modal').classList.add('open');
 }
@@ -581,18 +598,62 @@ function updatePoolPhotoPreview() {
 
 async function savePoolEdit(e) {
     e.preventDefault();
+    const mode = document.getElementById('pool-edit-mode').value;
+    const title = document.getElementById('pool-edit-title').value.trim();
+    const desc = document.getElementById('pool-edit-desc').value.trim();
+    const city = document.getElementById('pool-edit-city').value;
+    const category = document.getElementById('pool-edit-category').value;
+    const location = document.getElementById('pool-edit-location').value.trim();
+    const cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
+    const photoText = document.getElementById('pool-edit-photos').value;
+    const photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
+
+    if (mode === 'add') {
+        const newItem = {
+            id: 'new-' + Date.now(),
+            city: city,
+            title: title,
+            desc: desc,
+            cost: cost,
+            category: category,
+            location: location,
+            photos: photos,
+            isEnabled: false,
+            day: ''
+        };
+        db.attractionPool.push(newItem);
+        closePoolEditModal();
+        renderPool();
+        showSyncOverlay();
+        try {
+            const newId = await ensurePoolProduct(newItem);
+            if (newId) {
+                newItem._productId = newId;
+                newItem.id = 'api-' + newId;
+            }
+            showToast('已新增候選景點！');
+        } catch (err) {
+            db.attractionPool = db.attractionPool.filter(p => p.id !== newItem.id);
+            renderPool();
+            alert('新增失敗：無法同步到伺服器');
+        } finally {
+            hideSyncOverlay();
+        }
+        return;
+    }
+
+    // Edit mode
     const poolId = document.getElementById('pool-edit-id').value;
     const item = db.attractionPool.find(p => p.id === poolId);
     if (!item) return;
 
-    item.title = document.getElementById('pool-edit-title').value.trim();
-    item.desc = document.getElementById('pool-edit-desc').value.trim();
-    item.city = document.getElementById('pool-edit-city').value;
-    item.category = document.getElementById('pool-edit-category').value;
-    item.location = document.getElementById('pool-edit-location').value.trim();
-    item.cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
-    const photoText = document.getElementById('pool-edit-photos').value;
-    item.photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
+    item.title = title;
+    item.desc = desc;
+    item.city = city;
+    item.category = category;
+    item.location = location;
+    item.cost = cost;
+    item.photos = photos;
 
     closePoolEditModal();
     renderPool();
@@ -1122,13 +1183,13 @@ function renderPool() {
     
     // Filter logic
     if (currentPoolFilter === 'Kyoto-sightseeing') {
-        items = items.filter(i => i.city === 'Kyoto' && i.category === 'sightseeing');
+        items = items.filter(i => i.city === 'Kyoto' && (i.category === 'sightseeing' || i.category === 'shopping'));
     } else if (currentPoolFilter === 'Kyoto-food') {
-        items = items.filter(i => i.city === 'Kyoto' && (i.category === 'food' || i.category === 'shopping'));
+        items = items.filter(i => i.city === 'Kyoto' && i.category === 'food');
     } else if (currentPoolFilter === 'Osaka-sightseeing') {
-        items = items.filter(i => i.city === 'Osaka' && i.category === 'sightseeing');
+        items = items.filter(i => i.city === 'Osaka' && (i.category === 'sightseeing' || i.category === 'shopping'));
     } else if (currentPoolFilter === 'Osaka-food') {
-        items = items.filter(i => i.city === 'Osaka' && (i.category === 'food' || i.category === 'shopping'));
+        items = items.filter(i => i.city === 'Osaka' && i.category === 'food');
     }
 
     if (items.length === 0) {
