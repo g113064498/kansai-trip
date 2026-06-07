@@ -1133,7 +1133,7 @@ function renderItineraryForDay(dayStr) {
                 </div>
                 <div class="timeline-card-body">
                     <div class="timeline-card-text">
-                        <span class="timeline-time" ${isPool ? `onclick="editPoolTime('${item._poolId}','${item.id}',this)" style="cursor:pointer;border-bottom:1px dashed var(--text-muted)" title="點擊編輯時間"` : ''}>${item.time}</span>
+                        <span class="timeline-time">${item.time}</span>
                         <h4 class="timeline-title">${categoryIcon} ${item.title}</h4>
                         <p class="timeline-desc">${item.desc}</p>
                         ${warningHtml}
