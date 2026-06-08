@@ -893,16 +893,11 @@ async function handleLogin(e) {
         document.getElementById('login-modal').classList.remove('open');
         document.getElementById('login-email').value = '';
         document.getElementById('login-password').value = '';
-        showSyncOverlay();
-        try {
-            await initApp();
-        } catch (initErr) {
-            showToast('載入失敗：' + initErr.message, 3000);
-        } finally {
-            hideSyncOverlay();
-        }
+        await initApp();
     } catch (err) {
-        errorEl.textContent = err.message || '登入失敗，請檢查帳號密碼';
+        const msg = err.message || '登入失敗';
+        showToast(msg, 3000);
+        document.getElementById('login-modal').classList.add('open');
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '登入';
