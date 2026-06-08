@@ -568,8 +568,6 @@ async function loadFromRemote() {
             } catch { /* skip corrupt messages */ }
         }
 
-        // Sync initial pool items to API as products (so they can be managed)
-        try { await syncInitialPoolToAPI(); } catch (e) { console.warn('[Sync] initial pool sync failed:', e); }
         setSyncStatus('synced');
         return true;
     } catch (err) {
