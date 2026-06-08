@@ -799,7 +799,7 @@ async function savePoolEdit(e) {
         // 同步 scheduledItems 時間
         if (item.isEnabled && db.scheduledItems[item.id]) {
             db.scheduledItems[item.id] = item.day + '|' + (item.time || '10:00 - 12:00');
-            saveItineraryToRemote();
+            await saveItineraryToRemote();
         }
         renderItineraryForDay(currentSelectedDay);
         showToast('已儲存！');
