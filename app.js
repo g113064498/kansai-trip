@@ -1744,7 +1744,7 @@ async function addPoolItemToItinerary(poolId) {
         }
         if (!db.scheduledItems) db.scheduledItems = {};
         db.scheduledItems[item.id] = targetDay + '|' + (item.time || '10:00 - 12:00');
-        saveItineraryToRemote();
+        await saveItineraryToRemote();
         updateBudgetCalculations();
         showToast(`已將「${item.title}」排入 Day ${selectionIndex + 1}！`, 2000);
     } catch (err) {
