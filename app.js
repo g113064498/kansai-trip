@@ -467,16 +467,16 @@ async function loadFromRemote() {
         const initialOnly = (db.attractionPool || []).filter(p => !apiTitles.has(p.title));
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
-        // Init scheduledItems
+        // Init scheduledItems: { poolId: "day|time", ... }
         if (!db.scheduledItems) db.scheduledItems = {};
 
-        // Sync pool item isEnabled from scheduledItems + individual product fields
+        // Sync from scheduledItems (master article is source of truth)
         for (const item of db.attractionPool) {
             if (db.scheduledItems[item.id]) {
+                const parts = db.scheduledItems[item.id].split('|');
                 item.isEnabled = true;
-                item.day = db.scheduledItems[item.id];
-            } else if (item.isEnabled && item.day) {
-                db.scheduledItems[item.id] = item.day;
+                item.day = parts[0] || '';
+                item.time = parts[1] || item.time || '10:00 - 12:00';
             } else {
                 item.isEnabled = false;
             }
@@ -750,6 +750,11 @@ async function savePoolEdit(e) {
                 ev.category = item.category; ev.time = item.time || ev.time;
                 ev.location = item.location || ev.location; ev.photos = item.photos || [];
             }
+        }
+        // 同步 scheduledItems 時間
+        if (item.isEnabled && db.scheduledItems[item.id]) {
+            db.scheduledItems[item.id] = item.day + '|' + (item.time || '10:00 - 12:00');
+            saveItineraryToRemote();
         }
         renderItineraryForDay(currentSelectedDay);
         showToast('已儲存！');
@@ -1691,7 +1696,7 @@ async function addPoolItemToItinerary(poolId) {
             });
         }
         if (!db.scheduledItems) db.scheduledItems = {};
-        db.scheduledItems[item.id] = targetDay;
+        db.scheduledItems[item.id] = targetDay + '|' + (item.time || '10:00 - 12:00');
         saveItineraryToRemote();
         updateBudgetCalculations();
         showToast(`已將「${item.title}」排入 Day ${selectionIndex + 1}！`, 2000);
