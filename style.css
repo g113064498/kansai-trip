@@ -932,13 +932,15 @@ header p {
 .pool-card-info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .pool-card-photos {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    margin-top: 8px;
+    margin-top: auto;
 }
 
 .pool-card-photos img {
