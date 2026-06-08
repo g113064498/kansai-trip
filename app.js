@@ -893,7 +893,14 @@ async function handleLogin(e) {
         document.getElementById('login-modal').classList.remove('open');
         document.getElementById('login-email').value = '';
         document.getElementById('login-password').value = '';
-        await initApp();
+        showSyncOverlay();
+        try {
+            await initApp();
+        } catch (initErr) {
+            showToast('載入失敗：' + initErr.message, 3000);
+        } finally {
+            hideSyncOverlay();
+        }
     } catch (err) {
         errorEl.textContent = err.message || '登入失敗，請檢查帳號密碼';
     } finally {
