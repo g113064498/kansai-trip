@@ -436,6 +436,7 @@ async function loadFromRemote() {
                     if (m.checklist) db.checklist = m.checklist;
                     if (m.dayOrder) db.dayOrder = m.dayOrder;
                     if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
+                    if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
                 }
             } catch { /* skip corrupt master */ }
         }
@@ -467,20 +468,33 @@ async function loadFromRemote() {
         const initialOnly = (db.attractionPool || []).filter(p => !apiTitles.has(p.title));
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
+        // Merge poolPhotos from master article
+        if (!db.poolPhotos) db.poolPhotos = {};
+        for (const item of db.attractionPool) {
+            if (db.poolPhotos[item.id]) {
+                item.photos = db.poolPhotos[item.id];
+            }
+        }
+
         // Init scheduledItems: { poolId: "day|time", ... }
         if (!db.scheduledItems) db.scheduledItems = {};
 
-        // Sync from scheduledItems (master article is source of truth)
+        // Sync from scheduledItems, fall back to product is_enabled for backward compat
+        let migrated = false;
         for (const item of db.attractionPool) {
             if (db.scheduledItems[item.id]) {
                 const parts = db.scheduledItems[item.id].split('|');
                 item.isEnabled = true;
                 item.day = parts[0] || '';
                 item.time = parts[1] || item.time || '10:00 - 12:00';
+            } else if (item.isEnabled && item.day) {
+                db.scheduledItems[item.id] = item.day + '|' + (item.time || '10:00 - 12:00');
+                migrated = true;
             } else {
                 item.isEnabled = false;
             }
         }
+        if (migrated) saveItineraryToRemote();
 
         // Add scheduled pool items to itinerary by day
         for (const item of db.attractionPool) {
