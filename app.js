@@ -220,7 +220,11 @@ const hexAPI = {
         } else {
             expires = new Date(Date.now() + 86400000);
         }
-        document.cookie = `hexToken=${token}; expires=${expires}`;
+        // 清除所有舊 hexToken（三種 path）
+        for (const p of ['', '; path=/', '; path=/; SameSite=Lax']) {
+            document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC' + p;
+        }
+        document.cookie = `hexToken=${token}; expires=${expires.toUTCString()}; path=/`;
         return data;
     },
     async getArticles() {
@@ -285,6 +289,8 @@ function getToken() {
 }
 
 function clearToken() {
+    document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
     document.cookie = 'hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
 }
 
