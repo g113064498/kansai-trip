@@ -1729,8 +1729,17 @@ async function addPoolItemToItinerary(poolId) {
         } else {
             const newId = await ensurePoolProduct(item);
             if (!newId) throw new Error('建立產品失敗');
+            const oldId = item.id;
+            const newApiId = 'api-' + newId;
             item._productId = newId;
+            item.id = newApiId;
             newEntry._productId = newId;
+            newEntry.id = newApiId;
+            // 更新 scheduledItems 的 key，配對重整後的 API ID
+            if (db.scheduledItems[oldId]) {
+                db.scheduledItems[newApiId] = db.scheduledItems[oldId];
+                delete db.scheduledItems[oldId];
+            }
             await hexAPI.updateProduct(newId, {
                 title: item.title || '未命名景點',
                 content: JSON.stringify(content),
