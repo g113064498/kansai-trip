@@ -998,8 +998,8 @@ header p {
     border-top: 1px solid rgba(0,0,0,0.06);
     padding: 12px 14px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
 }
 
 /* BUDGET ESTIMATOR */
@@ -1238,11 +1238,6 @@ header p {
     }
     .container {
         padding-top: 15px;
-    }
-    .pool-card-actions {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
     }
     .pool-card-actions .flex {
         width: 100%;
