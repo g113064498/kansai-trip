@@ -189,6 +189,12 @@ const hexAPI = {
         if (body) opts.body = JSON.stringify(body);
         const res = await fetch(url, opts);
         const data = await res.json();
+        if (res.status === 401) {
+            clearToken();
+            const modal = document.getElementById('login-modal');
+            if (modal) modal.classList.add('open');
+            throw new Error('登入已過期，請重新登入');
+        }
         if (data.success === false) throw new Error(data.message || 'API 請求失敗');
         if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
         return data;
