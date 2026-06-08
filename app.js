@@ -208,7 +208,8 @@ const hexAPI = {
         const data = await res.json();
         if (data.success) {
             const { token, expired } = data;
-            document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+            const expires = typeof expired === 'number' && expired < 1e12 ? new Date(expired * 1000).toUTCString() : new Date(expired).toUTCString();
+            document.cookie = `hexToken=${token}; expires=${expires}; path=/; SameSite=Lax`;
         }
         return data;
     },
