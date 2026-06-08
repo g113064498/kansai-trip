@@ -453,7 +453,8 @@ async function loadFromRemote() {
                 cost: data.cost || p.origin_price || 0,
                 category: data.category || 'sightseeing',
                 isEnabled: p.is_enabled == 1 || p.is_enabled === true,
-                day: (p.is_enabled == 1 && p.unit && p.unit !== '景點') ? p.unit : '',
+                day: (p.is_enabled == 1 && p.unit && p.unit !== '景點') ? p.unit.split('|')[0] : '',
+                time: (p.is_enabled == 1 && p.unit && p.unit !== '景點' && p.unit.includes('|')) ? p.unit.split('|')[1] : (data.time || ''),
                 photos: data.photos || [],
                 location: data.location || '',
                 time: data.time || '',
@@ -731,7 +732,7 @@ async function savePoolEdit(e) {
             category: '候選景點',
             origin_price: item.cost || 0,
             price: 0,
-            unit: '景點',
+            unit: item.isEnabled && item.day ? (item.day + '|' + (item.time || '10:00 - 12:00')) : '景點',
             is_enabled: item.isEnabled ? 1 : 0,
             num: 1
         };
@@ -1667,7 +1668,7 @@ async function addPoolItemToItinerary(poolId) {
             category: '候選景點',
             origin_price: item.cost || 0,
             price: 0,
-            unit: targetDay,
+            unit: targetDay + '|' + (item.time || '10:00 - 12:00'),
             is_enabled: 1,
             num: 1
         };
