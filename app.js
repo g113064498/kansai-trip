@@ -207,12 +207,10 @@ const hexAPI = {
             body: JSON.stringify({ username: email, password })
         });
         const data = await res.json();
-        if (data.token && data.expired) {
-            const expiredMs = data.expired > 1e12 ? data.expired : data.expired * 1000;
-            document.cookie = `hexToken=${data.token}; expires=${new Date(expiredMs).toUTCString()}; path=/; SameSite=Lax`;
-        }
-        if (data.success === false) throw new Error(data.message || 'API 請求失敗');
-        if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+        if (!res.ok || data.success === false) throw new Error(data.message || '登入失敗');
+        if (!data.token) throw new Error('伺服器未回傳 token');
+        const expires = data.expired ? (data.expired > 1e12 ? data.expired : data.expired * 1000) : new Date(Date.now() + 86400000).getTime();
+        document.cookie = `hexToken=${data.token}; expires=${new Date(expires).toUTCString()}; path=/; SameSite=Lax`;
         return data;
     },
     async getArticles() {
