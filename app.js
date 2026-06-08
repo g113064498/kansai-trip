@@ -741,6 +741,16 @@ async function savePoolEdit(e) {
             const newId = await ensurePoolProduct(item);
             if (newId) item._productId = newId;
         }
+        // 更新每日日程顯示
+        for (const [day, events] of Object.entries(db.itinerary || {})) {
+            const ev = events.find(e => e._poolId === item.id);
+            if (ev) {
+                ev.title = item.title; ev.desc = item.desc; ev.cost = item.cost;
+                ev.category = item.category; ev.time = item.time || ev.time;
+                ev.location = item.location || ev.location; ev.photos = item.photos || [];
+            }
+        }
+        renderItineraryForDay(currentSelectedDay);
         showToast('已儲存！');
     } catch (err) {
         showToast('儲存失敗：' + err.message, 3000);

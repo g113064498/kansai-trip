@@ -1209,9 +1209,13 @@ header p {
         width: 100%;
         display: flex;
         gap: 5px;
+        flex-wrap: wrap;
     }
     .pool-card-actions .flex .btn {
         flex: 1;
+    }
+    .pool-card-actions .flex .btn:last-child {
+        flex-basis: 100%;
     }
     .pool-filter-bar {
         margin-top: 15px;
