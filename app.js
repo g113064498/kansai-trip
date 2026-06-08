@@ -1387,12 +1387,18 @@ function updateBudgetCalculations() {
     });
 
     const totalSum = flightTotal + hotelTotal + activityTotal;
+    const rate = 4.5;
 
     document.getElementById('budget-flights').innerText = `NT$ ${flightTotal.toLocaleString()}`;
+    document.getElementById('budget-flights-jpy').innerText = `¥ ${Math.round(flightTotal * rate).toLocaleString()}`;
     document.getElementById('budget-hotels').innerText = `NT$ ${hotelTotal.toLocaleString()}`;
+    document.getElementById('budget-hotels-jpy').innerText = `¥ ${Math.round(hotelTotal * rate).toLocaleString()}`;
     document.getElementById('budget-activities').innerText = `NT$ ${activityTotal.toLocaleString()}`;
+    document.getElementById('budget-activities-jpy').innerText = `¥ ${Math.round(activityTotal * rate).toLocaleString()}`;
     document.getElementById('budget-total').innerText = `NT$ ${totalSum.toLocaleString()}`;
+    document.getElementById('budget-total-jpy').innerText = `¥ ${Math.round(totalSum * rate).toLocaleString()}`;
     document.getElementById('budget-sum').innerText = totalSum.toLocaleString();
+    document.getElementById('budget-sum-jpy').innerText = Math.round(totalSum * rate).toLocaleString();
 }
 
 // ==========================================
