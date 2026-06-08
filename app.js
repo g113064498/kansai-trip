@@ -734,6 +734,8 @@ async function savePoolEdit(e) {
     item.location = location;
     item.cost = cost;
     item.photos = photos;
+    if (!db.poolPhotos) db.poolPhotos = {};
+    db.poolPhotos[item.id] = photos;
 
     closePoolEditModal();
     renderPool();
@@ -820,7 +822,7 @@ async function saveAllToRemote() {
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         dayOrder[day] = (events || []).map(e => e.id);
     }
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder }));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} }));
     if (db.messages) {
         await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages));
     }
@@ -843,7 +845,7 @@ async function saveItineraryToRemote() {
         for (const [day, events] of Object.entries(db.itinerary || {})) {
             dayOrder[day] = (events || []).map(e => e.id);
         }
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {} }));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} }));
         setSyncStatus('synced');
     } catch (err) {
         console.warn('[Sync] 行程同步失敗:', err);
