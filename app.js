@@ -220,7 +220,7 @@ const hexAPI = {
         } else {
             expires = new Date(Date.now() + 86400000);
         }
-        document.cookie = `hexToken=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+        document.cookie = `hexToken=${token}; expires=${expires}`;
         return data;
     },
     async getArticles() {
