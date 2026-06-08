@@ -206,11 +206,21 @@ const hexAPI = {
             body: JSON.stringify({ username: email, password })
         });
         const data = await res.json();
-        if (data.success) {
-            const { token, expired } = data;
-            const expires = typeof expired === 'number' && expired < 1e12 ? new Date(expired * 1000).toUTCString() : new Date(expired).toUTCString();
-            document.cookie = `hexToken=${token}; expires=${expires}; path=/; SameSite=Lax`;
+        if (!data || !data.success) {
+            throw new Error(data?.message || '登入失敗');
         }
+        const token = data.token;
+        if (!token) throw new Error('伺服器未回傳 token');
+        const expired = data.expired;
+        let expires;
+        if (typeof expired === 'number') {
+            expires = new Date(expired < 1e12 ? expired * 1000 : expired);
+        } else if (typeof expired === 'string') {
+            expires = new Date(expired);
+        } else {
+            expires = new Date(Date.now() + 86400000);
+        }
+        document.cookie = `hexToken=${encodeURIComponent(token)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
         return data;
     },
     async getArticles() {
