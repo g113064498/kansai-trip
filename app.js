@@ -1249,17 +1249,22 @@ function renderPool() {
         }
 
         card.className = cardClass;
+        const photosHtml = (item.photos && item.photos.length > 0) ? `<div class="pool-card-photos">${item.photos.map(p => `<img src="${p}" onerror="this.style.display='none'">`).join('')}</div>` : '';
         card.innerHTML = `
-            <div class="pool-card-header">
-                <h4 class="pool-card-title">${item.title}</h4>
-                <div class="pool-card-tags">
-                    <span class="tag tag-city">${item.city === 'Kyoto' ? '京都' : '大阪'}</span>
-                    ${item.cost > 0 ? `<span class="tag tag-cost">¥ ${item.cost.toLocaleString()}</span>` : ''}
-                    ${warningBanner}
+            <div class="pool-card-body">
+                <div class="pool-card-info">
+                    <div class="pool-card-header">
+                        <h4 class="pool-card-title">${item.title}</h4>
+                        <div class="pool-card-tags">
+                            <span class="tag tag-city">${item.city === 'Kyoto' ? '京都' : '大阪'}</span>
+                            ${item.cost > 0 ? `<span class="tag tag-cost">¥ ${item.cost.toLocaleString()}</span>` : ''}
+                            ${warningBanner}
+                        </div>
+                    </div>
+                    <p class="pool-card-desc">${item.desc}</p>
                 </div>
+                ${photosHtml}
             </div>
-            <p class="pool-card-desc">${item.desc}</p>
-            ${(item.photos && item.photos.length > 0) ? `<div class="pool-card-photos" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">${item.photos.map(p => `<img src="${p}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">`).join('')}</div>` : ''}
             <div class="pool-card-actions">
                 <div style="font-size:0.8rem; color:var(--text-muted)">
                     狀態：${item.isEnabled && item.day ? '🟢 已排入行程' : '⚪ 候選未排'}
