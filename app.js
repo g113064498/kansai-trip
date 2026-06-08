@@ -1249,7 +1249,6 @@ function renderPool() {
         }
 
         card.className = cardClass;
-        const photosHtml = (item.photos && item.photos.length > 0) ? `<div class="pool-card-photos">${item.photos.map(p => `<img src="${p}" onerror="this.style.display='none'">`).join('')}</div>` : '';
         card.innerHTML = `
             <div class="pool-card-body">
                 <div class="pool-card-info">
@@ -1262,8 +1261,8 @@ function renderPool() {
                         </div>
                     </div>
                     <p class="pool-card-desc">${item.desc}</p>
+                    ${(item.photos && item.photos.length > 0) ? `<div class="pool-card-photos">${item.photos.map(p => `<img src="${p}" onerror="this.style.display='none'">`).join('')}</div>` : ''}
                 </div>
-                ${photosHtml}
             </div>
             <div class="pool-card-actions">
                 <div style="font-size:0.8rem; color:var(--text-muted)">
