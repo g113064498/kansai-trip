@@ -200,17 +200,16 @@ const hexAPI = {
         return data;
     },
     async login(email, password) {
-        clearToken();
         const res = await fetch(`${API_BASE}/admin/signin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: email, password })
         });
         const data = await res.json();
-        if (!res.ok || data.success === false) throw new Error(data.message || '登入失敗');
-        if (!data.token) throw new Error('伺服器未回傳 token');
-        const expires = data.expired ? (data.expired > 1e12 ? data.expired : data.expired * 1000) : new Date(Date.now() + 86400000).getTime();
-        document.cookie = `hexToken=${data.token}; expires=${new Date(expires).toUTCString()}; path=/; SameSite=Lax`;
+        if (data.success) {
+            const { token, expired } = data;
+            document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+        }
         return data;
     },
     async getArticles() {
@@ -894,7 +893,8 @@ async function handleLogin(e) {
         errorEl.textContent = '';
         submitBtn.disabled = true;
         submitBtn.textContent = '登入中…';
-        await hexAPI.login(email, password);
+        const result = await hexAPI.login(email, password);
+        if (!result.success) throw new Error(result.message || '登入失敗');
         localStorage.setItem('kansai_trip_user_email', email);
         document.getElementById('login-modal').classList.remove('open');
         document.getElementById('login-email').value = '';
