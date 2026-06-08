@@ -450,27 +450,43 @@ async function loadFromRemote() {
         db = JSON.parse(JSON.stringify(initialTripData));
         if (!db.messages) db.messages = [];
 
-        // Load master article → flights, hotels, budget, checklist
-        const allArticles = await hexAPI.getArticles();
+        // 平行載入：articles + products 同時發
+        const [allArticles, allProducts] = await Promise.all([
+            hexAPI.getArticles(),
+            hexAPI.getProducts()
+        ]);
+
+        // 平行載入文章內容
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
-        if (master) {
+        const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
+        const [masterContent, msgContent] = await Promise.all([
+            master ? hexAPI.getArticle(master.id).catch(() => null) : Promise.resolve(null),
+            msgArt ? hexAPI.getArticle(msgArt.id).catch(() => null) : Promise.resolve(null)
+        ]);
+
+        // 處理 master article
+        if (masterContent && masterContent.content) {
             try {
-                const full = await hexAPI.getArticle(master.id);
-                if (full && full.content) {
-                    const m = JSON.parse(full.content);
-                    if (m.flights) db.flights = m.flights;
-                    if (m.hotels) db.hotels = m.hotels;
-                    if (m.budget) db.budget = m.budget;
-                    if (m.checklist) db.checklist = m.checklist;
-                    if (m.dayOrder) db.dayOrder = m.dayOrder;
-                    if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
-                    if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
-                }
+                const m = JSON.parse(masterContent.content);
+                if (m.flights) db.flights = m.flights;
+                if (m.hotels) db.hotels = m.hotels;
+                if (m.budget) db.budget = m.budget;
+                if (m.checklist) db.checklist = m.checklist;
+                if (m.dayOrder) db.dayOrder = m.dayOrder;
+                if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
+                if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
             } catch { /* skip corrupt master */ }
         }
 
-        // Load pool from Admin Products API (full CRUD)
-        const allProducts = await hexAPI.getProducts();
+        // 處理 messages
+        if (msgContent && msgContent.content) {
+            try {
+                const msgs = JSON.parse(msgContent.content);
+                if (Array.isArray(msgs)) db.messages = msgs;
+            } catch { /* skip corrupt messages */ }
+        }
+
+        // 處理 pool 產品
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
         const apiPoolItems = poolProducts.map(p => {
             const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
@@ -486,7 +502,6 @@ async function loadFromRemote() {
                 time: (p.is_enabled == 1 && p.unit && p.unit !== '景點' && p.unit.includes('|')) ? p.unit.split('|')[1] : (data.time || ''),
                 photos: data.photos || [],
                 location: data.location || '',
-                time: data.time || '',
                 _productId: p.id
             };
         });
@@ -554,18 +569,6 @@ async function loadFromRemote() {
                     });
                 }
             }
-        }
-
-        // Load messages article
-        const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
-        if (msgArt) {
-            try {
-                const full = await hexAPI.getArticle(msgArt.id);
-                if (full && full.content) {
-                    const msgs = JSON.parse(full.content);
-                    if (Array.isArray(msgs)) db.messages = msgs;
-                }
-            } catch { /* skip corrupt messages */ }
         }
 
         setSyncStatus('synced');
