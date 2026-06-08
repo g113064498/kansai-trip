@@ -200,11 +200,19 @@ const hexAPI = {
         return data;
     },
     async login(email, password) {
-        const data = await this.request('POST', `${API_BASE}/admin/signin`, { username: email, password });
+        clearToken();
+        const res = await fetch(`${API_BASE}/admin/signin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: email, password })
+        });
+        const data = await res.json();
         if (data.token && data.expired) {
             const expiredMs = data.expired > 1e12 ? data.expired : data.expired * 1000;
             document.cookie = `hexToken=${data.token}; expires=${new Date(expiredMs).toUTCString()}; path=/; SameSite=Lax`;
         }
+        if (data.success === false) throw new Error(data.message || 'API 請求失敗');
+        if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
         return data;
     },
     async getArticles() {
