@@ -1268,7 +1268,7 @@ function renderPool() {
                 <div style="font-size:0.8rem; color:var(--text-muted)">
                     狀態：${item.isEnabled && item.day ? '🟢 已排入行程' : '⚪ 候選未排'}
                 </div>
-                <div class="flex" style="gap:5px; justify-content:space-between;"> 
+                <div class="flex" style="gap:5px; justify-content:flex-end;"> 
                     <button class="btn btn-sm btn-outline" style="padding:5px 10px; font-size:0.78rem;" onclick="openPoolEditModal('${item.id}')">
                         ✏️ 編輯
                     </button>
