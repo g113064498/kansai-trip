@@ -907,14 +907,9 @@ async function handleLogin(e) {
         const result = await hexAPI.login(email, password);
         if (!result.success) throw new Error(result.message || '登入失敗');
         localStorage.setItem('kansai_trip_user_email', email);
-        document.getElementById('login-modal').classList.remove('open');
-        document.getElementById('login-email').value = '';
-        document.getElementById('login-password').value = '';
-        await initApp();
+        location.reload();
     } catch (err) {
-        const msg = err.message || '登入失敗';
-        showToast(msg, 3000);
-        document.getElementById('login-modal').classList.add('open');
+        errorEl.textContent = err.message || '登入失敗，請檢查帳號密碼';
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '登入';
