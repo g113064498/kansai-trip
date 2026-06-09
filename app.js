@@ -2140,16 +2140,39 @@ function renderSouvenirs() {
         div.className = 'souvenir-card' + (item.done ? ' done' : '');
         div.innerHTML = `
             <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
-            ${item.photo ? `<img src="${item.photo}" class="souvenir-img" onerror="this.style.display='none'">` : ''}
             <div class="souvenir-info">
                 <div class="souvenir-name">${item.name} <span class="tag tag-city" style="font-size:0.7rem;">${item.category || '其他'}</span></div>
                 ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
             </div>
             ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
+            ${item.photo ? `<button class="souvenir-photo-btn" onclick="toggleSouvenirPhoto(this,'${item.photo}')" title="檢視照片">🖼️</button>` : `<span class="souvenir-photo-btn" style="opacity:0.3;cursor:default;">🖼️</span>`}
+            <button class="souvenir-edit" onclick="editSouvenir('${item.id}')" title="編輯">✏️</button>
             <button class="souvenir-del" onclick="deleteSouvenir('${item.id}')">✕</button>
         `;
         container.appendChild(div);
     });
+}
+
+function toggleSouvenirPhoto(btn, url) {
+    const existing = btn.parentElement.querySelector('.souvenir-photo-pop');
+    if (existing) { existing.remove(); return; }
+    const pop = document.createElement('div');
+    pop.className = 'souvenir-photo-pop';
+    pop.innerHTML = `<img src="${url}" onerror="this.parentElement.remove()"><button onclick="this.parentElement.remove()">✕</button>`;
+    btn.parentElement.appendChild(pop);
+}
+
+let editingSouvenirId = null;
+function editSouvenir(id) {
+    const item = (db.souvenirs || []).find(s => s.id === id);
+    if (!item) return;
+    editingSouvenirId = id;
+    document.getElementById('souv-name').value = item.name;
+    document.getElementById('souv-cat').value = item.category || '其他';
+    document.getElementById('souv-shop').value = item.shop || '';
+    document.getElementById('souv-price').value = item.price || '';
+    document.getElementById('souv-photo').value = item.photo || '';
+    document.querySelector('#souvenirs form button[type=submit]').textContent = '更新';
 }
 
 let currentSouvenirFilter = 'all';
@@ -2163,7 +2186,18 @@ function addSouvenir(e) {
     const price = document.getElementById('souv-price').value;
     const photo = document.getElementById('souv-photo').value.trim();
     if (!db.souvenirs) db.souvenirs = [];
-    db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, done: false });
+
+    if (editingSouvenirId) {
+        const item = db.souvenirs.find(s => s.id === editingSouvenirId);
+        if (item) {
+            item.name = name; item.category = cat; item.shop = shop;
+            item.price = parseInt(price) || 0; item.photo = photo;
+        }
+        editingSouvenirId = null;
+        document.querySelector('#souvenirs form button[type=submit]').textContent = '＋ 新增';
+    } else {
+        db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, done: false });
+    }
     document.getElementById('souv-name').value = '';
     document.getElementById('souv-shop').value = '';
     document.getElementById('souv-price').value = '';
