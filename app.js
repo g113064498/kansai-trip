@@ -2139,7 +2139,7 @@ function renderSouvenirs() {
         const div = document.createElement('div');
         div.className = 'souvenir-card' + (item.done ? ' done' : '');
         div.innerHTML = `
-            <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '✅' : '⬜'}</div>
+            <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
             ${item.photo ? `<img src="${item.photo}" class="souvenir-img" onerror="this.style.display='none'">` : ''}
             <div class="souvenir-info">
                 <div class="souvenir-name">${item.name} <span class="tag tag-city" style="font-size:0.7rem;">${item.category || '其他'}</span></div>
