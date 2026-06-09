@@ -1331,7 +1331,7 @@ function renderPool() {
                         刪除
                     </button>
                     <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem;" onclick="addPoolItemToItinerary('${item.id}')">
-                        ➕ 排入日程
+                        排入日程
                     </button>
                 </div>
             </div>
