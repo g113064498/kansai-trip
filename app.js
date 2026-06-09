@@ -1325,7 +1325,7 @@ function renderPool() {
                 </div>
                 <div class="flex" style="gap:5px; justify-content:flex-end;"> 
                     <button class="btn btn-sm btn-outline" style="padding:5px 10px; font-size:0.78rem;" onclick="openPoolEditModal('${item.id}')">
-                        ✏️ 編輯
+                        編輯
                     </button>
                     <button class="btn btn-outline" style="padding:6px 12px; font-size:0.8rem;" onclick="deleteFromPool('${item.id}')">
                         刪除
@@ -2145,8 +2145,8 @@ function renderSouvenirs() {
                 ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
             </div>
             ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
-            ${item.photo ? `<button class="souvenir-photo-btn" onclick="toggleSouvenirPhoto(this,'${item.photo}')" title="檢視照片">🖼️</button>` : `<span class="souvenir-photo-btn" style="opacity:0.3;cursor:default;">🖼️</span>`}
-            <button class="souvenir-edit" onclick="editSouvenir('${item.id}')" title="編輯">✏️</button>
+            ${item.photo ? `<button class="souvenir-photo-btn" onclick="toggleSouvenirPhoto(this,'${item.photo}')" title="檢視照片"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>` : `<span class="souvenir-photo-btn" style="opacity:0.3;cursor:default;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>`}
+            <button class="souvenir-edit" onclick="editSouvenir('${item.id}')" title="編輯"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
             <button class="souvenir-del" onclick="deleteSouvenir('${item.id}')">✕</button>
         `;
         container.appendChild(div);
