@@ -70,8 +70,8 @@ body {
 
 /* HEADER BANNER */
 header {
-    background: var(--secondary);
-    color: var(--text-inverse);
+    background: #EAE5DC;
+    color: #3E3A39;
     padding: 40px 0 60px 0;
     position: relative;
     overflow: hidden;
@@ -95,12 +95,14 @@ header .logo-container {
     margin-bottom: 20px;
 }
 
+header h1, header span, header p, header a, header .logo-container, header button {
+    color: #3E3A39;
+}
 header h1 {
     font-size: 2.2rem;
     font-weight: 900;
     letter-spacing: -0.5px;
     margin-bottom: 8px;
-    color: var(--text-inverse);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1685,9 +1687,9 @@ header p {
     text-decoration: underline;
 }
 .login-btn {
-    background: var(--secondary);
-    color: var(--text-inverse);
-    border: none;
+    background: transparent;
+    color: #3E3A39;
+    border: 1px solid #3E3A39;
     border-radius: var(--radius-sm);
     padding: 6px 12px;
     font-size: 0.8rem;
@@ -1697,7 +1699,19 @@ header p {
     font-weight: 500;
 }
 .login-btn:hover {
-    background: var(--secondary-light);
+    background: #3E3A39;
+    color: #FFFFFF;
+}
+
+/* Pool add button white bg */
+#pool .btn-primary {
+    background: #FFFFFF;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+#pool .btn-primary:hover {
+    background: var(--primary);
+    color: #FFFFFF;
 }
 
 /* LIGHTBOX */
