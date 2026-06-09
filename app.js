@@ -1749,22 +1749,23 @@ async function addPoolItemToItinerary(poolId) {
             is_enabled: 1,
             num: 1
         };
-        if (item._productId) {
-            await hexAPI.updateProduct(item._productId, productData);
-        } else {
-            const newId = await ensurePoolProduct(item);
-            if (!newId) throw new Error('建立產品失敗');
+        // 用 ensurePoolProduct 確保產品存在（自動找或建）
+        const pid = item._productId || await ensurePoolProduct(item);
+        if (!pid) throw new Error('無法建立或找到產品');
+        if (!item._productId) {
+            item._productId = pid;
+            const newApiId = 'api-' + pid;
             const oldId = item.id;
-            const newApiId = 'api-' + newId;
-            item._productId = newId;
             item.id = newApiId;
-            newEntry._productId = newId;
+            newEntry._productId = pid;
             newEntry.id = newApiId;
-            // 更新 scheduledItems 的 key，配對重整後的 API ID
             if (db.scheduledItems[oldId]) {
                 db.scheduledItems[newApiId] = db.scheduledItems[oldId];
                 delete db.scheduledItems[oldId];
             }
+        }
+        removeCacheId('pool', `pool:${item.id}`);
+        await hexAPI.updateProduct(pid, productData);
             await hexAPI.updateProduct(newId, {
                 title: item.title || '未命名景點',
                 content: JSON.stringify(content),
