@@ -1,23 +1,23 @@
 ﻿/* CSS RESET & VARIABLES */
 :root {
-    --primary: #85120F; /* Deep Burgundy */
-    --primary-dark: #5C0C0A;
-    --primary-light: #F5D6D4;
-    --secondary: #015697; /* Deep Navy Blue */
-    --secondary-light: #1A7EC8;
-    --bg-base: #F1DAA4; /* Warm Cream */
-    --bg-card: #FDF8EE;
-    --border-color: rgba(1, 86, 151, 0.1);
-    --border-hover: rgba(133, 18, 15, 0.3);
-    --text-main: #015697;
-    --text-muted: #6B8AAA;
+    --primary: #E96755; /* Coral */
+    --primary-dark: #C04A3A;
+    --primary-light: #FDE4DF;
+    --secondary: #709AC7; /* Light Steel Blue */
+    --secondary-light: #A3C5E8;
+    --bg-base: #E6E7E3; /* Light Gray */
+    --bg-card: #F4F5F2;
+    --border-color: rgba(112, 154, 199, 0.15);
+    --border-hover: rgba(233, 103, 85, 0.3);
+    --text-main: #3A5A7C;
+    --text-muted: #8A959F;
     --text-inverse: #FFFFFF;
     --accent-green: #2ECC71;
     --accent-orange: #E67E22;
     --accent-red: #E74C3C;
-    --shadow-sm: 0 2px 8px rgba(1, 86, 151, 0.06);
-    --shadow-md: 0 8px 30px rgba(1, 86, 151, 0.08);
-    --shadow-lg: 0 12px 40px rgba(1, 86, 151, 0.12);
+    --shadow-sm: 0 2px 8px rgba(112, 154, 199, 0.08);
+    --shadow-md: 0 8px 30px rgba(112, 154, 199, 0.1);
+    --shadow-lg: 0 12px 40px rgba(112, 154, 199, 0.14);
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 24px;
