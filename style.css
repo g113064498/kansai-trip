@@ -2089,4 +2089,8 @@ header p {
         flex-basis: 100%;
         margin-left: 0 !important;
     }
+    #souvenirs .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
