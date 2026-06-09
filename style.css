@@ -1,16 +1,17 @@
 ﻿/* CSS RESET & VARIABLES */
 :root {
-    --primary: #B20E19; /* Deep Red */
+    --primary: #B20E19; /* Vintage Red */
     --primary-dark: #7A0A12;
     --primary-light: #F8D5D7;
-    --secondary: #80ABD7; /* Light Blue */
+    --secondary: #80ABD7; /* Slate Blue */
+    --secondary-dark: #5A8BBF;
     --secondary-light: #B5D0EB;
-    --bg-base: #E2D9BC; /* Warm Beige */
-    --bg-card: #EDE6D0;
-    --border-color: rgba(128, 171, 215, 0.2);
+    --bg-base: #F6F1E9; /* Light Beige */
+    --bg-card: #FFFFFF;
+    --border-color: #E2D9BC;
     --border-hover: rgba(178, 14, 25, 0.3);
     --text-main: #683629; /* Dark Brown */
-    --text-muted: #8C6B5E;
+    --text-muted: #9A7B6E;
     --text-inverse: #FFFFFF;
     --accent-green: #2ECC71;
     --accent-orange: #E67E22;
@@ -144,7 +145,7 @@ header p {
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
-    background: var(--bg-card);
+    background: var(--secondary);
     padding: 8px;
     border-radius: 40px;
     box-shadow: var(--shadow-sm);
@@ -152,7 +153,7 @@ header p {
     position: relative;
     z-index: 10;
     max-width: 720px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--secondary-dark);
 }
 
 .nav-btn {
@@ -164,7 +165,7 @@ header p {
     font-family: inherit;
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--text-main);
+    color: var(--text-inverse);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -175,14 +176,14 @@ header p {
 }
 
 .nav-btn.active {
-    background: var(--secondary);
-    color: var(--text-inverse);
-    box-shadow: 0 4px 12px rgba(30, 42, 56, 0.2);
+    background: var(--text-inverse);
+    color: var(--secondary);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .nav-btn:not(.active):hover {
-    background: var(--primary-light);
-    color: var(--secondary-light);
+    background: rgba(255,255,255,0.18);
+    color: var(--text-inverse);
 }
 
 /* MAIN LAYOUT */
