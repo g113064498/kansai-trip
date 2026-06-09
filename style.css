@@ -1703,25 +1703,16 @@ header p {
     color: #FFFFFF;
 }
 
-/* Pool add button */
+/* Pool / Souvenirs add button */
 #pool .btn-primary,
 #souvenirs .btn-primary {
     background: var(--primary);
     color: #FFFFFF;
     border: none;
 }
-#pool .btn-primary svg,
-#souvenirs .btn-primary svg {
-    stroke: #FFFFFF;
-}
 #pool .btn-primary:hover,
 #souvenirs .btn-primary:hover {
     background: var(--primary-dark);
-}
-
-/* Header SVG inherit text color */
-header svg {
-    stroke: #3E3A39;
 }
 
 /* LIGHTBOX */
