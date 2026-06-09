@@ -1,16 +1,16 @@
 ﻿/* CSS RESET & VARIABLES */
 :root {
-    --primary: #E96755; /* Coral */
-    --primary-dark: #C04A3A;
-    --primary-light: #FDE4DF;
+    --primary: #D45340; /* Coral - darker for contrast */
+    --primary-dark: #A83A2A;
+    --primary-light: #FCE0DA;
     --secondary: #709AC7; /* Light Steel Blue */
     --secondary-light: #A3C5E8;
     --bg-base: #E6E7E3; /* Light Gray */
-    --bg-card: #F4F5F2;
-    --border-color: rgba(112, 154, 199, 0.15);
-    --border-hover: rgba(233, 103, 85, 0.3);
-    --text-main: #3A5A7C;
-    --text-muted: #8A959F;
+    --bg-card: #F0F1EE;
+    --border-color: rgba(112, 154, 199, 0.2);
+    --border-hover: rgba(212, 83, 64, 0.35);
+    --text-main: #2C4A6E;
+    --text-muted: #6B7785;
     --text-inverse: #FFFFFF;
     --accent-green: #2ECC71;
     --accent-orange: #E67E22;
