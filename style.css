@@ -78,6 +78,7 @@ header {
     border-bottom-right-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
 }
+h2, h3, h4, h5 { color: var(--text-main); }
 header h1, header span, header p, header a {
     color: var(--text-inverse);
 }
