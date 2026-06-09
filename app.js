@@ -1766,17 +1766,6 @@ async function addPoolItemToItinerary(poolId) {
         }
         removeCacheId('pool', `pool:${item.id}`);
         await hexAPI.updateProduct(pid, productData);
-            await hexAPI.updateProduct(newId, {
-                title: item.title || '未命名景點',
-                content: JSON.stringify(content),
-                category: '候選景點',
-                origin_price: item.cost || 0,
-                price: 0,
-                unit: targetDay + '|' + (item.time || '10:00 - 12:00'),
-                is_enabled: 1,
-                num: 1
-            });
-        }
         if (!db.scheduledItems) db.scheduledItems = {};
         db.scheduledItems[item.id] = targetDay + '|' + (item.time || '10:00 - 12:00');
         await saveItineraryToRemote();
