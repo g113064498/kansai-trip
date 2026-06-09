@@ -1,22 +1,23 @@
-/* CSS RESET & VARIABLES */
+﻿/* CSS RESET & VARIABLES */
 :root {
-    --primary: #B20E19; /* Vintage Red - titles, active states, danger */
-    --primary-dark: #8A0B14;
-    --primary-light: #F8D5D7;
-    --secondary: #80ABD7; /* Slate Blue - action buttons, links, progress */
-    --secondary-dark: #5A8BBF;
-    --secondary-light: #B5D0EB;
-    --bg-main: #F9F6F0; /* Main page background */
-    --bg-card: #FFFFFF; /* Card background */
-    --border-color: #E2D9BC; /* Beige borders, inactive backgrounds */
-    --text-main: #683629; /* Dark brown - body text */
-    --text-muted: #8A6E67; /* Muted brown */
+    --primary: #FFB7C5; /* Cherry Blossom Pink */
+    --primary-dark: #E098A7;
+    --primary-light: #FFE4E8;
+    --secondary: #1E2A38; /* Indigo Blue */
+    --secondary-light: #2C3E50;
+    --bg-base: #FAF8F5; /* Warm Sand Sand background */
+    --bg-card: #FFFFFF;
+    --border-color: rgba(30, 42, 56, 0.06);
+    --border-hover: rgba(255, 183, 197, 0.5);
+    --text-main: #2C3E50;
+    --text-muted: #7F8C8D;
     --text-inverse: #FFFFFF;
-    --success: #5F8575; /* Muted green - progress/done */
+    --accent-green: #2ECC71;
     --accent-orange: #E67E22;
-    --shadow-sm: 0 2px 8px rgba(104, 54, 41, 0.06);
-    --shadow-md: 0 8px 30px rgba(104, 54, 41, 0.08);
-    --shadow-lg: 0 12px 40px rgba(104, 54, 41, 0.12);
+    --accent-red: #E74C3C;
+    --shadow-sm: 0 2px 8px rgba(30, 42, 56, 0.04);
+    --shadow-md: 0 8px 30px rgba(30, 42, 56, 0.06);
+    --shadow-lg: 0 12px 40px rgba(30, 42, 56, 0.1);
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 24px;
@@ -32,7 +33,7 @@
 
 body {
     font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-    background-color: var(--bg-main);
+    background-color: var(--bg-base);
     color: var(--text-main);
     line-height: 1.6;
     overflow-x: hidden;
@@ -69,7 +70,7 @@ body {
 
 /* HEADER BANNER */
 header {
-    background: #683629;
+    background: linear-gradient(135deg, #1E2A38 0%, #2B3A4C 60%, #FFB7C5 100%);
     color: var(--text-inverse);
     padding: 40px 0 60px 0;
     position: relative;
@@ -77,13 +78,6 @@ header {
     border-bottom-left-radius: var(--radius-lg);
     border-bottom-right-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-}
-h2, h3, h4, h5 { color: var(--text-main); }
-header h1, header span, header p, header a {
-    color: var(--text-inverse);
-}
-.timeline-title, #current-day-heading, .day-item span, .day-item {
-    color: var(--text-main);
 }
 
 header::before {
@@ -165,7 +159,7 @@ header p {
     flex: 1;
     padding: 12px 20px;
     border: none;
-    background: var(--border-color);
+    background: transparent;
     border-radius: 30px;
     font-family: inherit;
     font-size: 0.95rem;
@@ -181,14 +175,14 @@ header p {
 }
 
 .nav-btn.active {
-    background: var(--primary);
+    background: var(--secondary);
     color: var(--text-inverse);
-    box-shadow: 0 4px 12px rgba(178,14,25,0.25);
+    box-shadow: 0 4px 12px rgba(30, 42, 56, 0.2);
 }
 
 .nav-btn:not(.active):hover {
-    background: #F0E8D5;
-    box-shadow: var(--shadow-sm);
+    background: var(--primary-light);
+    color: var(--secondary-light);
 }
 
 /* MAIN LAYOUT */
@@ -276,7 +270,7 @@ header p {
 
 .flight-point {
     padding: 12px;
-    background: var(--bg-main);
+    background: var(--bg-base);
     border-radius: var(--radius-sm);
 }
 
@@ -318,7 +312,7 @@ header p {
 }
 
 .flight-line::after {
-    content: '??';
+    content: '✈️';
     position: absolute;
     right: 0;
     top: -10px;
@@ -330,7 +324,7 @@ header p {
     flex-direction: column;
     gap: 15px;
     padding: 18px;
-    background: var(--bg-main);
+    background: var(--bg-base);
     border-radius: var(--radius-sm);
     margin-bottom: 15px;
     border-left: 4px solid var(--primary);
@@ -615,7 +609,7 @@ header p {
 
 .timeline-card:hover {
     box-shadow: var(--shadow-md);
-    border-color: var(--primary);
+    border-color: var(--border-hover);
 }
 
 .timeline-time {
@@ -673,7 +667,7 @@ header p {
 }
 
 .action-btn:hover {
-    color: var(--primary);
+    color: var(--accent-red);
     background: rgba(231, 76, 60, 0.05);
 }
 
@@ -719,7 +713,7 @@ header p {
     width: 100%;
     padding: 10px 14px;
     border: 1px solid var(--border-color);
-    background: var(--bg-main);
+    background: var(--bg-base);
     border-radius: var(--radius-sm);
     font-family: inherit;
     font-size: 0.95rem;
@@ -750,23 +744,23 @@ header p {
 }
 
 .btn-primary {
-    background: var(--secondary);
-    color: var(--text-inverse);
+    background: var(--primary);
+    color: var(--secondary);
 }
 
 .btn-primary:hover {
-    background: var(--secondary-dark);
+    background: var(--primary-dark);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary {
-    background: var(--primary);
+    background: var(--secondary);
     color: var(--text-inverse);
 }
 
 .btn-secondary:hover {
-    background: var(--primary-dark);
+    background: var(--secondary-light);
     transform: translateY(-1px);
 }
 
@@ -777,7 +771,7 @@ header p {
 }
 
 .btn-outline:hover {
-    background: var(--border-color);
+    background: var(--bg-base);
     border-color: var(--text-muted);
 }
 
@@ -851,7 +845,7 @@ header p {
 }
 
 .close-modal-btn:hover {
-    color: var(--primary);
+    color: var(--accent-red);
 }
 
 .modal-footer {
@@ -1001,7 +995,7 @@ header p {
 }
 
 .tag-city { background: rgba(30, 42, 56, 0.06); color: var(--secondary); }
-.tag-cost { background: rgba(95,133,117, 0.15); color: var(--success); }
+.tag-cost { background: rgba(46, 204, 113, 0.15); color: var(--accent-green); }
 
 .pool-card-actions {
     border-top: 1px solid rgba(0,0,0,0.06);
@@ -1062,7 +1056,7 @@ header p {
 }
 
 .budget-badge-value.total {
-    color: var(--success);
+    color: var(--accent-green);
 }
 
 .budget-table-card {
@@ -1120,7 +1114,7 @@ header p {
 
 .progress-bar-bg {
     height: 8px;
-    background: var(--bg-main);
+    background: var(--bg-base);
     border-radius: 4px;
     overflow: hidden;
     margin-top: 8px;
@@ -1151,7 +1145,7 @@ header p {
 }
 
 .checklist-item:hover {
-    background: var(--bg-main);
+    background: var(--bg-base);
 }
 
 .checklist-item input[type="checkbox"] {
@@ -1430,7 +1424,7 @@ header p {
     height: 250px;
     overflow-y: auto;
     padding: 16px;
-    background: var(--bg-main);
+    background: var(--bg-base);
 }
 
 .message-bubble {
@@ -1459,7 +1453,7 @@ header p {
 .message-delete-btn {
     background: transparent;
     border: none;
-    color: var(--primary);
+    color: var(--accent-red);
     cursor: pointer;
     font-size: 0.7rem;
     opacity: 0.6;
@@ -1650,7 +1644,7 @@ header p {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     font-size: 0.95rem;
-    background: var(--bg-main);
+    background: var(--bg-base);
     color: var(--text-main);
     transition: var(--transition);
 }
@@ -1660,7 +1654,7 @@ header p {
     box-shadow: 0 0 0 3px rgba(224,152,167,0.15);
 }
 #login-modal .form-error {
-    color: var(--primary);
+    color: var(--accent-red);
     font-size: 0.85rem;
     margin-bottom: 10px;
     min-height: 20px;
@@ -1687,7 +1681,7 @@ header p {
 #login-modal .link-btn {
     background: transparent;
     border: none;
-    color: var(--primary);
+    color: var(--accent-red);
     cursor: pointer;
     font-size: 0.85rem;
     text-decoration: underline;
@@ -1876,7 +1870,7 @@ header p {
     justify-content: space-between;
     align-items: center;
     padding: 10px 14px;
-    background: var(--bg-main);
+    background: var(--bg-base);
     font-weight: 700;
     color: var(--secondary);
     border-bottom: 1px solid var(--border-color);
@@ -1928,10 +1922,10 @@ header p {
     font-size: 0.9rem;
 }
 .toast-notification.error {
-    background: var(--primary);
+    background: var(--accent-red);
 }
 .toast-notification.success {
-    background: var(--success);
+    background: var(--accent-green);
 }
 
 /* SOUVENIRS */
@@ -1968,8 +1962,8 @@ header p {
     transition: all 0.2s;
 }
 .souvenir-card.done .souvenir-check {
-    border-color: var(--success);
-    background: rgba(95, 133, 117, 0.15);
+    border-color: var(--primary);
+    background: var(--primary-light);
 }
 .souvenir-img {
     width: 60px;
@@ -1993,7 +1987,7 @@ header p {
 }
 .souvenir-price {
     font-weight: 700;
-    color: var(--success);
+    color: var(--accent-green);
     white-space: nowrap;
 }
 .souvenir-del {
@@ -2005,5 +1999,5 @@ header p {
     padding: 4px 8px;
 }
 .souvenir-del:hover {
-    color: var(--primary);
+    color: var(--accent-red);
 }
