@@ -2127,7 +2127,10 @@ function renderSouvenirs() {
     const container = document.getElementById('souvenir-container');
     if (!container) return;
     container.innerHTML = '';
-    const items = db.souvenirs || [];
+    let items = db.souvenirs || [];
+    if (currentSouvenirFilter !== 'all') {
+        items = items.filter(function(i) { return i.category === currentSouvenirFilter; });
+    }
     if (items.length === 0) {
         container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">還沒有伴手禮，快來新增！</div>';
         return;
@@ -2139,7 +2142,7 @@ function renderSouvenirs() {
             <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '✅' : '⬜'}</div>
             ${item.photo ? `<img src="${item.photo}" class="souvenir-img" onerror="this.style.display='none'">` : ''}
             <div class="souvenir-info">
-                <div class="souvenir-name">${item.name}</div>
+                <div class="souvenir-name">${item.name} <span class="tag tag-city" style="font-size:0.7rem;">${item.category || '其他'}</span></div>
                 ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
             </div>
             ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
@@ -2149,21 +2152,31 @@ function renderSouvenirs() {
     });
 }
 
+let currentSouvenirFilter = 'all';
+
 function addSouvenir(e) {
     e.preventDefault();
     const name = document.getElementById('souv-name').value.trim();
     if (!name) return;
+    const cat = document.getElementById('souv-cat').value;
     const shop = document.getElementById('souv-shop').value.trim();
     const price = document.getElementById('souv-price').value;
     const photo = document.getElementById('souv-photo').value.trim();
     if (!db.souvenirs) db.souvenirs = [];
-    db.souvenirs.push({ id: 'souv-' + Date.now(), name, shop, price: parseInt(price) || 0, photo, done: false });
+    db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, done: false });
     document.getElementById('souv-name').value = '';
     document.getElementById('souv-shop').value = '';
     document.getElementById('souv-price').value = '';
     document.getElementById('souv-photo').value = '';
     renderSouvenirs();
     saveSouvenirsToRemote().catch(function(){});
+}
+
+function filterSouvenirs(cat, el) {
+    currentSouvenirFilter = cat;
+    document.querySelectorAll('#souvenirs .filter-chip').forEach(function(c) { c.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    renderSouvenirs();
 }
 
 function toggleSouvenir(id) {
