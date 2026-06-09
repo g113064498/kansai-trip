@@ -2094,3 +2094,24 @@ header p {
         align-items: flex-start;
     }
 }
+
+#souvenirs form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr 1fr 2fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+#souvenirs input[type=number] {
+    -moz-appearance: textfield;
+    width: auto;
+}
+#souvenirs input[type=number]::-webkit-outer-spin-button,
+#souvenirs input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+@media (max-width: 640px) {
+    #souvenirs form {
+        grid-template-columns: 1fr 1fr;
+    }
+}
