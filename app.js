@@ -858,6 +858,7 @@ async function saveToRemote() {
 
 async function saveAllToRemote() {
     if (!db) return;
+    removeCacheId('art', 'art:master:主行程資料');
     const dayOrder = {};
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         dayOrder[day] = (events || []).map(e => e.id);
@@ -881,6 +882,7 @@ async function saveItineraryToRemote() {
     showSyncOverlay();
     try {
         setSyncStatus('syncing');
+        removeCacheId('art', 'art:master:主行程資料');
         const dayOrder = {};
         for (const [day, events] of Object.entries(db.itinerary || {})) {
             dayOrder[day] = (events || []).map(e => e.id);
