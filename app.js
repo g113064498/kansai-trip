@@ -939,7 +939,7 @@ function updateLoginButton() {
     const token = getToken();
     const email = localStorage.getItem('kansai_trip_user_email');
     if (token && !isTokenExpired() && email) {
-        btn.textContent = `👤 ${email.split('@')[0]}`;
+        btn.textContent = `使用者：${email.split('@')[0]}`;
         btn.title = '已登入';
     } else {
         btn.textContent = '🔑 登入';

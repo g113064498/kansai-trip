@@ -747,8 +747,14 @@ header p {
 }
 
 .btn-primary {
-    background: var(--primary);
-    color: var(--secondary);
+    background: var(--secondary);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background: var(--secondary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
@@ -1706,12 +1712,10 @@ header p {
     color: #FFFFFF;
 }
 
-/* Pool / Souvenirs add button */
+/* Pool / Souvenirs add button - primary blue */
 #pool .btn-primary,
 #souvenirs .btn-primary {
     background: var(--primary);
-    color: #FFFFFF;
-    border: none;
 }
 #pool .btn-primary:hover,
 #souvenirs .btn-primary:hover {
