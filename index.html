@@ -313,11 +313,10 @@
                 </div>
                 <form onsubmit="addSouvenir(event)" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
                     <input type="text" id="souv-name" class="form-control" placeholder="商品名稱" required style="flex:1;min-width:120px;">
-                    <select id="souv-cat" class="form-control" style="width:100px;">
-                        <option value="零食甜點">零食甜點</option>
+                    <select id="souv-cat" class="form-control" style="width:80px;">
+                        <option value="超商">超商</option>
                         <option value="藥妝">藥妝</option>
-                        <option value="雜貨小物">雜貨小物</option>
-                        <option value="茶酒">茶/酒</option>
+                        <option value="零食">零食</option>
                         <option value="其他">其他</option>
                     </select>
                     <input type="text" id="souv-shop" class="form-control" placeholder="哪裡買" style="flex:1;min-width:120px;">
@@ -327,10 +326,9 @@
                 </form>
                 <div class="pool-filter-bar" style="margin-bottom:12px;">
                     <button class="filter-chip active" onclick="filterSouvenirs('all', this)">全部</button>
-                    <button class="filter-chip" onclick="filterSouvenirs('零食甜點', this)">零食甜點</button>
+                    <button class="filter-chip" onclick="filterSouvenirs('超商', this)">超商</button>
                     <button class="filter-chip" onclick="filterSouvenirs('藥妝', this)">藥妝</button>
-                    <button class="filter-chip" onclick="filterSouvenirs('雜貨小物', this)">雜貨小物</button>
-                    <button class="filter-chip" onclick="filterSouvenirs('茶酒', this)">茶/酒</button>
+                    <button class="filter-chip" onclick="filterSouvenirs('零食', this)">零食</button>
                     <button class="filter-chip" onclick="filterSouvenirs('其他', this)">其他</button>
                 </div>
                 <div class="souvenir-grid" id="souvenir-container"></div>
