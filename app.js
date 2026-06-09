@@ -555,35 +555,8 @@ async function loadFromRemote() {
         const poolIds = new Set(db.attractionPool.map(i => i.id));
         for (const sid of Object.keys(db.scheduledItems)) {
             if (!poolIds.has(sid)) {
-                // 嘗試從 API 撈回產品
-                const realId = sid.startsWith('api-') ? sid.slice(4) : sid;
-                try {
-                    const prod = await hexAPI.getProduct(realId);
-                    if (prod && prod.category === '候選景點') {
-                        const data = JSON.parse(prod.content || '{}');
-                        const restored = {
-                            id: sid,
-                            title: prod.title,
-                            city: data.city || 'Kyoto',
-                            desc: data.desc || '',
-                            cost: data.cost || prod.origin_price || 0,
-                            category: data.category || 'sightseeing',
-                            isEnabled: true,
-                            day: db.scheduledItems[sid].split('|')[0],
-                            time: db.scheduledItems[sid].split('|')[1] || '10:00 - 12:00',
-                            photos: data.photos || [],
-                            location: data.location || '',
-                            _productId: realId
-                        };
-                        db.attractionPool.push(restored);
-                    } else {
-                        delete db.scheduledItems[sid];
-                        cleaned = true;
-                    }
-                } catch (e) {
-                    delete db.scheduledItems[sid];
-                    cleaned = true;
-                }
+                delete db.scheduledItems[sid];
+                cleaned = true;
             }
         }
         if (cleaned) saveItineraryToRemote();
