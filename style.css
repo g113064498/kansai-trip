@@ -100,9 +100,7 @@ header h1 {
     font-weight: 900;
     letter-spacing: -0.5px;
     margin-bottom: 8px;
-    background: linear-gradient(to right, #FFFFFF, var(--primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-inverse);
     display: flex;
     align-items: center;
     gap: 10px;
