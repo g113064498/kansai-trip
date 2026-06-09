@@ -2137,6 +2137,7 @@ function renderSouvenirs() {
         div.className = 'souvenir-card' + (item.done ? ' done' : '');
         div.innerHTML = `
             <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '✅' : '⬜'}</div>
+            ${item.photo ? `<img src="${item.photo}" class="souvenir-img" onerror="this.style.display='none'">` : ''}
             <div class="souvenir-info">
                 <div class="souvenir-name">${item.name}</div>
                 ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
@@ -2154,11 +2155,13 @@ function addSouvenir(e) {
     if (!name) return;
     const shop = document.getElementById('souv-shop').value.trim();
     const price = document.getElementById('souv-price').value;
+    const photo = document.getElementById('souv-photo').value.trim();
     if (!db.souvenirs) db.souvenirs = [];
-    db.souvenirs.push({ id: 'souv-' + Date.now(), name, shop, price: parseInt(price) || 0, done: false });
+    db.souvenirs.push({ id: 'souv-' + Date.now(), name, shop, price: parseInt(price) || 0, photo, done: false });
     document.getElementById('souv-name').value = '';
     document.getElementById('souv-shop').value = '';
     document.getElementById('souv-price').value = '';
+    document.getElementById('souv-photo').value = '';
     renderSouvenirs();
     saveSouvenirsToRemote().catch(function(){});
 }

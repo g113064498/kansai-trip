@@ -312,9 +312,10 @@
                     <p>關西必買推薦清單，買過打勾</p>
                 </div>
                 <form onsubmit="addSouvenir(event)" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-                    <input type="text" id="souv-name" class="form-control" placeholder="商品名稱" required style="flex:1;min-width:150px;">
-                    <input type="text" id="souv-shop" class="form-control" placeholder="哪裡買" style="flex:1;min-width:150px;">
-                    <input type="number" id="souv-price" class="form-control" placeholder="¥ 價格" style="width:100px;">
+                    <input type="text" id="souv-name" class="form-control" placeholder="商品名稱" required style="flex:1;min-width:120px;">
+                    <input type="text" id="souv-shop" class="form-control" placeholder="哪裡買" style="flex:1;min-width:120px;">
+                    <input type="number" id="souv-price" class="form-control" placeholder="¥ 價格" style="width:80px;">
+                    <input type="text" id="souv-photo" class="form-control" placeholder="圖片網址" style="flex:1;min-width:150px;">
                     <button type="submit" class="btn btn-primary">＋ 新增</button>
                 </form>
                 <div class="souvenir-grid" id="souvenir-container"></div>
@@ -339,6 +340,9 @@
         <button class="mobile-nav-btn" id="mob-nav-checklist" onclick="switchTab('checklist')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             清單/預算
+        </button>
+        <button class="mobile-nav-btn" id="mob-nav-souvenirs" onclick="switchTab('souvenirs')">
+            🎁
         </button>
     </div>
 
