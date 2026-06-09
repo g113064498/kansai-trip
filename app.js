@@ -1643,7 +1643,7 @@ async function deleteEvent(dayStr, id) {
             poolItem.isEnabled = false;
             poolItem.day = '';
             if (db.scheduledItems) delete db.scheduledItems[item._poolId];
-            saveItineraryToRemote();
+            await saveItineraryToRemote();
             if (poolItem._productId) {
                 const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
                 hexAPI.updateProduct(poolItem._productId, {
