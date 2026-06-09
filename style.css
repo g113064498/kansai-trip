@@ -1925,3 +1925,59 @@ header p {
 .toast-notification.success {
     background: var(--accent-green);
 }
+
+/* SOUVENIRS */
+.souvenir-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.souvenir-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+}
+.souvenir-card.done {
+    opacity: 0.6;
+}
+.souvenir-card.done .souvenir-name {
+    text-decoration: line-through;
+}
+.souvenir-check {
+    cursor: pointer;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.souvenir-info {
+    flex: 1;
+    min-width: 0;
+}
+.souvenir-name {
+    font-weight: 600;
+    color: var(--secondary);
+}
+.souvenir-shop {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.souvenir-price {
+    font-weight: 700;
+    color: var(--accent-green);
+    white-space: nowrap;
+}
+.souvenir-del {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 8px;
+}
+.souvenir-del:hover {
+    color: var(--accent-red);
+}

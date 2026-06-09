@@ -307,7 +307,7 @@ function isTokenExpired() {
 // 離線時自動降級為僅 LocalStorage 本地儲存
 let syncIndicatorEl = null;
 
-const ARTICLE_TAGS = { MESSAGES: 'messages', MASTER: 'master' };
+const ARTICLE_TAGS = { MESSAGES: 'messages', MASTER: 'master', SOUVENIRS: 'souvenirs' };
 
 function setSyncStatus(status) {
     if (!syncIndicatorEl) {
@@ -459,9 +459,11 @@ async function loadFromRemote() {
         // 平行載入文章內容
         const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
         const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
-        const [masterContent, msgContent] = await Promise.all([
+        const souvArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS));
+        const [masterContent, msgContent, souvContent] = await Promise.all([
             master ? hexAPI.getArticle(master.id).catch(() => null) : Promise.resolve(null),
-            msgArt ? hexAPI.getArticle(msgArt.id).catch(() => null) : Promise.resolve(null)
+            msgArt ? hexAPI.getArticle(msgArt.id).catch(() => null) : Promise.resolve(null),
+            souvArt ? hexAPI.getArticle(souvArt.id).catch(() => null) : Promise.resolve(null)
         ]);
 
         // 處理 master article
@@ -485,6 +487,15 @@ async function loadFromRemote() {
                 if (Array.isArray(msgs)) db.messages = msgs;
             } catch { /* skip corrupt messages */ }
         }
+
+        // 處理 souvenirs
+        if (souvContent && souvContent.content) {
+            try {
+                const souv = JSON.parse(souvContent.content);
+                if (Array.isArray(souv)) db.souvenirs = souv;
+            } catch { /* skip */ }
+        }
+        if (!db.souvenirs) db.souvenirs = [];
 
         // 處理 pool 產品
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
@@ -981,6 +992,7 @@ async function initApp() {
     renderChecklists();
     updateBudgetCalculations();
     renderMessages();
+    renderSouvenirs();
     hideSyncOverlay();
 }
 
@@ -2096,4 +2108,72 @@ function deleteMessage(id) {
             console.warn('[Message] 同步失敗:', err.message);
         });
     }
+}
+
+// SOUVENIRS
+async function saveSouvenirsToRemote() {
+    if (!db) return;
+    try {
+        setSyncStatus('syncing');
+        await ensureArticle(ARTICLE_TAGS.SOUVENIRS, '伴手禮清單', JSON.stringify(db.souvenirs || []));
+        setSyncStatus('synced');
+    } catch (err) {
+        console.warn('[Souvenir] 同步失敗:', err);
+        setSyncStatus('offline');
+    }
+}
+
+function renderSouvenirs() {
+    const container = document.getElementById('souvenir-container');
+    if (!container) return;
+    container.innerHTML = '';
+    const items = db.souvenirs || [];
+    if (items.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">還沒有伴手禮，快來新增！</div>';
+        return;
+    }
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'souvenir-card' + (item.done ? ' done' : '');
+        div.innerHTML = `
+            <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '✅' : '⬜'}</div>
+            <div class="souvenir-info">
+                <div class="souvenir-name">${item.name}</div>
+                ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
+            </div>
+            ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
+            <button class="souvenir-del" onclick="deleteSouvenir('${item.id}')">✕</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function addSouvenir(e) {
+    e.preventDefault();
+    const name = document.getElementById('souv-name').value.trim();
+    if (!name) return;
+    const shop = document.getElementById('souv-shop').value.trim();
+    const price = document.getElementById('souv-price').value;
+    if (!db.souvenirs) db.souvenirs = [];
+    db.souvenirs.push({ id: 'souv-' + Date.now(), name, shop, price: parseInt(price) || 0, done: false });
+    document.getElementById('souv-name').value = '';
+    document.getElementById('souv-shop').value = '';
+    document.getElementById('souv-price').value = '';
+    renderSouvenirs();
+    saveSouvenirsToRemote().catch(function(){});
+}
+
+function toggleSouvenir(id) {
+    const item = (db.souvenirs || []).find(s => s.id === id);
+    if (!item) return;
+    item.done = !item.done;
+    renderSouvenirs();
+    saveSouvenirsToRemote().catch(function(){});
+}
+
+function deleteSouvenir(id) {
+    if (!confirm('確定刪除？')) return;
+    db.souvenirs = (db.souvenirs || []).filter(s => s.id !== id);
+    renderSouvenirs();
+    saveSouvenirsToRemote().catch(function(){});
 }
