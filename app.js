@@ -2186,7 +2186,7 @@ function editSouvenir(id) {
     document.querySelector('#souvenirs form button[type=submit]').textContent = '更新';
 }
 
-let currentSouvenirFilter = 'all';
+let currentSouvenirFilter = '超商';
 
 function addSouvenir(e) {
     e.preventDefault();
