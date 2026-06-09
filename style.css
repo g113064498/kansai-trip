@@ -1,23 +1,23 @@
 ﻿/* CSS RESET & VARIABLES */
 :root {
-    --primary: #FFB7C5; /* Cherry Blossom Pink */
-    --primary-dark: #E098A7;
-    --primary-light: #FFE4E8;
-    --secondary: #1E2A38; /* Indigo Blue */
-    --secondary-light: #2C3E50;
-    --bg-base: #FAF8F5; /* Warm Sand Sand background */
-    --bg-card: #FFFFFF;
-    --border-color: rgba(30, 42, 56, 0.06);
-    --border-hover: rgba(255, 183, 197, 0.5);
-    --text-main: #2C3E50;
-    --text-muted: #7F8C8D;
+    --primary: #85120F; /* Deep Burgundy */
+    --primary-dark: #5C0C0A;
+    --primary-light: #F5D6D4;
+    --secondary: #015697; /* Deep Navy Blue */
+    --secondary-light: #1A7EC8;
+    --bg-base: #F1DAA4; /* Warm Cream */
+    --bg-card: #FDF8EE;
+    --border-color: rgba(1, 86, 151, 0.1);
+    --border-hover: rgba(133, 18, 15, 0.3);
+    --text-main: #015697;
+    --text-muted: #6B8AAA;
     --text-inverse: #FFFFFF;
     --accent-green: #2ECC71;
     --accent-orange: #E67E22;
     --accent-red: #E74C3C;
-    --shadow-sm: 0 2px 8px rgba(30, 42, 56, 0.04);
-    --shadow-md: 0 8px 30px rgba(30, 42, 56, 0.06);
-    --shadow-lg: 0 12px 40px rgba(30, 42, 56, 0.1);
+    --shadow-sm: 0 2px 8px rgba(1, 86, 151, 0.06);
+    --shadow-md: 0 8px 30px rgba(1, 86, 151, 0.08);
+    --shadow-lg: 0 12px 40px rgba(1, 86, 151, 0.12);
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 24px;
