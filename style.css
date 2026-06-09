@@ -70,7 +70,7 @@ body {
 
 /* HEADER BANNER */
 header {
-    background: linear-gradient(135deg, #1E2A38 0%, #2B3A4C 60%, #FFB7C5 100%);
+    background: var(--secondary);
     color: var(--text-inverse);
     padding: 40px 0 60px 0;
     position: relative;
