@@ -81,6 +81,9 @@ header {
 header h1, header span, header p, header a {
     color: var(--text-inverse);
 }
+.timeline-title, #current-day-heading, .day-item span, .day-item {
+    color: var(--text-main);
+}
 
 header::before {
     content: '';
