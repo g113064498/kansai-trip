@@ -1758,7 +1758,7 @@ async function addPoolItemToItinerary(poolId) {
                 category: '候選景點',
                 origin_price: item.cost || 0,
                 price: 0,
-                unit: '景點',
+                unit: targetDay + '|' + (item.time || '10:00 - 12:00'),
                 is_enabled: 1,
                 num: 1
             });
@@ -1786,8 +1786,15 @@ async function deleteFromPool(id) {
     if (!confirm("確定要將這個候選景點從清單中完全移除嗎？")) return;
     const item = db.attractionPool.find(p => p.id === id);
     const backup = [...db.attractionPool];
+    const savedScheduled = (db.scheduledItems && item) ? db.scheduledItems[item.id] : null;
     db.attractionPool = db.attractionPool.filter(p => p.id !== id);
+    if (item && db.scheduledItems) delete db.scheduledItems[item.id];
+    if (item && db.poolPhotos) delete db.poolPhotos[item.id];
+    for (const [day, events] of Object.entries(db.itinerary || {})) {
+        db.itinerary[day] = events.filter(e => e._poolId !== item.id);
+    }
     renderPool();
+    renderItineraryForDay(currentSelectedDay);
     try {
         setSyncStatus('syncing');
         if (item && item._productId) {
@@ -1805,7 +1812,9 @@ async function deleteFromPool(id) {
     } catch (e) {
         console.warn('[Pool] delete failed:', e.message);
         db.attractionPool = backup;
+        if (item && savedScheduled) db.scheduledItems[item.id] = savedScheduled;
         renderPool();
+        renderItineraryForDay(currentSelectedDay);
         setSyncStatus('offline');
         alert('刪除失敗：無法同步到伺服器');
     }
