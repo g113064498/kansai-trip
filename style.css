@@ -69,7 +69,7 @@ body {
 
 /* HEADER BANNER */
 header {
-    background: linear-gradient(135deg, #4A1E1A 0%, #683629 50%, #B20E19 100%);
+    background: #683629;
     color: var(--text-inverse);
     padding: 40px 0 60px 0;
     position: relative;
@@ -77,6 +77,9 @@ header {
     border-bottom-left-radius: var(--radius-lg);
     border-bottom-right-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
+}
+header h1, header span, header p, header a {
+    color: var(--text-inverse);
 }
 
 header::before {
