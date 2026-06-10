@@ -499,6 +499,7 @@ async function loadFromRemote() {
 
         // 處理 pool 產品
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
+        console.log('[DEBUG loadFromRemote] 從 API 載入的候選景點產品:', poolProducts.map(p => ({ id: p.id, title: p.title, is_enabled: p.is_enabled, unit: p.unit })));
         const apiPoolItems = poolProducts.map(p => {
             const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
             return {
@@ -534,6 +535,7 @@ async function loadFromRemote() {
         if (!db.scheduledItems) db.scheduledItems = {};
 
         // Sync from scheduledItems, fall back to product is_enabled for backward compat
+        console.log('[DEBUG loadFromRemote] scheduledItems 從 master article:', JSON.parse(JSON.stringify(db.scheduledItems)));
         let migrated = false;
         for (const item of db.attractionPool) {
             if (db.scheduledItems[item.id]) {
@@ -562,6 +564,7 @@ async function loadFromRemote() {
         if (cleaned) saveItineraryToRemote();
 
         // Add scheduled pool items to itinerary by day
+        console.log('[DEBUG loadFromRemote] 準備加入日程的 pool items:', db.attractionPool.filter(i => i.isEnabled && i.day).map(i => ({ id: i.id, title: i.title, day: i.day, isEnabled: i.isEnabled })));
         for (const item of db.attractionPool) {
             if (item.isEnabled && item.day && db.itinerary.hasOwnProperty(item.day)) {
                 db.itinerary[item.day].push({
@@ -898,7 +901,10 @@ async function saveItineraryToRemote() {
         for (const [day, events] of Object.entries(db.itinerary || {})) {
             dayOrder[day] = (events || []).map(e => e.id);
         }
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} }));
+        const masterPayload = { flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} };
+        console.log('[DEBUG saveItineraryToRemote] 儲存 scheduledItems:', JSON.parse(JSON.stringify(db.scheduledItems || {})));
+        console.log('[DEBUG saveItineraryToRemote] 儲存 dayOrder:', JSON.parse(JSON.stringify(dayOrder)));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify(masterPayload));
         setSyncStatus('synced');
     } catch (err) {
         console.warn('[Sync] 行程同步失敗:', err);
@@ -1651,27 +1657,35 @@ async function deleteEvent(dayStr, id) {
     if (item && item._poolId) {
         // Pool item: just set isEnabled to false
         const poolItem = db.attractionPool.find(p => p.id === item._poolId);
+        console.log('[DEBUG deleteEvent] 移除 pool item:', { id, _poolId: item._poolId, poolItemFound: !!poolItem, _productId: poolItem?._productId });
         db.itinerary[dayStr] = items.filter(e => e.id !== id);
         if (poolItem) {
             poolItem.isEnabled = false;
             poolItem.day = '';
             if (db.scheduledItems) delete db.scheduledItems[item._poolId];
+            console.log('[DEBUG deleteEvent] 刪除後 scheduledItems:', JSON.parse(JSON.stringify(db.scheduledItems || {})));
             if (poolItem._productId) {
                 const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
+                const updateData = {
+                    title: poolItem.title || '未命名景點',
+                    content: JSON.stringify(content),
+                    category: '候選景點',
+                    origin_price: poolItem.cost || 0,
+                    price: 0,
+                    unit: '景點',
+                    is_enabled: 0,
+                    num: 1
+                };
+                console.log('[DEBUG deleteEvent] 更新產品 is_enabled=0, productId:', poolItem._productId, updateData);
                 try {
-                    await hexAPI.updateProduct(poolItem._productId, {
-                        title: poolItem.title || '未命名景點',
-                        content: JSON.stringify(content),
-                        category: '候選景點',
-                        origin_price: poolItem.cost || 0,
-                        price: 0,
-                        unit: '景點',
-                        is_enabled: 0,
-                        num: 1
-                    });
+                    await hexAPI.updateProduct(poolItem._productId, updateData);
+                    console.log('[DEBUG deleteEvent] 產品更新成功');
                 } catch(e) { console.warn('[Delete] 更新 is_enabled 失敗:', e.message); }
+            } else {
+                console.warn('[DEBUG deleteEvent] poolItem 沒有 _productId，無法更新 API 產品');
             }
             await saveItineraryToRemote();
+            console.log('[DEBUG deleteEvent] saveItineraryToRemote 完成');
         }
         renderItineraryForDay(dayStr);
         renderPool();
@@ -1767,10 +1781,14 @@ async function addPoolItemToItinerary(poolId) {
             }
         }
         removeCacheId('pool', `pool:${item.id}`);
+        console.log('[DEBUG addPoolItemToItinerary] 更新產品 is_enabled=1, productId:', pid, productData);
         await hexAPI.updateProduct(pid, productData);
+        console.log('[DEBUG addPoolItemToItinerary] 產品更新成功');
         if (!db.scheduledItems) db.scheduledItems = {};
         db.scheduledItems[item.id] = targetDay + '|' + (item.time || '10:00 - 12:00');
+        console.log('[DEBUG addPoolItemToItinerary] scheduledItems 更新:', JSON.parse(JSON.stringify(db.scheduledItems)));
         await saveItineraryToRemote();
+        console.log('[DEBUG addPoolItemToItinerary] saveItineraryToRemote 完成');
         updateBudgetCalculations();
         showToast(`已將「${item.title}」排入 Day ${selectionIndex + 1}！`, 2000);
     } catch (err) {
