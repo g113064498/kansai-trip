@@ -1,4 +1,4 @@
-﻿/* CSS RESET & VARIABLES */
+/* CSS RESET & VARIABLES */
 :root {
     --primary: #004078; /* Navy Blue */
     --primary-dark: #002850;
@@ -2075,6 +2075,15 @@ header p {
 .souvenir-card {
     position: relative;
 }
+.souvenir-content {
+    display: contents;
+}
+.souvenir-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
 
 #souvenirs .form-control { background: #FFFFFF; }
 #souvenirs input[type=number] { width: 100px; -moz-appearance: textfield; }
@@ -2094,32 +2103,39 @@ header p {
         align-items: flex-start;
     }
     #souvenirs form {
-        grid-template-columns: 1fr 1fr;
-    }
-    #souvenirs .container {
-        padding: 0 12px;
+        grid-template-columns: 3fr 1fr;
     }
     .souvenir-card {
-        flex-wrap: wrap;
+        display: flex;
+        align-items: center;
+        gap: 12px;
         padding: 12px;
     }
-    .souvenir-card .souvenir-info {
+    .souvenir-card .souvenir-check {
+        flex-shrink: 0;
+        align-self: center;
+    }
+    .souvenir-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
         flex: 1;
+        min-width: 0;
+    }
+    .souvenir-card .souvenir-info {
+        width: 100%;
     }
     .souvenir-card .souvenir-price {
         width: 100%;
         text-align: left;
-        margin-top: 4px;
+        margin-top: 0;
     }
-    .souvenir-card .souvenir-photo-btn,
-    .souvenir-card .souvenir-edit,
-    .souvenir-card .souvenir-del {
-        margin-left: auto;
-    }
-}
-    #souvenirs .card-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .souvenir-card .souvenir-actions {
+        align-self: flex-end;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 2px;
     }
 }
 
@@ -2137,9 +2153,4 @@ header p {
 #souvenirs input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
-}
-@media (max-width: 640px) {
-    #souvenirs form {
-        grid-template-columns: 1fr 1fr;
-    }
 }

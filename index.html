@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -306,32 +306,30 @@
 
         <!-- 5. SOUVENIRS -->
         <section id="souvenirs" class="content-section">
-            <div class="container">
-                <div class="card-header">
-                    <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M22 6H2l4-4h12l4 4z"/><path d="M12 6v16"/></svg> 必買伴手禮</h3>
-                    <p>關西必買推薦清單，買過打勾</p>
-                </div>
-                <form onsubmit="addSouvenir(event)">
-                    <input type="text" id="souv-name" class="form-control" placeholder="商品名稱" required>
-                    <select id="souv-cat" class="form-control">
-                        <option value="超商">超商</option>
-                        <option value="藥妝">藥妝</option>
-                        <option value="零食">零食</option>
-                        <option value="其他">其他</option>
-                    </select>
-                    <input type="text" id="souv-shop" class="form-control" placeholder="哪裡買">
-                    <input type="number" id="souv-price" class="form-control" placeholder="¥" min="0">
-                    <input type="text" id="souv-photo" class="form-control" placeholder="圖片網址">
-                    <button type="submit" class="btn btn-primary">＋ 新增</button>
-                </form>
-                <div class="pool-filter-bar" style="margin-bottom:12px;">
-                    <button class="filter-chip active" onclick="filterSouvenirs('超商', this)">超商</button>
-                    <button class="filter-chip" onclick="filterSouvenirs('藥妝', this)">藥妝</button>
-                    <button class="filter-chip" onclick="filterSouvenirs('零食', this)">零食</button>
-                    <button class="filter-chip" onclick="filterSouvenirs('其他', this)">其他</button>
-                </div>
-                <div class="souvenir-grid" id="souvenir-container"></div>
+            <div class="card-header">
+                <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M22 6H2l4-4h12l4 4z"/><path d="M12 6v16"/></svg> 必買伴手禮</h3>
+                <p>關西必買推薦清單，買過打勾</p>
             </div>
+            <form onsubmit="addSouvenir(event)">
+                <input type="text" id="souv-name" class="form-control" placeholder="商品名稱" required>
+                <select id="souv-cat" class="form-control">
+                    <option value="超商">超商</option>
+                    <option value="藥妝">藥妝</option>
+                    <option value="零食">零食</option>
+                    <option value="其他">其他</option>
+                </select>
+                <input type="text" id="souv-shop" class="form-control" placeholder="哪裡買">
+                <input type="number" id="souv-price" class="form-control" placeholder="¥" min="0">
+                <input type="text" id="souv-photo" class="form-control" placeholder="圖片網址">
+                <button type="submit" class="btn btn-primary">＋ 新增</button>
+            </form>
+            <div class="pool-filter-bar" style="margin-bottom:12px;">
+                <button class="filter-chip active" onclick="filterSouvenirs('超商', this)">超商</button>
+                <button class="filter-chip" onclick="filterSouvenirs('藥妝', this)">藥妝</button>
+                <button class="filter-chip" onclick="filterSouvenirs('零食', this)">零食</button>
+                <button class="filter-chip" onclick="filterSouvenirs('其他', this)">其他</button>
+            </div>
+            <div class="souvenir-grid" id="souvenir-container"></div>
         </section>
     </main>
 
