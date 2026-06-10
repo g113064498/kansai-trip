@@ -2093,11 +2093,39 @@ header p {
         flex-direction: column;
         align-items: flex-start;
     }
+    #souvenirs form {
+        grid-template-columns: 1fr 1fr;
+    }
+    #souvenirs .container {
+        padding: 0 12px;
+    }
+    .souvenir-card {
+        flex-wrap: wrap;
+        padding: 12px;
+    }
+    .souvenir-card .souvenir-info {
+        flex: 1;
+    }
+    .souvenir-card .souvenir-price {
+        width: 100%;
+        text-align: left;
+        margin-top: 4px;
+    }
+    .souvenir-card .souvenir-photo-btn,
+    .souvenir-card .souvenir-edit,
+    .souvenir-card .souvenir-del {
+        margin-left: auto;
+    }
+}
+    #souvenirs .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 #souvenirs form {
     display: grid;
-    grid-template-columns: 2fr 1fr 2fr 1fr 2fr 1fr;
+    grid-template-columns: 3fr 1fr 3fr 1fr 3fr 1fr;
     gap: 8px;
     margin-bottom: 16px;
 }
