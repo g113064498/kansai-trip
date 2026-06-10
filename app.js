@@ -520,7 +520,22 @@ async function loadFromRemote() {
         // 處理 pool 產品
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
         console.log('[DEBUG loadFromRemote] 從 API 載入的候選景點產品:', poolProducts.map(p => ({ id: p.id, title: p.title, is_enabled: p.is_enabled, unit: p.unit })));
-        const apiPoolItems = poolProducts.map(p => {
+
+        // 標題正規化函式：去除 emoji、空白差異，用於比對去重
+        const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+
+        // API 產品本身也可能有重複（同名產品），以最新的為準
+        const seenApiTitles = new Map();
+        const dedupedPoolProducts = [];
+        for (const p of poolProducts) {
+            const norm = normalizeTitle(p.title);
+            if (!seenApiTitles.has(norm)) {
+                seenApiTitles.set(norm, true);
+                dedupedPoolProducts.push(p);
+            }
+        }
+
+        const apiPoolItems = dedupedPoolProducts.map(p => {
             const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
             return {
                 id: 'api-' + p.id,
@@ -538,9 +553,9 @@ async function loadFromRemote() {
             };
         });
 
-        // Merge with initial data (items not yet synced to API)
-        const apiTitles = new Set(apiPoolItems.map(i => i.title));
-        const initialOnly = (db.attractionPool || []).filter(p => !apiTitles.has(p.title));
+        // Merge with initial data — 用正規化標題比對，避免 emoji 差異造成重複
+        const apiNormTitles = new Set(apiPoolItems.map(i => normalizeTitle(i.title)));
+        const initialOnly = (db.attractionPool || []).filter(p => !apiNormTitles.has(normalizeTitle(p.title)));
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
         // Merge poolPhotos from master article
