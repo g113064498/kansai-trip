@@ -228,18 +228,16 @@ const hexAPI = {
         return data;
     },
     async getArticles() {
-        let allArticles = [];
-        let page = 1;
-        let totalPages = 1;
-        do {
-            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles?page=${page}`);
-            const articles = data.articles || [];
-            allArticles = allArticles.concat(articles);
-            if (data.pagination && data.pagination.total_pages) {
-                totalPages = data.pagination.total_pages;
-            }
-            page++;
-        } while (page <= totalPages);
+        // 先取第一頁拿到 total_pages，再平行取其餘頁
+        const first = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles?page=1`);
+        let allArticles = first.articles || [];
+        const totalPages = (first.pagination && first.pagination.total_pages) || 1;
+        if (totalPages > 1) {
+            const pages = [];
+            for (let p = 2; p <= totalPages; p++) pages.push(this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles?page=${p}`));
+            const results = await Promise.all(pages);
+            for (const r of results) allArticles = allArticles.concat(r.articles || []);
+        }
         return allArticles;
     },
     async getArticle(id) {
@@ -256,19 +254,16 @@ const hexAPI = {
     },
     // --- Products API ---
     async getProducts() {
-        // HexSchool API 預設每頁只回傳 10 筆，需要翻頁取得所有產品
-        let allProducts = [];
-        let page = 1;
-        let totalPages = 1;
-        do {
-            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`);
-            const products = data.products || [];
-            allProducts = allProducts.concat(products);
-            if (data.pagination && data.pagination.total_pages) {
-                totalPages = data.pagination.total_pages;
-            }
-            page++;
-        } while (page <= totalPages);
+        // 先取第一頁拿到 total_pages，再平行取其餘頁
+        const first = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=1`);
+        let allProducts = first.products || [];
+        const totalPages = (first.pagination && first.pagination.total_pages) || 1;
+        if (totalPages > 1) {
+            const pages = [];
+            for (let p = 2; p <= totalPages; p++) pages.push(this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${p}`));
+            const results = await Promise.all(pages);
+            for (const r of results) allProducts = allProducts.concat(r.products || []);
+        }
         console.log(`[getProducts] 共載入 ${allProducts.length} 個產品 (${totalPages} 頁)`);
         return allProducts;
     },
@@ -475,25 +470,31 @@ async function loadFromRemote() {
         if (!db.messages) db.messages = [];
 
         // 平行載入：articles + products 同時發
+        // 平行載入 articles + products（含自動分頁）
         const [allArticles, allProducts] = await Promise.all([
             hexAPI.getArticles(),
             hexAPI.getProducts()
         ]);
 
-        // 平行載入文章內容
-        const master = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER));
-        const msgArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES));
-        const souvArt = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS));
-        const [masterContent, msgContent, souvContent] = await Promise.all([
-            master ? hexAPI.getArticle(master.id).catch(() => null) : Promise.resolve(null),
-            msgArt ? hexAPI.getArticle(msgArt.id).catch(() => null) : Promise.resolve(null),
-            souvArt ? hexAPI.getArticle(souvArt.id).catch(() => null) : Promise.resolve(null)
-        ]);
+        // 文章列表已包含 content，直接使用不需額外 getArticle()
+        const masterContent = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER)) || null;
+        const msgContent = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES)) || null;
+        const souvContent = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS)) || null;
+
+        // 如果列表的 content 為空，才需要單獨取文章（少數 API 版本列表不含 content）
+        const needFetch = [];
+        if (masterContent && !masterContent.content) needFetch.push(hexAPI.getArticle(masterContent.id).catch(() => null));
+        else needFetch.push(Promise.resolve(masterContent));
+        if (msgContent && !msgContent.content) needFetch.push(hexAPI.getArticle(msgContent.id).catch(() => null));
+        else needFetch.push(Promise.resolve(msgContent));
+        if (souvContent && !souvContent.content) needFetch.push(hexAPI.getArticle(souvContent.id).catch(() => null));
+        else needFetch.push(Promise.resolve(souvContent));
+        const [masterData, msgData, souvData] = await Promise.all(needFetch);
 
         // 處理 master article
-        if (masterContent && masterContent.content) {
+        if (masterData && masterData.content) {
             try {
-                const m = JSON.parse(masterContent.content);
+                const m = JSON.parse(masterData.content);
                 if (m.flights) db.flights = m.flights;
                 if (m.hotels) db.hotels = m.hotels;
                 if (m.budget) db.budget = m.budget;
@@ -505,17 +506,17 @@ async function loadFromRemote() {
         }
 
         // 處理 messages
-        if (msgContent && msgContent.content) {
+        if (msgData && msgData.content) {
             try {
-                const msgs = JSON.parse(msgContent.content);
+                const msgs = JSON.parse(msgData.content);
                 if (Array.isArray(msgs)) db.messages = msgs;
             } catch { /* skip corrupt messages */ }
         }
 
         // 處理 souvenirs
-        if (souvContent && souvContent.content) {
+        if (souvData && souvData.content) {
             try {
-                const souv = JSON.parse(souvContent.content);
+                const souv = JSON.parse(souvData.content);
                 if (Array.isArray(souv)) db.souvenirs = souv;
             } catch { /* skip */ }
         }
@@ -574,8 +575,6 @@ async function loadFromRemote() {
                 item.isEnabled = false;
             }
         }
-        if (migrated) saveItineraryToRemote();
-
         // 清理 scheduledItems 中不在 attractionPool 的孤兒
         let cleaned = false;
         const poolIds = new Set(db.attractionPool.map(i => i.id));
@@ -585,7 +584,8 @@ async function loadFromRemote() {
                 cleaned = true;
             }
         }
-        if (cleaned) saveItineraryToRemote();
+        // 合併 migration 與 cleanup 的存檔，只呼叫一次
+        if (migrated || cleaned) saveItineraryToRemote();
 
         // Add scheduled pool items to itinerary by day
         console.log('[DEBUG loadFromRemote] 準備加入日程的 pool items:', db.attractionPool.filter(i => i.isEnabled && i.day).map(i => ({ id: i.id, title: i.title, day: i.day, isEnabled: i.isEnabled })));
