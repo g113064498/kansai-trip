@@ -228,17 +228,9 @@ const hexAPI = {
         return data;
     },
     async getArticles() {
-        // 先取第一頁拿到 total_pages，再平行取其餘頁
-        const first = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles?page=1`);
-        let allArticles = first.articles || [];
-        const totalPages = (first.pagination && first.pagination.total_pages) || 1;
-        if (totalPages > 1) {
-            const pages = [];
-            for (let p = 2; p <= totalPages; p++) pages.push(this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles?page=${p}`));
-            const results = await Promise.all(pages);
-            for (const r of results) allArticles = allArticles.concat(r.articles || []);
-        }
-        return allArticles;
+        // 文章通常不超過 10 筆，單頁即可
+        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles`);
+        return data.articles || [];
     },
     async getArticle(id) {
         const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/article/${id}`);
@@ -254,17 +246,20 @@ const hexAPI = {
     },
     // --- Products API ---
     async getProducts() {
-        // 先取第一頁拿到 total_pages，再平行取其餘頁
-        const first = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=1`);
-        let allProducts = first.products || [];
-        const totalPages = (first.pagination && first.pagination.total_pages) || 1;
-        if (totalPages > 1) {
-            const pages = [];
-            for (let p = 2; p <= totalPages; p++) pages.push(this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${p}`));
-            const results = await Promise.all(pages);
-            for (const r of results) allProducts = allProducts.concat(r.products || []);
+        // 循序翻頁取得所有產品（HexSchool API 不支援大量平行請求）
+        let allProducts = [];
+        let page = 1;
+        const MAX_PAGES = 10; // 安全上限
+        while (page <= MAX_PAGES) {
+            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`);
+            const products = data.products || [];
+            if (products.length === 0) break; // 空頁即停止
+            allProducts = allProducts.concat(products);
+            const totalPages = (data.pagination && data.pagination.total_pages) || 1;
+            if (page >= totalPages) break;
+            page++;
         }
-        console.log(`[getProducts] 共載入 ${allProducts.length} 個產品 (${totalPages} 頁)`);
+        console.log(`[getProducts] 共載入 ${allProducts.length} 個產品 (${page} 頁)`);
         return allProducts;
     },
     async getProduct(id) {
