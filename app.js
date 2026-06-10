@@ -1656,20 +1656,22 @@ async function deleteEvent(dayStr, id) {
             poolItem.isEnabled = false;
             poolItem.day = '';
             if (db.scheduledItems) delete db.scheduledItems[item._poolId];
-            await saveItineraryToRemote();
             if (poolItem._productId) {
                 const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
-                hexAPI.updateProduct(poolItem._productId, {
-                    title: poolItem.title || '未命名景點',
-                    content: JSON.stringify(content),
-                    category: '候選景點',
-                    origin_price: poolItem.cost || 0,
-                    price: 0,
-                    unit: '景點',
-                    is_enabled: 0,
-                    num: 1
-                }).catch(function(e){ console.warn('[Delete] 更新 is_enabled 失敗:', e.message); });
+                try {
+                    await hexAPI.updateProduct(poolItem._productId, {
+                        title: poolItem.title || '未命名景點',
+                        content: JSON.stringify(content),
+                        category: '候選景點',
+                        origin_price: poolItem.cost || 0,
+                        price: 0,
+                        unit: '景點',
+                        is_enabled: 0,
+                        num: 1
+                    });
+                } catch(e) { console.warn('[Delete] 更新 is_enabled 失敗:', e.message); }
             }
+            await saveItineraryToRemote();
         }
         renderItineraryForDay(dayStr);
         renderPool();
