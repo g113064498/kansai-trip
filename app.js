@@ -228,8 +228,19 @@ const hexAPI = {
         return data;
     },
     async getArticles() {
-        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles`);
-        return data.articles || [];
+        let allArticles = [];
+        let page = 1;
+        let totalPages = 1;
+        do {
+            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/articles?page=${page}`);
+            const articles = data.articles || [];
+            allArticles = allArticles.concat(articles);
+            if (data.pagination && data.pagination.total_pages) {
+                totalPages = data.pagination.total_pages;
+            }
+            page++;
+        } while (page <= totalPages);
+        return allArticles;
     },
     async getArticle(id) {
         const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/article/${id}`);
@@ -245,8 +256,21 @@ const hexAPI = {
     },
     // --- Products API ---
     async getProducts() {
-        const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products`);
-        return data.products || [];
+        // HexSchool API 預設每頁只回傳 10 筆，需要翻頁取得所有產品
+        let allProducts = [];
+        let page = 1;
+        let totalPages = 1;
+        do {
+            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`);
+            const products = data.products || [];
+            allProducts = allProducts.concat(products);
+            if (data.pagination && data.pagination.total_pages) {
+                totalPages = data.pagination.total_pages;
+            }
+            page++;
+        } while (page <= totalPages);
+        console.log(`[getProducts] 共載入 ${allProducts.length} 個產品 (${totalPages} 頁)`);
+        return allProducts;
     },
     async getProduct(id) {
         const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/product/${id}`);
