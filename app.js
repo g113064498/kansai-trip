@@ -888,6 +888,42 @@ async function syncInitialPoolToAPI() {
     }
 }
 
+async function deduplicateRemoteProducts() {
+    if (!db) return;
+    try {
+        console.log('[Deduplicate] 開始檢查與清理遠端重複產品...');
+        const allProducts = await hexAPI.getProducts();
+        
+        // 標題正規化函式：與 loadFromRemote 相同，去除 emoji、空白
+        const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+        
+        const seen = new Map();
+        const toDelete = [];
+        
+        // 遍歷所有產品，重複的（同名同分類）放入待刪除列表
+        for (const p of allProducts) {
+            const normTitle = normalizeTitle(p.title);
+            const key = `${p.category}:${normTitle}`;
+            if (seen.has(key)) {
+                toDelete.push(p.id);
+            } else {
+                seen.set(key, p.id);
+            }
+        }
+        
+        if (toDelete.length > 0) {
+            console.log(`[Deduplicate] 發現 ${toDelete.length} 個重複產品，正在清理...`);
+            for (const id of toDelete) {
+                await hexAPI.deleteProduct(id);
+            }
+            console.log('[Deduplicate] 重複產品清理成功！');
+            showToast(`自動清理了 ${toDelete.length} 個重複景點資料`);
+        }
+    } catch (e) {
+        console.warn('[Deduplicate] 自動清理重複產品時發生錯誤:', e);
+    }
+}
+
 function cleanEvents(events) {
     return events.map(ev => {
         const e = { ...ev };
@@ -1021,6 +1057,7 @@ async function initApp() {
     try {
         if (loggedIn) {
             await loadFromRemote();
+            await deduplicateRemoteProducts();
         } else {
             db = JSON.parse(JSON.stringify(initialTripData));
         }
