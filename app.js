@@ -1033,16 +1033,18 @@ window.addEventListener('DOMContentLoaded', () => {
 async function initApp() {
     updateLoginButton();
     const loggedIn = ensureLogin();
-    showSyncOverlay();
 
-    try {
-        if (loggedIn) {
+    if (loggedIn) {
+        showSyncOverlay();
+        try {
             await loadFromRemote();
-        } else {
+        } catch (e) {
+            console.error('[Init] 載入失敗，使用初始資料:', e);
             db = JSON.parse(JSON.stringify(initialTripData));
+        } finally {
+            hideSyncOverlay();
         }
-    } catch (e) {
-        console.error('[Init] 載入失敗，使用初始資料:', e);
+    } else {
         db = JSON.parse(JSON.stringify(initialTripData));
     }
 
@@ -1059,7 +1061,6 @@ async function initApp() {
     renderChecklists();
     updateBudgetCalculations();
     renderSouvenirs();
-    hideSyncOverlay();
 }
 
 // SAVE STATE
@@ -2083,9 +2084,6 @@ function exportSelfContainedHTML() {
 }
 
 
-// ==========================================
-// FALLING MAPLE LEAVES EFFECT (🍁)
-// ==========================================
 class MapleLeaves {
     constructor() {
         this.canvas = document.createElement('canvas');
@@ -2099,6 +2097,16 @@ class MapleLeaves {
             'rgba(192, 57, 43, 0.35)',   // Translucent Deep Red
             'rgba(211, 84, 0, 0.35)'     // Translucent Rust Orange
         ];
+
+        // Pre-render leaf templates for high performance
+        this.leafTemplates = this.colors.map(color => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 64;
+            tempCanvas.height = 64;
+            const tempCtx = tempCanvas.getContext('2d');
+            this.drawRawLeaf(tempCtx, 32, 32, 20, color);
+            return tempCanvas;
+        });
         
         // Setup canvas styles
         this.canvas.style.position = 'fixed';
@@ -2127,11 +2135,12 @@ class MapleLeaves {
     }
     
     createLeaf(randomY = false) {
+        const templateIdx = Math.floor(Math.random() * this.colors.length);
         return {
             x: Math.random() * this.canvas.width,
             y: randomY ? Math.random() * this.canvas.height : -20,
             size: Math.random() * 8 + 8, // Smaller leaves (8px to 16px) to keep them subtle
-            color: this.colors[Math.floor(Math.random() * this.colors.length)],
+            templateIdx: templateIdx,
             speedY: Math.random() * 1.0 + 0.5,
             speedX: Math.random() * 0.6 - 0.3,
             rotation: Math.random() * 360,
@@ -2141,11 +2150,10 @@ class MapleLeaves {
             swayRange: Math.random() * 1.2 + 0.4
         };
     }
-    
-    drawMapleLeaf(ctx, x, y, size, color, rotation) {
+
+    drawRawLeaf(ctx, x, y, size, color) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(rotation * Math.PI / 180);
         ctx.fillStyle = color;
         
         // Draw a simplified 5-pointed maple leaf shape
@@ -2198,7 +2206,21 @@ class MapleLeaves {
         ctx.restore();
     }
     
+    drawMapleLeaf(ctx, x, y, size, templateIdx, rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation * Math.PI / 180);
+        const template = this.leafTemplates[templateIdx];
+        ctx.drawImage(template, -size / 2, -size / 2, size, size);
+        ctx.restore();
+    }
+    
     animate() {
+        if (document.visibilityState === 'hidden') {
+            requestAnimationFrame(() => this.animate());
+            return;
+        }
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.leaves.forEach(leaf => {
@@ -2209,7 +2231,7 @@ class MapleLeaves {
             leaf.rotation += leaf.rotationSpeed;
             
             // Draw
-            this.drawMapleLeaf(this.ctx, leaf.x, leaf.y, leaf.size, leaf.color, leaf.rotation);
+            this.drawMapleLeaf(this.ctx, leaf.x, leaf.y, leaf.size, leaf.templateIdx, leaf.rotation);
             
             // Reset leaf when it goes off screen
             if (leaf.y > this.canvas.height + 25 || leaf.x < -25 || leaf.x > this.canvas.width + 25) {
