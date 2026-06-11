@@ -249,20 +249,30 @@ const hexAPI = {
     },
     // --- Products API ---
     async getProducts() {
-        // 循序翻頁取得所有產品（HexSchool API 不支援大量平行請求）
-        let allProducts = [];
-        let page = 1;
-        const MAX_PAGES = 10; // 安全上限
-        while (page <= MAX_PAGES) {
-            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`);
-            const products = data.products || [];
-            if (products.length === 0) break; // 空頁即停止
-            allProducts = allProducts.concat(products);
-            const totalPages = (data.pagination && data.pagination.total_pages) || 1;
-            if (page >= totalPages) break;
-            page++;
+        // 先取得第一頁，獲得總頁數與第一頁數據
+        const firstPageData = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=1`);
+        let allProducts = firstPageData.products || [];
+        const totalPages = (firstPageData.pagination && firstPageData.pagination.total_pages) || 1;
+        
+        if (totalPages > 1) {
+            const promises = [];
+            // 平行發出剩餘頁數的請求
+            for (let page = 2; page <= totalPages; page++) {
+                promises.push(
+                    this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`)
+                        .then(data => data.products || [])
+                        .catch(err => {
+                            console.warn(`[getProducts] 載入第 ${page} 頁失敗:`, err);
+                            return []; // 容錯，回傳空陣列避免整體失敗
+                        })
+                );
+            }
+            const results = await Promise.all(promises);
+            for (const products of results) {
+                allProducts = allProducts.concat(products);
+            }
         }
-        console.log(`[getProducts] 共載入 ${allProducts.length} 個產品 (${page} 頁)`);
+        console.log(`[getProducts] 平行載入完成：共載入 ${allProducts.length} 個產品 (${totalPages} 頁)`);
         return allProducts;
     },
     async getProduct(id) {
