@@ -165,6 +165,7 @@ let db = null;
 let activeTab = 'dashboard';
 let currentSelectedDay = "2026-11-04";
 let currentPoolFilter = 'Kyoto-sightseeing';
+let currentPoolPage = 1;
 
 // Clean up old localStorage data on page load
 (function cleanupOldLocalStorage() {
@@ -1366,12 +1367,30 @@ function renderPool() {
         items = items.filter(i => i.city === 'Osaka' && i.category === 'food');
     }
 
+    // 計算分頁
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(items.length / itemsPerPage) || 1;
+    
+    // 確保當前頁碼在有效範圍內
+    if (currentPoolPage > totalPages) {
+        currentPoolPage = totalPages;
+    }
+    if (currentPoolPage < 1) {
+        currentPoolPage = 1;
+    }
+
+    const startIndex = (currentPoolPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, items.length);
+    const pageItems = items.slice(startIndex, endIndex);
+
     if (items.length === 0) {
         container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">無相符的候選項目</div>`;
+        const paginationContainer = document.getElementById('pool-pagination');
+        if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
 
-    items.forEach(item => {
+    pageItems.forEach(item => {
         const card = document.createElement('div');
         let cardClass = 'pool-card';
         if (item.category === 'food') {
@@ -1423,10 +1442,49 @@ function renderPool() {
         `;
         container.appendChild(card);
     });
+
+    // 渲染分頁控制器
+    renderPoolPagination(totalPages);
+}
+
+// 渲染分頁控制器函式
+function renderPoolPagination(totalPages) {
+    const paginationContainer = document.getElementById('pool-pagination');
+    if (!paginationContainer) return;
+
+    if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+    }
+
+    let html = `
+        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" ${currentPoolPage === 1 ? 'disabled' : ''} onclick="changePoolPage(${currentPoolPage - 1})">
+            ◀ 上一頁
+        </button>
+        <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">
+            第 ${currentPoolPage} 頁 / 共 ${totalPages} 頁
+        </span>
+        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" ${currentPoolPage === totalPages ? 'disabled' : ''} onclick="changePoolPage(${currentPoolPage + 1})">
+            下一頁 ▶
+        </button>
+    `;
+    paginationContainer.innerHTML = html;
+}
+
+// 切換頁碼函式
+function changePoolPage(targetPage) {
+    currentPoolPage = targetPage;
+    renderPool();
+    // 捲動回候選池頂部，方便閱讀
+    const poolSection = document.getElementById('pool');
+    if (poolSection) {
+        poolSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function filterPool(category, btnEl) {
     currentPoolFilter = category;
+    currentPoolPage = 1; // 重設分頁
     
     document.querySelectorAll('.filter-chip').forEach(btn => {
         btn.classList.remove('active');
