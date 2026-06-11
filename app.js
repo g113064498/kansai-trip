@@ -2412,7 +2412,7 @@ async function addSouvenir(e) {
             item.price = parseInt(price) || 0; item.photo = photo;
         }
         editingSouvenirId = null;
-        document.querySelector('#souvenirs form button[type=submit]').textContent = '＋ 新增';
+        document.querySelector('#souvenirs form button[type=submit]').textContent = '新增';
     } else {
         db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, done: false });
     }
