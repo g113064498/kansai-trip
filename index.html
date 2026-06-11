@@ -493,33 +493,6 @@
         </div>
     </div>
 
-    <!-- Floating Side Message Board -->
-    <div id="floating-message-board" class="floating-chat-widget">
-        <!-- Toggle Button for Mobile -->
-        <button class="chat-toggle-btn" onclick="toggleChatWidget()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </button>
-        
-        <!-- Chat Panel -->
-        <div class="chat-panel" id="chat-panel">
-            <div class="chat-panel-header">
-                <h3>備忘留言板 💬</h3>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span id="sync-status-indicator" style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap;" title="HexSchool API 同步狀態">同步中…</span>
-                    <button class="chat-close-btn" onclick="toggleChatWidget()">&times;</button>
-                </div>
-            </div>
-            <div id="messages-list-container" class="messages-list">
-                <!-- Messages injected by JS -->
-            </div>
-            <form id="message-form" onsubmit="submitMessage(event)" class="chat-form">
-                <input type="text" id="message-input" class="chat-input" placeholder="新增備忘或留言..." required>
-                <button type="submit" class="chat-submit-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
-            </form>
-        </div>
-    </div>
 
     <!-- LOGIN MODAL -->
     <div class="modal-overlay" id="login-modal">

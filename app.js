@@ -155,9 +155,7 @@ const initialTripData = {
         { id: "c13", category: "girl", item: "美美拍照服裝、舒適好走的走路鞋 👟", done: false },
         { id: "c14", category: "boy", item: "內政部役男出境核准公文（線上申請並列印帶在身上） 🪖", done: false }
     ],
-    messages: [
-        { id: "msg-1", text: "歡迎來到您們的關西旅行備忘留言板！在這裡寫下備忘或貼心話吧 🍁", time: "6/1 21:00" }
-    ]
+    messages: []
 };
 // [INITIAL_DATA_END]
 
@@ -505,12 +503,7 @@ async function loadFromRemote() {
         }
 
         // 處理 messages
-        if (msgData && msgData.content) {
-            try {
-                const msgs = JSON.parse(msgData.content);
-                if (Array.isArray(msgs)) db.messages = msgs;
-            } catch { /* skip corrupt messages */ }
-        }
+        db.messages = [];
 
         // 處理 souvenirs
         if (souvData && souvData.content) {
@@ -916,9 +909,8 @@ async function saveAllToRemote() {
         dayOrder[day] = (events || []).map(e => e.id);
     }
     await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} }));
-    if (db.messages) {
-        await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify(db.messages));
-    }
+    // 清空遠端留言板資料
+    await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify([]));
 }
 
 async function saveMessagesToRemote() {
@@ -1048,7 +1040,6 @@ async function initApp() {
     renderPool();
     renderChecklists();
     updateBudgetCalculations();
-    renderMessages();
     renderSouvenirs();
     hideSyncOverlay();
 }
