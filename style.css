@@ -1696,6 +1696,9 @@ header p {
     text-decoration: underline;
 }
 .login-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
     background: transparent;
     color: #3E3A39;
     border: 1px solid #3E3A39;
