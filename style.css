@@ -352,7 +352,7 @@ header p {
 
 .hotel-dates {
     font-size: 0.9rem;
-    background: rgba(255, 183, 197, 0.3);
+    background: var(--primary-light);
     color: var(--secondary-light);
     padding: 4px 10px;
     border-radius: 20px;
@@ -1696,6 +1696,10 @@ header p {
     text-decoration: underline;
 }
 .login-btn {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 2000;
     background: transparent;
     color: #3E3A39;
     border: 1px solid #3E3A39;
@@ -2103,7 +2107,7 @@ header p {
         align-items: flex-start;
     }
     #souvenirs form {
-        grid-template-columns: 3fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
     .souvenir-card {
         display: flex;
