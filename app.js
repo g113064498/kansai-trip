@@ -500,6 +500,7 @@ async function loadFromRemote() {
                 if (m.dayOrder) db.dayOrder = m.dayOrder;
                 if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
                 if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
+                if (m.deletedPoolItems) db.deletedPoolItems = m.deletedPoolItems;
             } catch { /* skip corrupt master */ }
         }
 
@@ -552,8 +553,12 @@ async function loadFromRemote() {
         });
 
         // Merge with initial data — 用正規化標題比對，避免 emoji 差異造成重複
+        if (!db.deletedPoolItems) db.deletedPoolItems = [];
         const apiNormTitles = new Set(apiPoolItems.map(i => normalizeTitle(i.title)));
-        const initialOnly = (db.attractionPool || []).filter(p => !apiNormTitles.has(normalizeTitle(p.title)));
+        const initialOnly = (db.attractionPool || []).filter(p => 
+            !apiNormTitles.has(normalizeTitle(p.title)) && 
+            !db.deletedPoolItems.includes(p.id)
+        );
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
         // Merge poolPhotos from master article
@@ -910,7 +915,7 @@ async function saveAllToRemote() {
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         dayOrder[day] = (events || []).map(e => e.id);
     }
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} }));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] }));
     // 清空遠端留言板資料
     await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify([]));
 }
@@ -933,7 +938,7 @@ async function saveItineraryToRemote() {
         for (const [day, events] of Object.entries(db.itinerary || {})) {
             dayOrder[day] = (events || []).map(e => e.id);
         }
-        const masterPayload = { flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {} };
+        const masterPayload = { flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] };
         console.log('[DEBUG saveItineraryToRemote] 儲存 scheduledItems:', JSON.parse(JSON.stringify(db.scheduledItems || {})));
         console.log('[DEBUG saveItineraryToRemote] 儲存 dayOrder:', JSON.parse(JSON.stringify(dayOrder)));
     await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify(masterPayload));
@@ -1034,6 +1039,7 @@ async function initApp() {
     if (!db.messages) db.messages = [];
     if (!db.attractionPool) db.attractionPool = [];
     if (!db.itinerary) db.itinerary = {};
+    if (!db.deletedPoolItems) db.deletedPoolItems = [];
 
     updateCountdown();
     renderDashboard();
@@ -1909,9 +1915,16 @@ async function deleteFromPool(id) {
 
     const backup = [...db.attractionPool];
     const savedScheduled = (db.scheduledItems && item) ? db.scheduledItems[item.id] : null;
+    const backupDeleted = db.deletedPoolItems ? [...db.deletedPoolItems] : [];
 
     console.log('[DEBUG deleteFromPool] 正在從記憶體 db.attractionPool 中移除項目...');
     db.attractionPool = db.attractionPool.filter(p => p.id !== id);
+
+    if (!db.deletedPoolItems) db.deletedPoolItems = [];
+    if (!db.deletedPoolItems.includes(id)) {
+        console.log('[DEBUG deleteFromPool] 將項目 ID 紀錄到已刪除列表 (deletedPoolItems):', id);
+        db.deletedPoolItems.push(id);
+    }
 
     if (db.scheduledItems) {
         console.log('[DEBUG deleteFromPool] 正在從 scheduledItems 移除項目 ID:', item.id);
@@ -1944,15 +1957,16 @@ async function deleteFromPool(id) {
             console.log('[DEBUG deleteFromPool] hexAPI.deleteProduct 呼叫成功');
             removeCacheId('pool', `pool:${id}`);
         } else {
-            console.log('[DEBUG deleteFromPool] 項目無 _productId，嘗試利用 ensurePoolProduct 查找/建立後再行刪除...');
-            const newProductId = await ensurePoolProduct(item);
-            if (newProductId) {
-                console.log('[DEBUG deleteFromPool] 找到或建立了遠端產品, ID:', newProductId, '，開始執行刪除...');
-                await hexAPI.deleteProduct(newProductId);
+            console.log('[DEBUG deleteFromPool] 項目無 _productId，嘗試在遠端搜尋是否有同名產品...');
+            const allProducts = await hexAPI.getProducts();
+            const found = allProducts.find(p => p.title === item.title && p.category === '候選景點');
+            if (found) {
+                console.log('[DEBUG deleteFromPool] 找到同名遠端產品, ID:', found.id, '，開始執行刪除...');
+                await hexAPI.deleteProduct(found.id);
                 console.log('[DEBUG deleteFromPool] hexAPI.deleteProduct 呼叫成功');
                 removeCacheId('pool', `pool:${id}`);
             } else {
-                console.log('[DEBUG deleteFromPool] 遠端查無此產品且無法新建，無須執行刪除 API');
+                console.log('[DEBUG deleteFromPool] 遠端查無同名產品，無須呼叫刪除 API');
             }
         }
 
@@ -1965,6 +1979,7 @@ async function deleteFromPool(id) {
     } catch (e) {
         console.error('[DEBUG deleteFromPool] 刪除失敗或同步失敗:', e);
         db.attractionPool = backup;
+        db.deletedPoolItems = backupDeleted;
         if (savedScheduled) db.scheduledItems[item.id] = savedScheduled;
         console.log('[DEBUG deleteFromPool] 已還原資料庫備份並重新渲染');
         renderPool();
