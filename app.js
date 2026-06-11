@@ -2298,6 +2298,7 @@ async function saveSouvenirsToRemote() {
     } catch (err) {
         console.warn('[Souvenir] 同步失敗:', err);
         setSyncStatus('offline');
+        throw err;
     }
 }
 
@@ -2359,7 +2360,7 @@ function editSouvenir(id) {
 
 let currentSouvenirFilter = '超商';
 
-function addSouvenir(e) {
+async function addSouvenir(e) {
     e.preventDefault();
     const name = document.getElementById('souv-name').value.trim();
     if (!name) return;
@@ -2369,7 +2370,10 @@ function addSouvenir(e) {
     const photo = document.getElementById('souv-photo').value.trim();
     if (!db.souvenirs) db.souvenirs = [];
 
-    if (editingSouvenirId) {
+    const isEditing = !!editingSouvenirId;
+    const backup = [...db.souvenirs];
+
+    if (isEditing) {
         const item = db.souvenirs.find(s => s.id === editingSouvenirId);
         if (item) {
             item.name = name; item.category = cat; item.shop = shop;
@@ -2385,7 +2389,18 @@ function addSouvenir(e) {
     document.getElementById('souv-price').value = '';
     document.getElementById('souv-photo').value = '';
     renderSouvenirs();
-    saveSouvenirsToRemote().catch(function(){});
+
+    showSyncOverlay();
+    try {
+        await saveSouvenirsToRemote();
+        showToast(isEditing ? '伴手禮更新成功！' : '伴手禮新增成功！');
+    } catch (err) {
+        db.souvenirs = backup;
+        renderSouvenirs();
+        showToast((isEditing ? '更新' : '新增') + '失敗：' + err.message, 3000);
+    } finally {
+        hideSyncOverlay();
+    }
 }
 
 function filterSouvenirs(cat, el) {
@@ -2403,9 +2418,21 @@ function toggleSouvenir(id) {
     saveSouvenirsToRemote().catch(function(){});
 }
 
-function deleteSouvenir(id) {
+async function deleteSouvenir(id) {
     if (!confirm('確定刪除？')) return;
+    const backup = [...db.souvenirs];
     db.souvenirs = (db.souvenirs || []).filter(s => s.id !== id);
     renderSouvenirs();
-    saveSouvenirsToRemote().catch(function(){});
+
+    showSyncOverlay();
+    try {
+        await saveSouvenirsToRemote();
+        showToast('伴手禮已刪除！');
+    } catch (err) {
+        db.souvenirs = backup;
+        renderSouvenirs();
+        showToast('刪除失敗：' + err.message, 3000);
+    } finally {
+        hideSyncOverlay();
+    }
 }
