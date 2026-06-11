@@ -889,41 +889,6 @@ async function syncInitialPoolToAPI() {
     }
 }
 
-async function deduplicateRemoteProducts() {
-    if (!db) return;
-    try {
-        console.log('[Deduplicate] 開始檢查與清理遠端重複產品...');
-        const allProducts = await hexAPI.getProducts();
-        
-        // 標題正規化函式：與 loadFromRemote 相同，去除 emoji、空白
-        const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
-        
-        const seen = new Map();
-        const toDelete = [];
-        
-        // 遍歷所有產品，重複的（同名同分類）放入待刪除列表
-        for (const p of allProducts) {
-            const normTitle = normalizeTitle(p.title);
-            const key = `${p.category}:${normTitle}`;
-            if (seen.has(key)) {
-                toDelete.push(p.id);
-            } else {
-                seen.set(key, p.id);
-            }
-        }
-        
-        if (toDelete.length > 0) {
-            console.log(`[Deduplicate] 發現 ${toDelete.length} 個重複產品，正在清理...`);
-            for (const id of toDelete) {
-                await hexAPI.deleteProduct(id);
-            }
-            console.log('[Deduplicate] 重複產品清理成功！');
-            showToast(`自動清理了 ${toDelete.length} 個重複景點資料`);
-        }
-    } catch (e) {
-        console.warn('[Deduplicate] 自動清理重複產品時發生錯誤:', e);
-    }
-}
 
 function cleanEvents(events) {
     return events.map(ev => {
@@ -1058,7 +1023,6 @@ async function initApp() {
     try {
         if (loggedIn) {
             await loadFromRemote();
-            await deduplicateRemoteProducts();
         } else {
             db = JSON.parse(JSON.stringify(initialTripData));
         }
@@ -1930,40 +1894,83 @@ async function addPoolItemToItinerary(poolId) {
 
 // DELETE FROM POOL
 async function deleteFromPool(id) {
-    if (!confirm("確定要將這個候選景點從清單中完全移除嗎？")) return;
+    console.log('[DEBUG deleteFromPool] 開始刪除候選項目, id:', id);
+    if (!confirm("確定要將這個候選景點從清單中完全移除嗎？")) {
+        console.log('[DEBUG deleteFromPool] 使用者取消了刪除確認');
+        return;
+    }
     const item = db.attractionPool.find(p => p.id === id);
+    console.log('[DEBUG deleteFromPool] 找到待刪除項目:', item ? { id: item.id, title: item.title, _productId: item._productId } : '未找到項目');
+
+    if (!item) {
+        console.warn('[DEBUG deleteFromPool] 找不到該項目，無法執行刪除');
+        return;
+    }
+
     const backup = [...db.attractionPool];
     const savedScheduled = (db.scheduledItems && item) ? db.scheduledItems[item.id] : null;
+
+    console.log('[DEBUG deleteFromPool] 正在從記憶體 db.attractionPool 中移除項目...');
     db.attractionPool = db.attractionPool.filter(p => p.id !== id);
-    if (item && db.scheduledItems) delete db.scheduledItems[item.id];
-    if (item && db.poolPhotos) delete db.poolPhotos[item.id];
-    for (const [day, events] of Object.entries(db.itinerary || {})) {
-        db.itinerary[day] = events.filter(e => e._poolId !== item.id);
+
+    if (db.scheduledItems) {
+        console.log('[DEBUG deleteFromPool] 正在從 scheduledItems 移除項目 ID:', item.id);
+        delete db.scheduledItems[item.id];
     }
+    if (db.poolPhotos) {
+        console.log('[DEBUG deleteFromPool] 正在從 poolPhotos 移除項目 ID:', item.id);
+        delete db.poolPhotos[item.id];
+    }
+
+    console.log('[DEBUG deleteFromPool] 正在從 db.itinerary 中排除與此項目關聯的行程事件...');
+    for (const [day, events] of Object.entries(db.itinerary || {})) {
+        const origLength = events.length;
+        db.itinerary[day] = events.filter(e => e._poolId !== item.id);
+        const removedCount = origLength - db.itinerary[day].length;
+        if (removedCount > 0) {
+            console.log(`[DEBUG deleteFromPool] 已從 Day ${day} 移除 ${removedCount} 個行程事件`);
+        }
+    }
+
+    console.log('[DEBUG deleteFromPool] 重新渲染網頁候選池與行程表...');
     renderPool();
     renderItineraryForDay(currentSelectedDay);
+
     try {
         setSyncStatus('syncing');
-        if (item && item._productId) {
+        if (item._productId) {
+            console.log('[DEBUG deleteFromPool] 項目有對應的遠端 _productId:', item._productId, '，呼叫 hexAPI.deleteProduct...');
             await hexAPI.deleteProduct(item._productId);
+            console.log('[DEBUG deleteFromPool] hexAPI.deleteProduct 呼叫成功');
             removeCacheId('pool', `pool:${id}`);
-        } else if (item) {
+        } else {
+            console.log('[DEBUG deleteFromPool] 項目無 _productId，嘗試利用 ensurePoolProduct 查找/建立後再行刪除...');
             const newProductId = await ensurePoolProduct(item);
             if (newProductId) {
+                console.log('[DEBUG deleteFromPool] 找到或建立了遠端產品, ID:', newProductId, '，開始執行刪除...');
                 await hexAPI.deleteProduct(newProductId);
+                console.log('[DEBUG deleteFromPool] hexAPI.deleteProduct 呼叫成功');
                 removeCacheId('pool', `pool:${id}`);
+            } else {
+                console.log('[DEBUG deleteFromPool] 遠端查無此產品且無法新建，無須執行刪除 API');
             }
         }
+
+        console.log('[DEBUG deleteFromPool] 正在呼叫 saveItineraryToRemote 同步行程與排程狀態至遠端 Master...');
+        await saveItineraryToRemote();
+        console.log('[DEBUG deleteFromPool] saveItineraryToRemote 同步成功');
+
         setSyncStatus('synced');
         showToast('刪除成功！');
     } catch (e) {
-        console.warn('[Pool] delete failed:', e.message);
+        console.error('[DEBUG deleteFromPool] 刪除失敗或同步失敗:', e);
         db.attractionPool = backup;
-        if (item && savedScheduled) db.scheduledItems[item.id] = savedScheduled;
+        if (savedScheduled) db.scheduledItems[item.id] = savedScheduled;
+        console.log('[DEBUG deleteFromPool] 已還原資料庫備份並重新渲染');
         renderPool();
         renderItineraryForDay(currentSelectedDay);
         setSyncStatus('offline');
-        alert('刪除失敗：無法同步到伺服器');
+        alert('刪除失敗：' + e.message);
     }
 }
 
