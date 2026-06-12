@@ -2505,6 +2505,7 @@ function renderSouvenirs() {
                 <div class="souvenir-info">
                     <div class="souvenir-name">${item.name} <span class="tag tag-city" style="font-size:0.7rem;">${item.category || '其他'}</span></div>
                     ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
+                    ${item.notes ? `<div class="souvenir-notes">📝 ${item.notes}</div>` : ''}
                 </div>
                 ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
                 <div class="souvenir-actions">
@@ -2537,6 +2538,7 @@ function editSouvenir(id) {
     document.getElementById('souv-shop').value = item.shop || '';
     document.getElementById('souv-price').value = item.price || '';
     document.getElementById('souv-photo').value = item.photo || '';
+    document.getElementById('souv-notes').value = item.notes || '';
     document.querySelector('#souvenirs form button[type=submit]').textContent = '更新';
 }
 
@@ -2550,6 +2552,7 @@ async function addSouvenir(e) {
     const shop = document.getElementById('souv-shop').value.trim();
     const price = document.getElementById('souv-price').value;
     const photo = document.getElementById('souv-photo').value.trim();
+    const notes = document.getElementById('souv-notes').value.trim();
     if (!db.souvenirs) db.souvenirs = [];
 
     const isEditing = !!editingSouvenirId;
@@ -2560,16 +2563,18 @@ async function addSouvenir(e) {
         if (item) {
             item.name = name; item.category = cat; item.shop = shop;
             item.price = parseInt(price) || 0; item.photo = photo;
+            item.notes = notes;
         }
         editingSouvenirId = null;
         document.querySelector('#souvenirs form button[type=submit]').textContent = '新增';
     } else {
-        db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, done: false });
+        db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, notes, done: false });
     }
     document.getElementById('souv-name').value = '';
     document.getElementById('souv-shop').value = '';
     document.getElementById('souv-price').value = '';
     document.getElementById('souv-photo').value = '';
+    document.getElementById('souv-notes').value = '';
     renderSouvenirs();
 
     showSyncOverlay();
