@@ -2173,25 +2173,28 @@ header p {
         align-self: center;
     }
     .souvenir-content {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr auto;
         gap: 6px;
         flex: 1;
         min-width: 0;
     }
     .souvenir-card .souvenir-info {
-        width: 100%;
+        grid-column: 1 / -1;
     }
     .souvenir-card .souvenir-price {
-        width: 100%;
+        grid-column: 1;
+        align-self: center;
         text-align: left;
         margin-top: 0;
     }
     .souvenir-card .souvenir-actions {
-        align-self: flex-end;
+        grid-column: 2;
+        justify-self: end;
+        align-self: center;
         display: flex;
         align-items: center;
         gap: 4px;
-        margin-top: 2px;
+        margin-top: 0;
     }
 }
