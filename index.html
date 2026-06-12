@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=49">
+    <link rel="stylesheet" href="style.css?v=50">
 </head>
 <body>
 
@@ -318,8 +318,10 @@
                     <input type="text" id="souv-name" class="form-control" placeholder="商品名稱" required>
                     <select id="souv-cat" class="form-control">
                         <option value="超商">超商</option>
-                        <option value="藥妝">藥妝</option>
+                        <option value="藥品">藥品</option>
+                        <option value="美妝">美妝</option>
                         <option value="零食">零食</option>
+                        <option value="服飾">服飾</option>
                         <option value="其他">其他</option>
                     </select>
                     <input type="text" id="souv-shop" class="form-control" placeholder="哪裡買">
@@ -331,8 +333,10 @@
             </form>
             <div class="pool-filter-bar" style="margin-bottom:12px;">
                 <button class="filter-chip active" onclick="filterSouvenirs('超商', this)">超商</button>
-                <button class="filter-chip" onclick="filterSouvenirs('藥妝', this)">藥妝</button>
+                <button class="filter-chip" onclick="filterSouvenirs('藥品', this)">藥品</button>
+                <button class="filter-chip" onclick="filterSouvenirs('美妝', this)">美妝</button>
                 <button class="filter-chip" onclick="filterSouvenirs('零食', this)">零食</button>
+                <button class="filter-chip" onclick="filterSouvenirs('服飾', this)">服飾</button>
                 <button class="filter-chip" onclick="filterSouvenirs('其他', this)">其他</button>
             </div>
             <div class="souvenir-grid" id="souvenir-container"></div>
@@ -539,6 +543,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=49" defer></script>
+    <script src="app.js?v=50" defer></script>
 </body>
 </html>

@@ -2505,7 +2505,7 @@ function renderSouvenirs() {
                 <div class="souvenir-info">
                     <div class="souvenir-name">${item.name} <span class="tag tag-city" style="font-size:0.7rem;">${item.category || '其他'}</span></div>
                     ${item.shop ? `<div class="souvenir-shop">📍 ${item.shop}</div>` : ''}
-                    ${item.notes ? `<div class="souvenir-notes">📝 ${item.notes}</div>` : ''}
+                    ${item.notes ? `<div class="souvenir-notes">${item.notes}</div>` : ''}
                 </div>
                 ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
                 <div class="souvenir-actions">
