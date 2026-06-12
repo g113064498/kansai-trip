@@ -2096,17 +2096,20 @@ header p {
 .card-header { margin-bottom: 16px; }
 .card-header h3 { margin-bottom: 4px; }
 
-#souvenirs form {
+.souv-form {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
 }
-#souvenirs form .form-control {
-    flex: 1 1 150px;
+.souv-inputs-grid {
+    display: grid;
+    grid-template-columns: 3fr 1fr 3fr 1fr 3fr;
+    gap: 8px;
 }
-#souvenirs form button[type=submit] {
-    flex: 0 0 100px;
+.souv-submit-btn {
+    align-self: flex-end; /* 新增按鈕靠右 */
+    width: 100px;
     padding: 8px 16px;
 }
 .souvenir-notes {
@@ -2120,8 +2123,8 @@ header p {
     word-break: break-all;
     white-space: pre-wrap; /* 正常顯示換行與分段 */
 }
-#souvenirs form textarea.form-control {
-    flex: 1 1 100%;
+.souv-form textarea.form-control {
+    width: 100%;
     min-height: 60px;
     resize: vertical;
     font-family: inherit;
@@ -2149,14 +2152,15 @@ header p {
         flex-direction: column;
         align-items: flex-start;
     }
-    #souvenirs form {
-        flex-direction: column;
+    .souv-inputs-grid {
+        grid-template-columns: 3fr 1fr; /* souv-name:souv-cat 為 3:1 一排，souv-shop:souv-price 為 3:1 一排 */
     }
-    #souvenirs form .form-control {
-        flex: 1 1 auto;
+    #souv-photo {
+        grid-column: 1 / -1; /* souv-photo 自己一排 */
     }
-    #souvenirs form button[type=submit] {
-        flex: 1 1 auto;
+    .souv-submit-btn {
+        width: 100%; /* 新增按鈕寬度左右貼齊 */
+        align-self: stretch;
     }
     .souvenir-card {
         display: flex;
