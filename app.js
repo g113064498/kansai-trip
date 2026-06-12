@@ -249,31 +249,40 @@ const hexAPI = {
     },
     // --- Products API ---
     async getProducts() {
-        // 先取得第一頁，獲得總頁數與第一頁數據
-        const firstPageData = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=1`);
-        let allProducts = firstPageData.products || [];
-        const totalPages = (firstPageData.pagination && firstPageData.pagination.total_pages) || 1;
-        
-        if (totalPages > 1) {
-            const promises = [];
-            // 平行發出剩餘頁數的請求
-            for (let page = 2; page <= totalPages; page++) {
-                promises.push(
-                    this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`)
-                        .then(data => data.products || [])
-                        .catch(err => {
-                            console.warn(`[getProducts] 載入第 ${page} 頁失敗:`, err);
-                            return []; // 容錯，回傳空陣列避免整體失敗
-                        })
-                );
+        try {
+            // 一次取得所有產品，避免多頁 API 分次請求，大幅提升載入速度
+            const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products/all`);
+            const productsObj = data.products || {};
+            // 相容性處理：六角學院 API 此端點可能回傳 Array 或 Object
+            const products = Array.isArray(productsObj) ? productsObj : Object.values(productsObj);
+            console.log(`[getProducts] 使用 products/all 載入完成：共 ${products.length} 個產品`);
+            return products;
+        } catch (err) {
+            console.warn(`[getProducts] 使用 products/all 載入失敗，嘗試 fallback 到分頁載入:`, err);
+            // Fallback 到原有分頁載入邏輯，確保極高容錯率
+            const firstPageData = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=1`);
+            let allProducts = firstPageData.products || [];
+            const totalPages = (firstPageData.pagination && firstPageData.pagination.total_pages) || 1;
+            
+            if (totalPages > 1) {
+                const promises = [];
+                for (let page = 2; page <= totalPages; page++) {
+                    promises.push(
+                        this.request('GET', `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`)
+                            .then(d => d.products || [])
+                            .catch(e => {
+                                console.warn(`[getProducts] Fallback 載入第 ${page} 頁失敗:`, e);
+                                return [];
+                            })
+                    );
+                }
+                const results = await Promise.all(promises);
+                for (const products of results) {
+                    allProducts = allProducts.concat(products);
+                }
             }
-            const results = await Promise.all(promises);
-            for (const products of results) {
-                allProducts = allProducts.concat(products);
-            }
+            return allProducts;
         }
-        console.log(`[getProducts] 平行載入完成：共載入 ${allProducts.length} 個產品 (${totalPages} 頁)`);
-        return allProducts;
     },
     async getProduct(id) {
         const data = await this.request('GET', `${API_BASE}/api/${API_PATH}/admin/product/${id}`);
@@ -1026,6 +1035,7 @@ function handleLogout() {
         }
         clearToken();
         localStorage.removeItem('kansai_trip_user_email');
+        localStorage.removeItem('kansai_trip_db_cache');
         location.reload();
     }
 }
@@ -1035,24 +1045,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initApp().then(() => { new MapleLeaves(); });
 });
 
-async function initApp() {
-    updateLoginButton();
-    const loggedIn = ensureLogin();
-
-    if (loggedIn) {
-        showSyncOverlay();
-        try {
-            await loadFromRemote();
-        } catch (e) {
-            console.error('[Init] 載入失敗，使用初始資料:', e);
-            db = JSON.parse(JSON.stringify(initialTripData));
-        } finally {
-            hideSyncOverlay();
-        }
-    } else {
-        db = JSON.parse(JSON.stringify(initialTripData));
-    }
-
+function renderAllUI() {
     if (!db.messages) db.messages = [];
     if (!db.attractionPool) db.attractionPool = [];
     if (!db.itinerary) db.itinerary = {};
@@ -1068,10 +1061,65 @@ async function initApp() {
     renderSouvenirs();
 }
 
+async function initApp() {
+    updateLoginButton();
+    const loggedIn = ensureLogin();
+
+    let cacheLoaded = false;
+    if (loggedIn) {
+        const cached = localStorage.getItem('kansai_trip_db_cache');
+        if (cached) {
+            try {
+                db = JSON.parse(cached);
+                cacheLoaded = true;
+                console.log('[Init] 成功自 LocalStorage 快取載入資料，即時渲染 UI');
+                renderAllUI();
+            } catch (e) {
+                console.warn('[Init] 解析快取資料失敗:', e);
+            }
+        }
+    }
+
+    if (!cacheLoaded) {
+        db = JSON.parse(JSON.stringify(initialTripData));
+        renderAllUI();
+    }
+
+    if (loggedIn) {
+        // 若有快取，我們在背景默默進行 API 同步，不阻礙使用者操作；若無快取則顯示同步遮罩
+        if (!cacheLoaded) {
+            showSyncOverlay();
+        }
+        try {
+            await loadFromRemote();
+            // 同步完畢後儲存至本地快取並重新渲染 UI
+            saveToLocalStorage();
+            console.log('[Init] 從 API 同步資料成功，儲存快取並更新 UI');
+            renderAllUI();
+        } catch (e) {
+            console.error('[Init] API 同步失敗:', e);
+            // 若先前無快取且同步失敗，使用預設資料重新渲染以防萬一
+            if (!cacheLoaded) {
+                renderAllUI();
+            }
+        } finally {
+            if (!cacheLoaded) {
+                hideSyncOverlay();
+            }
+        }
+    }
+}
+
 // SAVE STATE
-// No-op: we don't use localStorage for trip data anymore (API is source of truth)
+// Stale-While-Revalidate caching: store db state in localStorage for instant loading
 function saveToLocalStorage() {
-    // Intentionally empty — all data lives in the HexSchool API
+    if (db) {
+        try {
+            localStorage.setItem('kansai_trip_db_cache', JSON.stringify(db));
+        } catch (e) {
+            console.warn('[Cache] 儲存至 LocalStorage 失敗:', e);
+        }
+    }
 }
 
 // TAB SWITCHER
