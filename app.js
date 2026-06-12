@@ -2509,7 +2509,7 @@ function renderSouvenirs() {
                 </div>
                 ${item.price ? `<div class="souvenir-price">¥${Number(item.price).toLocaleString()}</div>` : ''}
                 <div class="souvenir-actions">
-                    ${item.photo ? `<button class="souvenir-photo-btn" onclick="toggleSouvenirPhoto(this,'${item.photo}')" title="檢視照片"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>` : `<span class="souvenir-photo-btn" style="opacity:0.3;cursor:default;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>`}
+                    ${item.photo ? `<button class="souvenir-photo-btn" onclick="toggleSouvenirPhoto(this,'${item.photo.replace(/'/g, "\\\\'")}')" title="檢視照片"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>` : `<span class="souvenir-photo-btn" style="opacity:0.3;cursor:default;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>`}
                     <button class="souvenir-edit" onclick="editSouvenir('${item.id}')" title="編輯"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
                     <button class="souvenir-del" onclick="deleteSouvenir('${item.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                 </div>
@@ -2520,12 +2520,7 @@ function renderSouvenirs() {
 }
 
 function toggleSouvenirPhoto(btn, url) {
-    const existing = btn.parentElement.querySelector('.souvenir-photo-pop');
-    if (existing) { existing.remove(); return; }
-    const pop = document.createElement('div');
-    pop.className = 'souvenir-photo-pop';
-    pop.innerHTML = `<img src="${url}" onerror="this.parentElement.remove()"><button onclick="this.parentElement.remove()">✕</button>`;
-    btn.parentElement.appendChild(pop);
+    openLightbox(url);
 }
 
 let editingSouvenirId = null;
