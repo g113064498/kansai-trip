@@ -2118,6 +2118,14 @@ header p {
     border-radius: 4px;
     border-left: 2px solid var(--primary-light);
     word-break: break-all;
+    white-space: pre-wrap; /* 正常顯示換行與分段 */
+}
+#souvenirs form textarea.form-control {
+    flex: 1 1 100%;
+    min-height: 60px;
+    resize: vertical;
+    font-family: inherit;
+    padding: 8px 12px;
 }
 #souvenirs input[type=number] {
     -moz-appearance: textfield;
