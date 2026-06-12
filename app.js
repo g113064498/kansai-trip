@@ -528,7 +528,9 @@ async function loadFromRemote() {
 
         // 處理 pool 產品
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
-        console.log('[DEBUG loadFromRemote] 從 API 載入的候選景點產品:', poolProducts.map(p => ({ id: p.id, title: p.title, is_enabled: p.is_enabled, unit: p.unit })));
+        // 先以 ID 降冪排序，確保最新的產品（ID 較大）先被處理，使去重邏輯結果是確定性且最新的
+        poolProducts.sort((a, b) => b.id.localeCompare(a.id));
+        console.log('[DEBUG loadFromRemote] 從 API 載入的候選景點產品 (已排序):', poolProducts.map(p => ({ id: p.id, title: p.title, is_enabled: p.is_enabled, unit: p.unit })));
 
         // 標題正規化函式：去除 emoji、空白差異，用於比對去重
         const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
@@ -629,18 +631,19 @@ async function loadFromRemote() {
             }
         }
 
-        // Sort itinerary by dayOrder from master article
+        // Filter itinerary by dayOrder from master article, and sort all by time
         if (db.dayOrder) {
             for (const [day, order] of Object.entries(db.dayOrder)) {
                 if (db.itinerary[day] && order && order.length > 0) {
                     const orderMap = new Map(order.map((id, i) => [id, i]));
-                    db.itinerary[day].sort((a, b) => {
-                        const ai = orderMap.has(a.id) ? orderMap.get(a.id) : 9999;
-                        const bi = orderMap.has(b.id) ? orderMap.get(b.id) : 9999;
-                        return ai - bi;
-                    });
+                    // 僅保留在 dayOrder 中的項目，以過濾掉已刪除的初始項目
+                    db.itinerary[day] = db.itinerary[day].filter(item => orderMap.has(item.id));
                 }
             }
+        }
+        // 依據時間自動排序所有日程項目
+        for (const day of Object.keys(db.itinerary)) {
+            db.itinerary[day] = sortItineraryByTime(db.itinerary[day]);
         }
 
         setSyncStatus('synced');
@@ -866,6 +869,8 @@ async function savePoolEdit(e) {
                 ev.title = item.title; ev.desc = item.desc; ev.cost = item.cost;
                 ev.category = item.category; ev.time = item.time || ev.time;
                 ev.location = item.location || ev.location; ev.photos = item.photos || [];
+                // 依時間重新排序該天日程
+                db.itinerary[day] = sortItineraryByTime(db.itinerary[day]);
             }
         }
         // 同步 scheduledItems 時間
@@ -1217,6 +1222,26 @@ function renderDaysSidebar() {
     }
 }
 
+function parseStartTime(timeStr) {
+    if (!timeStr) return 9999;
+    const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (match) {
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        return hours * 60 + minutes;
+    }
+    return 9999;
+}
+
+function sortItineraryByTime(dayEvents) {
+    if (!dayEvents) return [];
+    return dayEvents.sort((a, b) => {
+        const timeA = parseStartTime(a.time);
+        const timeB = parseStartTime(b.time);
+        return timeA - timeB;
+    });
+}
+
 function getDayNumber(dayStr) {
     const parts = dayStr.split('-').map(Number);
     const d = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -1288,8 +1313,6 @@ function renderItineraryForDay(dayStr) {
             <div class="timeline-card ${hasPhotos ? 'has-photo' : ''}">
                 <div class="timeline-actions">
                     ${editBtn}
-                    <button class="action-btn edit move" title="上移" onclick="moveEvent('${dayStr}', ${index}, -1)">▲</button>
-                    <button class="action-btn edit move" title="下移" onclick="moveEvent('${dayStr}', ${index}, 1)">▼</button>
                     <button class="action-btn" title="刪除" onclick="deleteEvent('${dayStr}', '${item.id}')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     </button>
@@ -1571,33 +1594,156 @@ function toggleChecklistItem(id) {
 
 // UPDATE BUDGET TOTALS
 function updateBudgetCalculations() {
-    // Static values
-    const flightTotal = db.flights.reduce((sum, f) => sum + f.price, 0);
-    const hotelTotal = db.hotels.reduce((sum, h) => sum + h.price, 0);
+    // Static values (單人費用需除以 2)
+    const flightTotalTwd = db.flights.reduce((sum, f) => sum + f.price, 0) / 2;
+    const hotelTotalTwd = db.hotels.reduce((sum, h) => sum + h.price, 0) / 2;
+    const rate = 4.5;
 
-    // Dynamic values from itinerary
-    let activityTotal = 0;
+    const flightTotalJpy = Math.round(flightTotalTwd * rate);
+    const hotelTotalJpy = Math.round(hotelTotalTwd * rate);
+
+    // Dynamic values from itinerary (原幣值為 JPY)
+    let activityTotalJpy = 0;
     Object.values(db.itinerary).forEach(dayEvents => {
         dayEvents.forEach(e => {
             if (e.cost && !isNaN(e.cost)) {
-                activityTotal += parseInt(e.cost);
+                activityTotalJpy += parseInt(e.cost);
+            }
+        });
+    });
+    const activityTotalTwd = Math.round(activityTotalJpy / rate);
+
+    const totalSumTwd = flightTotalTwd + hotelTotalTwd + activityTotalTwd;
+    const totalSumJpy = flightTotalJpy + hotelTotalJpy + activityTotalJpy;
+
+    document.getElementById('budget-flights').innerText = `NT$ ${flightTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-flights-jpy').innerText = `¥ ${flightTotalJpy.toLocaleString()}`;
+    document.getElementById('budget-hotels').innerText = `NT$ ${hotelTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-hotels-jpy').innerText = `¥ ${hotelTotalJpy.toLocaleString()}`;
+    document.getElementById('budget-activities').innerText = `NT$ ${activityTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-activities-jpy').innerText = `¥ ${activityTotalJpy.toLocaleString()}`;
+    document.getElementById('budget-total').innerText = `NT$ ${totalSumTwd.toLocaleString()}`;
+    document.getElementById('budget-total-jpy').innerText = `¥ ${totalSumJpy.toLocaleString()}`;
+    document.getElementById('budget-sum').innerText = totalSumTwd.toLocaleString();
+    document.getElementById('budget-sum-jpy').innerText = totalSumJpy.toLocaleString();
+}
+
+// EXPANDABLE BUDGET DETAILS
+function toggleBudgetDetail() {
+    const panel = document.getElementById('budget-detail-panel');
+    if (!panel) return;
+    if (panel.style.display === 'none' || panel.style.display === '') {
+        renderBudgetDetail();
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function renderBudgetDetail() {
+    const container = document.getElementById('budget-detail-content');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const rate = 4.5;
+
+    // 1. Flights Section
+    let flightHtml = '';
+    let flightSumTwd = 0;
+    db.flights.forEach(f => {
+        const singlePriceTwd = f.price / 2;
+        flightSumTwd += singlePriceTwd;
+        const singlePriceJpy = Math.round(singlePriceTwd * rate);
+        flightHtml += `
+            <div class="budget-detail-item">
+                <span class="item-label">✈️ ${f.number} (${f.from} ➔ ${f.to})</span>
+                <span class="item-cost-jpy">¥ ${singlePriceJpy.toLocaleString()}</span>
+                <span class="item-cost-twd">NT$ ${singlePriceTwd.toLocaleString()}</span>
+            </div>
+        `;
+    });
+
+    // 2. Hotels Section
+    let hotelHtml = '';
+    let hotelSumTwd = 0;
+    db.hotels.forEach(h => {
+        const singlePriceTwd = h.price / 2;
+        hotelSumTwd += singlePriceTwd;
+        const singlePriceJpy = Math.round(singlePriceTwd * rate);
+        hotelHtml += `
+            <div class="budget-detail-item">
+                <span class="item-label">🏨 ${h.name} (${h.nights} 晚)</span>
+                <span class="item-cost-jpy">¥ ${singlePriceJpy.toLocaleString()}</span>
+                <span class="item-cost-twd">NT$ ${singlePriceTwd.toLocaleString()}</span>
+            </div>
+        `;
+    });
+
+    // 3. Activities Section
+    let activityHtml = '';
+    let activitySumJpy = 0;
+    let activitySumTwd = 0;
+
+    // Helper to get day number (Day 1, Day 2, etc.)
+    const getDayNum = (dayStr) => {
+        const parts = dayStr.split('-').map(Number);
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        const base = new Date(2026, 10, 4); // 2026-11-04
+        return Math.round((d - base) / 86400000) + 1;
+    };
+
+    Object.entries(db.itinerary).forEach(([day, events]) => {
+        const dayNum = getDayNum(day);
+        events.forEach(e => {
+            if (e.cost && !isNaN(e.cost) && parseInt(e.cost) > 0) {
+                const costJpy = parseInt(e.cost);
+                const costTwd = Math.round(costJpy / rate);
+                activitySumJpy += costJpy;
+                activitySumTwd += costTwd;
+                activityHtml += `
+                    <div class="budget-detail-item">
+                        <span class="item-label">Day ${dayNum} - ${e.title}</span>
+                        <span class="item-cost-jpy">¥ ${costJpy.toLocaleString()}</span>
+                        <span class="item-cost-twd">NT$ ${costTwd.toLocaleString()}</span>
+                    </div>
+                `;
             }
         });
     });
 
-    const totalSum = flightTotal + hotelTotal + activityTotal;
-    const rate = 4.5;
+    if (flightHtml === '') flightHtml = '<div class="budget-detail-empty">無航班費用</div>';
+    if (hotelHtml === '') hotelHtml = '<div class="budget-detail-empty">無住宿費用</div>';
+    if (activityHtml === '') activityHtml = '<div class="budget-detail-empty">無行程費用</div>';
 
-    document.getElementById('budget-flights').innerText = `NT$ ${flightTotal.toLocaleString()}`;
-    document.getElementById('budget-flights-jpy').innerText = `¥ ${Math.round(flightTotal * rate).toLocaleString()}`;
-    document.getElementById('budget-hotels').innerText = `NT$ ${hotelTotal.toLocaleString()}`;
-    document.getElementById('budget-hotels-jpy').innerText = `¥ ${Math.round(hotelTotal * rate).toLocaleString()}`;
-    document.getElementById('budget-activities').innerText = `NT$ ${activityTotal.toLocaleString()}`;
-    document.getElementById('budget-activities-jpy').innerText = `¥ ${Math.round(activityTotal * rate).toLocaleString()}`;
-    document.getElementById('budget-total').innerText = `NT$ ${totalSum.toLocaleString()}`;
-    document.getElementById('budget-total-jpy').innerText = `¥ ${Math.round(totalSum * rate).toLocaleString()}`;
-    document.getElementById('budget-sum').innerText = totalSum.toLocaleString();
-    document.getElementById('budget-sum-jpy').innerText = Math.round(totalSum * rate).toLocaleString();
+    container.innerHTML = `
+        <div class="budget-detail-section">
+            <div class="budget-detail-section-header">
+                <span>✈️ 航班費用 (單人)</span>
+                <span>NT$ ${flightSumTwd.toLocaleString()}</span>
+            </div>
+            <div class="budget-detail-section-body">
+                ${flightHtml}
+            </div>
+        </div>
+        <div class="budget-detail-section">
+            <div class="budget-detail-section-header">
+                <span>🏨 住宿費用 (單人)</span>
+                <span>NT$ ${hotelSumTwd.toLocaleString()}</span>
+            </div>
+            <div class="budget-detail-section-body">
+                ${hotelHtml}
+            </div>
+        </div>
+        <div class="budget-detail-section">
+            <div class="budget-detail-section-header">
+                <span>💵 行程費用 (單人)</span>
+                <span>NT$ ${activitySumTwd.toLocaleString()}</span>
+            </div>
+            <div class="budget-detail-section-body">
+                ${activityHtml}
+            </div>
+        </div>
+    `;
 }
 
 // ==========================================
@@ -1718,6 +1864,9 @@ function saveEvent(e) {
         }
         db.itinerary[dayStr].push({ id: newId, title, time, category, cost, location, desc, photos });
     }
+
+    // 依時間自動排序
+    db.itinerary[dayStr] = sortItineraryByTime(db.itinerary[dayStr]);
 
     closeEventModal();
     renderItineraryForDay(dayStr);
@@ -1854,6 +2003,7 @@ async function addPoolItemToItinerary(poolId) {
         _productId: item._productId
     };
     db.itinerary[targetDay].push(newEntry);
+    db.itinerary[targetDay] = sortItineraryByTime(db.itinerary[targetDay]);
     renderPool();
     selectDay(targetDay);
     showSyncOverlay();
