@@ -1380,7 +1380,7 @@ function renderItineraryForDay(dayStr) {
                             ` : ''}
                             ${item.cost > 0 ? `
                                 <div class="timeline-meta-item" style="color:var(--accent-green); font-weight:600;">
-                                    💵 NT$ ${item.cost.toLocaleString()} 元
+                                    💵 ¥ ${item.cost.toLocaleString()}
                                 </div>
                             ` : ''}
                         </div>
