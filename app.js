@@ -520,6 +520,13 @@ async function loadFromRemote() {
                 if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
                 if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
                 if (m.deletedPoolItems) db.deletedPoolItems = m.deletedPoolItems;
+                if (m.customEvents) {
+                    for (const [day, events] of Object.entries(m.customEvents)) {
+                        if (db.itinerary.hasOwnProperty(day)) {
+                            db.itinerary[day] = events || [];
+                        }
+                    }
+                }
             } catch { /* skip corrupt master */ }
         }
 
@@ -643,7 +650,7 @@ async function loadFromRemote() {
         // Filter itinerary by dayOrder from master article, and sort all by time
         if (db.dayOrder) {
             for (const [day, order] of Object.entries(db.dayOrder)) {
-                if (db.itinerary[day] && order && order.length > 0) {
+                if (db.itinerary[day] && Array.isArray(order)) {
                     const orderMap = new Map(order.map((id, i) => [id, i]));
                     // 僅保留在 dayOrder 中的項目，以過濾掉已刪除的初始項目
                     db.itinerary[day] = db.itinerary[day].filter(item => orderMap.has(item.id));
@@ -936,10 +943,12 @@ async function saveAllToRemote() {
     if (!db) return;
     removeCacheId('art', 'art:master:主行程資料');
     const dayOrder = {};
+    const customEvents = {};
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         dayOrder[day] = (events || []).map(e => e.id);
+        customEvents[day] = (events || []).filter(e => !e._poolId && !e._productId && !e.id.startsWith('api-'));
     }
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] }));
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, customEvents: customEvents, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] }));
     // 清空遠端留言板資料
     await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify([]));
 }
@@ -959,10 +968,12 @@ async function saveItineraryToRemote() {
         setSyncStatus('syncing');
         removeCacheId('art', 'art:master:主行程資料');
         const dayOrder = {};
+        const customEvents = {};
         for (const [day, events] of Object.entries(db.itinerary || {})) {
             dayOrder[day] = (events || []).map(e => e.id);
+            customEvents[day] = (events || []).filter(e => !e._poolId && !e._productId && !e.id.startsWith('api-'));
         }
-        const masterPayload = { flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] };
+        const masterPayload = { flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, customEvents: customEvents, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] };
         console.log('[DEBUG saveItineraryToRemote] 儲存 scheduledItems:', JSON.parse(JSON.stringify(db.scheduledItems || {})));
         console.log('[DEBUG saveItineraryToRemote] 儲存 dayOrder:', JSON.parse(JSON.stringify(dayOrder)));
     await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify(masterPayload));
