@@ -689,8 +689,13 @@ async function loadFromRemote() {
 async function addNewPoolCandidate() {
     const title = prompt('請輸入候選景點名稱：');
     if (!title || !title.trim()) return;
-    const citySel = prompt('城市（Kyoto / Osaka）：', 'Kyoto');
-    const city = (citySel === 'Osaka') ? 'Osaka' : 'Kyoto';
+    const citySel = (prompt('城市（Kyoto / Osaka / Other）：', 'Kyoto') || '').trim();
+    let city = 'Kyoto';
+    if (citySel.toLowerCase() === 'osaka' || citySel === '大阪') {
+        city = 'Osaka';
+    } else if (citySel.toLowerCase() === 'other' || citySel === '其他') {
+        city = 'Other';
+    }
     const newItem = {
         id: 'new-' + Date.now(),
         city: city,
@@ -1443,6 +1448,11 @@ function renderPool() {
         items = items.filter(i => i.city === 'Osaka' && (i.category === 'sightseeing' || i.category === 'shopping'));
     } else if (currentPoolFilter === 'Osaka-food') {
         items = items.filter(i => i.city === 'Osaka' && i.category === 'food');
+    } else if (currentPoolFilter === 'Other') {
+        items = items.filter(i => 
+            (i.city !== 'Kyoto' && i.city !== 'Osaka') || 
+            (i.category !== 'sightseeing' && i.category !== 'food' && i.category !== 'shopping')
+        );
     }
 
     // 計算分頁
@@ -1473,10 +1483,14 @@ function renderPool() {
         let cardClass = 'pool-card';
         if (item.category === 'food') {
             cardClass += ' food';
+        } else if (item.category === 'other') {
+            cardClass += ' other';
         } else if (item.city === 'Kyoto') {
             cardClass += ' kyoto';
         } else if (item.city === 'Osaka') {
             cardClass += ' osaka';
+        } else {
+            cardClass += ' other';
         }
 
         // Check warning flags
@@ -1486,13 +1500,18 @@ function renderPool() {
         }
 
         card.className = cardClass;
+        
+        const displayCity = item.city === 'Kyoto' ? '京都' : (item.city === 'Osaka' ? '大阪' : (item.city === 'Other' ? '其他' : (item.city || '其他')));
+        const displayCategory = item.category === 'sightseeing' ? '景點' : (item.category === 'food' ? '美食' : (item.category === 'shopping' ? '購物' : '其他'));
+
         card.innerHTML = `
             <div class="pool-card-body">
                 <div class="pool-card-info">
                     <div class="pool-card-header">
                         <h4 class="pool-card-title">${item.title}</h4>
                         <div class="pool-card-tags">
-                            <span class="tag tag-city">${item.city === 'Kyoto' ? '京都' : '大阪'}</span>
+                            <span class="tag tag-city">${displayCity}</span>
+                            <span class="tag tag-city">${displayCategory}</span>
                             ${item.cost > 0 ? `<span class="tag tag-cost">¥ ${item.cost.toLocaleString()}</span>` : ''}
                             ${warningBanner}
                         </div>

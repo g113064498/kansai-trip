@@ -964,6 +964,7 @@ header p {
 .pool-card.kyoto { border-left-color: #B23A22; } /* Traditional Kyoto lacquer red */
 .pool-card.osaka { border-left-color: #3498DB; } /* Osaka bay blue */
 .pool-card.food { border-left-color: #F1C40F; } /* Food yellow */
+.pool-card.other { border-left-color: #9B59B6; } /* Other purple */
 
 .pool-card:hover {
     box-shadow: var(--shadow-md);
