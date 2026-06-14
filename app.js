@@ -589,6 +589,15 @@ async function loadFromRemote() {
         );
         db.attractionPool = [...apiPoolItems, ...initialOnly];
 
+        // 建立初始 ID 與 API ID 的對照表，解決舊版 dayOrder 的 ID 不相容問題
+        const initialIdMap = {};
+        for (const apiItem of apiPoolItems) {
+            const match = initialTripData.attractionPool.find(initItem => normalizeTitle(initItem.title) === normalizeTitle(apiItem.title));
+            if (match) {
+                initialIdMap[match.id] = apiItem.id;
+            }
+        }
+
         // Merge poolPhotos from master article
         if (!db.poolPhotos) db.poolPhotos = {};
         for (const item of db.attractionPool) {
@@ -651,9 +660,15 @@ async function loadFromRemote() {
         if (db.dayOrder) {
             for (const [day, order] of Object.entries(db.dayOrder)) {
                 if (db.itinerary[day] && Array.isArray(order)) {
-                    const orderMap = new Map(order.map((id, i) => [id, i]));
-                    // 僅保留在 dayOrder 中的項目，以過濾掉已刪除的初始項目
-                    db.itinerary[day] = db.itinerary[day].filter(item => orderMap.has(item.id));
+                    const translatedOrder = order.map(id => initialIdMap[id] || id);
+                    const orderMap = new Map(translatedOrder.map((id, i) => [id, i]));
+                    // 僅保留在 dayOrder 中的項目，以過濾掉已刪除的項目，同時防範任何 API Pool 項目因 ID 不相容或同步時間差被意外過濾掉
+                    db.itinerary[day] = db.itinerary[day].filter(item => 
+                        orderMap.has(item.id) || 
+                        !!item._poolId || 
+                        !!item._productId || 
+                        item.id.startsWith('api-')
+                    );
                 }
             }
         }
