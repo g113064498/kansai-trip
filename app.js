@@ -1690,10 +1690,10 @@ function updateBudgetCalculations() {
     // Static values (單人費用需除以 2)
     const flightTotalTwd = db.flights.reduce((sum, f) => sum + f.price, 0) / 2;
     const hotelTotalTwd = db.hotels.reduce((sum, h) => sum + h.price, 0) / 2;
+    const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd;
     const rate = 4.5;
 
-    const flightTotalJpy = Math.round(flightTotalTwd * rate);
-    const hotelTotalJpy = Math.round(hotelTotalTwd * rate);
+    const flightHotelTotalJpy = Math.round(flightHotelTotalTwd * rate);
 
     // Dynamic values from itinerary (原幣值為 JPY)
     let activityTotalJpy = 0;
@@ -1706,15 +1706,26 @@ function updateBudgetCalculations() {
     });
     const activityTotalTwd = Math.round(activityTotalJpy / rate);
 
-    const totalSumTwd = flightTotalTwd + hotelTotalTwd + activityTotalTwd;
-    const totalSumJpy = flightTotalJpy + hotelTotalJpy + activityTotalJpy;
+    // Souvenirs (only checked items, value in JPY)
+    let souvenirTotalJpy = 0;
+    if (db.souvenirs) {
+        db.souvenirs.forEach(s => {
+            if (s.done && s.price && !isNaN(s.price)) {
+                souvenirTotalJpy += parseInt(s.price);
+            }
+        });
+    }
+    const souvenirTotalTwd = Math.round(souvenirTotalJpy / rate);
 
-    document.getElementById('budget-flights').innerText = `NT$ ${flightTotalTwd.toLocaleString()}`;
-    document.getElementById('budget-flights-jpy').innerText = `¥ ${flightTotalJpy.toLocaleString()}`;
-    document.getElementById('budget-hotels').innerText = `NT$ ${hotelTotalTwd.toLocaleString()}`;
-    document.getElementById('budget-hotels-jpy').innerText = `¥ ${hotelTotalJpy.toLocaleString()}`;
+    const totalSumTwd = flightHotelTotalTwd + activityTotalTwd + souvenirTotalTwd;
+    const totalSumJpy = flightHotelTotalJpy + activityTotalJpy + souvenirTotalJpy;
+
+    document.getElementById('budget-flighthotel').innerText = `NT$ ${flightHotelTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-flighthotel-jpy').innerText = `¥ ${flightHotelTotalJpy.toLocaleString()}`;
     document.getElementById('budget-activities').innerText = `NT$ ${activityTotalTwd.toLocaleString()}`;
     document.getElementById('budget-activities-jpy').innerText = `¥ ${activityTotalJpy.toLocaleString()}`;
+    document.getElementById('budget-souvenirs').innerText = `NT$ ${souvenirTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-souvenirs-jpy').innerText = `¥ ${souvenirTotalJpy.toLocaleString()}`;
     document.getElementById('budget-total').innerText = `NT$ ${totalSumTwd.toLocaleString()}`;
     document.getElementById('budget-total-jpy').innerText = `¥ ${totalSumJpy.toLocaleString()}`;
     document.getElementById('budget-sum').innerText = totalSumTwd.toLocaleString();
@@ -1772,6 +1783,11 @@ function renderBudgetDetail() {
         `;
     });
 
+    let flightHotelBody = flightHtml + hotelHtml;
+    if (flightHotelBody === '') {
+        flightHotelBody = '<div class="budget-detail-empty">無機加酒費用</div>';
+    }
+
     // 3. Activities Section
     let activityHtml = '';
     let activitySumJpy = 0;
@@ -1804,27 +1820,40 @@ function renderBudgetDetail() {
         });
     });
 
-    if (flightHtml === '') flightHtml = '<div class="budget-detail-empty">無航班費用</div>';
-    if (hotelHtml === '') hotelHtml = '<div class="budget-detail-empty">無住宿費用</div>';
     if (activityHtml === '') activityHtml = '<div class="budget-detail-empty">無行程費用</div>';
+
+    // 4. Souvenirs Section
+    let souvenirHtml = '';
+    let souvenirSumJpy = 0;
+    const checkedSouvenirs = (db.souvenirs || []).filter(s => s.done);
+    checkedSouvenirs.forEach(s => {
+        if (s.price && !isNaN(s.price) && parseInt(s.price) > 0) {
+            const costJpy = parseInt(s.price);
+            const costTwd = Math.round(costJpy / rate);
+            souvenirSumJpy += costJpy;
+            souvenirHtml += `
+                <div class="budget-detail-item">
+                    <span class="item-label">🎁 ${s.name} (${s.category || '其他'})</span>
+                    <span class="item-cost-jpy">¥ ${costJpy.toLocaleString()}</span>
+                    <span class="item-cost-twd">NT$ ${costTwd.toLocaleString()}</span>
+                </div>
+            `;
+        }
+    });
+
+    if (souvenirHtml === '') {
+        souvenirHtml = '<div class="budget-detail-empty">無伴手禮費用 (僅計算已打勾且有填寫價錢的項目)</div>';
+    }
+    const souvenirSumTwd = Math.round(souvenirSumJpy / rate);
 
     container.innerHTML = `
         <div class="budget-detail-section">
             <div class="budget-detail-section-header">
-                <span>✈️ 航班費用 (單人)</span>
-                <span>NT$ ${flightSumTwd.toLocaleString()}</span>
+                <span>✈️🏨 機加酒費用 (單人)</span>
+                <span>NT$ ${(flightSumTwd + hotelSumTwd).toLocaleString()}</span>
             </div>
             <div class="budget-detail-section-body">
-                ${flightHtml}
-            </div>
-        </div>
-        <div class="budget-detail-section">
-            <div class="budget-detail-section-header">
-                <span>🏨 住宿費用 (單人)</span>
-                <span>NT$ ${hotelSumTwd.toLocaleString()}</span>
-            </div>
-            <div class="budget-detail-section-body">
-                ${hotelHtml}
+                ${flightHotelBody}
             </div>
         </div>
         <div class="budget-detail-section">
@@ -1834,6 +1863,15 @@ function renderBudgetDetail() {
             </div>
             <div class="budget-detail-section-body">
                 ${activityHtml}
+            </div>
+        </div>
+        <div class="budget-detail-section">
+            <div class="budget-detail-section-header">
+                <span>🎁 伴手禮費用 (單人)</span>
+                <span>NT$ ${souvenirSumTwd.toLocaleString()}</span>
+            </div>
+            <div class="budget-detail-section-body">
+                ${souvenirHtml}
             </div>
         </div>
     `;
@@ -2036,6 +2074,7 @@ async function deleteEvent(dayStr, id) {
         }
         renderItineraryForDay(dayStr);
         renderPool();
+        updateBudgetCalculations();
         showToast('已從行程中移除！');
     } else {
         // Flight/hotel: remove from itinerary and save master
@@ -2664,6 +2703,7 @@ async function addSouvenir(e) {
     document.getElementById('souv-photo').value = '';
     document.getElementById('souv-notes').value = '';
     renderSouvenirs();
+    updateBudgetCalculations();
 
     showSyncOverlay();
     try {
@@ -2672,6 +2712,7 @@ async function addSouvenir(e) {
     } catch (err) {
         db.souvenirs = backup;
         renderSouvenirs();
+        updateBudgetCalculations();
         showToast((isEditing ? '更新' : '新增') + '失敗：' + err.message, 3000);
     } finally {
         hideSyncOverlay();
@@ -2690,6 +2731,7 @@ function toggleSouvenir(id) {
     if (!item) return;
     item.done = !item.done;
     renderSouvenirs();
+    updateBudgetCalculations();
     saveSouvenirsToRemote().catch(function(){});
 }
 
@@ -2698,6 +2740,7 @@ async function deleteSouvenir(id) {
     const backup = [...db.souvenirs];
     db.souvenirs = (db.souvenirs || []).filter(s => s.id !== id);
     renderSouvenirs();
+    updateBudgetCalculations();
 
     showSyncOverlay();
     try {
@@ -2706,6 +2749,7 @@ async function deleteSouvenir(id) {
     } catch (err) {
         db.souvenirs = backup;
         renderSouvenirs();
+        updateBudgetCalculations();
         showToast('刪除失敗：' + err.message, 3000);
     } finally {
         hideSyncOverlay();
