@@ -1693,7 +1693,7 @@ function updateBudgetCalculations() {
     const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd;
     const rate = 0.20;
 
-    const flightHotelTotalJpy = Math.round(flightHotelTotalTwd * rate);
+    const flightHotelTotalJpy = Math.round(flightHotelTotalTwd / rate);
 
     // Dynamic values from itinerary (原幣值為 JPY)
     let activityTotalJpy = 0;
@@ -1704,7 +1704,7 @@ function updateBudgetCalculations() {
             }
         });
     });
-    const activityTotalTwd = Math.round(activityTotalJpy / rate);
+    const activityTotalTwd = Math.round(activityTotalJpy * rate);
 
     // Souvenirs (only checked items, value in JPY)
     let souvenirTotalJpy = 0;
@@ -1715,7 +1715,7 @@ function updateBudgetCalculations() {
             }
         });
     }
-    const souvenirTotalTwd = Math.round(souvenirTotalJpy / rate);
+    const souvenirTotalTwd = Math.round(souvenirTotalJpy * rate);
 
     const totalSumTwd = flightHotelTotalTwd + activityTotalTwd + souvenirTotalTwd;
     const totalSumJpy = flightHotelTotalJpy + activityTotalJpy + souvenirTotalJpy;
@@ -1757,7 +1757,7 @@ function renderBudgetDetail() {
     db.flights.forEach(f => {
         const singlePriceTwd = f.price / 2;
         flightSumTwd += singlePriceTwd;
-        const singlePriceJpy = Math.round(singlePriceTwd * rate);
+        const singlePriceJpy = Math.round(singlePriceTwd / rate);
         flightHtml += `
             <div class="budget-detail-item">
                 <span class="item-label">✈️ ${f.number} (${f.from} ➔ ${f.to})</span>
@@ -1773,7 +1773,7 @@ function renderBudgetDetail() {
     db.hotels.forEach(h => {
         const singlePriceTwd = h.price / 2;
         hotelSumTwd += singlePriceTwd;
-        const singlePriceJpy = Math.round(singlePriceTwd * rate);
+        const singlePriceJpy = Math.round(singlePriceTwd / rate);
         hotelHtml += `
             <div class="budget-detail-item">
                 <span class="item-label">🏨 ${h.name} (${h.nights} 晚)</span>
@@ -1806,7 +1806,7 @@ function renderBudgetDetail() {
         events.forEach(e => {
             if (e.cost && !isNaN(e.cost) && parseInt(e.cost) > 0) {
                 const costJpy = parseInt(e.cost);
-                const costTwd = Math.round(costJpy / rate);
+                const costTwd = Math.round(costJpy * rate);
                 activitySumJpy += costJpy;
                 activitySumTwd += costTwd;
                 activityHtml += `
@@ -1844,7 +1844,7 @@ function renderBudgetDetail() {
     if (souvenirHtml === '') {
         souvenirHtml = '<div class="budget-detail-empty">無伴手禮費用 (僅計算已打勾且有填寫價錢的項目)</div>';
     }
-    const souvenirSumTwd = Math.round(souvenirSumJpy / rate);
+    const souvenirSumTwd = Math.round(souvenirSumJpy * rate);
 
     container.innerHTML = `
         <div class="budget-detail-section">
