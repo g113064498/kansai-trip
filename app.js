@@ -1691,7 +1691,7 @@ function updateBudgetCalculations() {
     const flightTotalTwd = db.flights.reduce((sum, f) => sum + f.price, 0) / 2;
     const hotelTotalTwd = db.hotels.reduce((sum, h) => sum + h.price, 0) / 2;
     const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd;
-    const rate = 4.5;
+    const rate = 0.20;
 
     const flightHotelTotalJpy = Math.round(flightHotelTotalTwd * rate);
 
@@ -1749,7 +1749,7 @@ function renderBudgetDetail() {
     if (!container) return;
     container.innerHTML = '';
 
-    const rate = 4.5;
+    const rate = 0.20;
 
     // 1. Flights Section
     let flightHtml = '';
