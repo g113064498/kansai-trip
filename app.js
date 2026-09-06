@@ -2304,23 +2304,54 @@ function importDataFromJSON(event) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         try {
             const parsedData = JSON.parse(e.target.result);
-            
-            // Simple validation structure
-            if (parsedData.flights && parsedData.hotels && parsedData.itinerary) {
-                db = parsedData;
-                initApp().then(() => {
-                    alert("行程資料已成功匯入！");
-                }).catch(err => {
-                    alert("匯入後初始化失敗：" + err.message);
-                });
-            } else {
+
+            if (!(parsedData.flights && parsedData.hotels && parsedData.itinerary)) {
                 alert("匯入失敗：這似乎不是正確的日程 JSON 格式。");
+                return;
+            }
+
+            // Keep imported JSON as the current state.
+            // Do NOT call initApp(): it reloads cache/API and overwrites imported data.
+            db = parsedData;
+
+            if (!db.messages) db.messages = [];
+            if (!db.attractionPool) db.attractionPool = [];
+            if (!db.itinerary) db.itinerary = {};
+            if (!db.deletedPoolItems) db.deletedPoolItems = [];
+            if (!db.scheduledItems) db.scheduledItems = {};
+            if (!db.poolPhotos) db.poolPhotos = {};
+            if (!db.souvenirs) db.souvenirs = [];
+
+            saveToLocalStorage();
+            renderAllUI();
+
+            const loggedIn = ensureLogin();
+            if (!loggedIn) {
+                alert("行程資料已匯入到此瀏覽器。登入後再同步即可。");
+                return;
+            }
+
+            showSyncOverlay();
+            try {
+                await saveAllToRemote();
+                await saveSouvenirsToRemote();
+                saveToLocalStorage();
+                setSyncStatus('synced');
+                alert("行程資料已成功匯入並同步到雲端！");
+            } catch (syncErr) {
+                console.error('[Import] 雲端同步失敗:', syncErr);
+                setSyncStatus('offline');
+                alert("JSON 已匯入到此瀏覽器，但同步雲端失敗：" + syncErr.message);
+            } finally {
+                hideSyncOverlay();
             }
         } catch (err) {
             alert("匯入失敗，解析 JSON 時出錯：" + err.message);
+        } finally {
+            event.target.value = '';
         }
     };
     reader.readAsText(file);
