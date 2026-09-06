@@ -1,0 +1,36 @@
+name: Lighten restaurant highlight
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lighten-food-highlight.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lighten restaurant colors
+        shell: python
+        run: |
+          from pathlib import Path
+          css = Path('style.css')
+          s = css.read_text(encoding='utf-8')
+          s = s.replace('#FFF2E8', '#FFFAF6')
+          s = s.replace('#F97316', '#E9A77C')
+          css.write_text(s, encoding='utf-8')
+
+          html = Path('index.html')
+          h = html.read_text(encoding='utf-8')
+          h = h.replace('style.css?v=55', 'style.css?v=56')
+          html.write_text(h, encoding='utf-8')
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add style.css index.html
+          git commit -m "style: soften restaurant itinerary highlight"
+          git push
