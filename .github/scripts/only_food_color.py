@@ -59,3 +59,5 @@ if legend_start != -1:
         )
         html_text = html_text[:legend_start] + legend + html_text[legend_end:]
 html.write_text(html_text, encoding='utf-8')
+
+# trigger
