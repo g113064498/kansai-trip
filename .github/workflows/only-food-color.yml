@@ -24,3 +24,4 @@ jobs:
           fi
           git commit -m "style: highlight restaurant itinerary items only"
           git push
+# one-shot workflow
