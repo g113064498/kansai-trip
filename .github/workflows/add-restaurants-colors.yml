@@ -105,3 +105,5 @@ jobs:
           fi
           git commit -m "feat: add restaurant candidates and color-coded itinerary"
           git push
+
+# trigger: 2
