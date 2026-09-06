@@ -2200,26 +2200,35 @@ header p {
     }
 }
 
-/* ITINERARY CATEGORY COLORS */
-.timeline-card { border-left-width: 5px; }
-.timeline-card-sightseeing { background: #EEF6FF; border-left-color: #3B82F6; }
-.timeline-card-food { background: #FFF2E8; border-left-color: #F97316; }
-.timeline-card-shopping { background: #F5EEFF; border-left-color: #8B5CF6; }
-.timeline-card-transport { background: #EAFBF4; border-left-color: #10B981; }
-.timeline-card-hotel { background: #FFF8DC; border-left-color: #D4A017; }
-.timeline-card-other { background: #F4F5F7; border-left-color: #6B7280; }
-.timeline-item.category-sightseeing::before { border-color: #3B82F6; }
-.timeline-item.category-food::before { border-color: #F97316; }
-.timeline-item.category-shopping::before { border-color: #8B5CF6; }
-.timeline-item.category-transport::before { border-color: #10B981; }
-.timeline-item.category-hotel::before { border-color: #D4A017; }
-.timeline-item.category-other::before { border-color: #6B7280; }
-.itinerary-legend { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
-.itinerary-legend-item { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; background: #fff; border: 1px solid var(--border-color); }
-.itinerary-legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-.legend-sightseeing { background: #3B82F6; }
+/* ITINERARY RESTAURANT HIGHLIGHT */
+.timeline-card-food {
+    background: #FFF2E8;
+    border-left: 5px solid #F97316;
+}
+.timeline-item.category-food::before {
+    border-color: #F97316;
+}
+.itinerary-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+}
+.itinerary-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid var(--border-color);
+}
+.itinerary-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
 .legend-food { background: #F97316; }
-.legend-shopping { background: #8B5CF6; }
-.legend-transport { background: #10B981; }
-.legend-hotel { background: #D4A017; }
-.legend-other { background: #6B7280; }
