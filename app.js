@@ -138,6 +138,10 @@ const initialTripData = {
         { id: "f22", city: "Osaka", title: "HARBS Namba Parks", desc: "難波 Parks 商場內的名店，招牌水果千層蛋糕，關西必吃甜點。", cost: 1200, category: "food", isEnabled: false },
         { id: "f23", city: "Osaka", title: "Shabuwara 壽喜燒 涮涮鍋 花月店", desc: "高評價日式火鍋餐廳，主打優質壽喜燒與涮涮鍋，適合情侶晚餐。", cost: 6000, category: "food", isEnabled: false },
         { id: "f24", city: "Osaka", title: "Shabucho", desc: "極受歡迎的個人/雙人涮涮鍋壽喜燒餐廳，湯頭清淡甘甜。", cost: 5000, category: "food", isEnabled: false },
+        { id: "f25", city: "Osaka", title: "飛騨牛一頭家 馬喰一代 KITTE大阪 🥩", desc: "朋友去的是名古屋EAST；同品牌大阪分店位於 KITTE大阪 5F。想吃飛騨牛可安排在梅田購物日。", cost: 5000, category: "food", isEnabled: false, location: "飛騨牛一頭家 馬喰一代 KITTE大阪" },
+        { id: "f26", city: "Osaka", title: "いかれたNOODLE Fishtons 🍜", desc: "大阪人氣沾麵店，西大橋站步行約2分鐘、四ツ橋站約3分鐘。營業時間目前為 11:00-15:00 / 18:00-22:00。", cost: 1500, category: "food", isEnabled: false, location: "大阪府大阪市西区新町1-25-18" },
+        { id: "f27", city: "Other", title: "すき焼きと牛まぶし ももしき 🥩", desc: "奈良的大和牛壽喜燒／牛まぶし名店，近鐵奈良站步行約1分鐘。營業時間目前為 11:00-22:00。若之後安排奈良一日遊很適合當正餐。", cost: 5000, category: "food", isEnabled: false, location: "奈良県奈良市東向中町5-1 浅川ハーベストビル2F" },
+        { id: "f28", city: "Osaka", title: "お好み焼 美津の 🍳", desc: "道頓堀老字號大阪燒，招牌有美津の焼、山芋焼。營業時間目前為 11:00-22:00（L.O.21:00），位於難波／日本橋步行範圍。", cost: 2000, category: "food", isEnabled: false, location: "大阪府大阪市中央区道頓堀1-4-15" },
     ],
     checklist: [
         { id: "c1", category: "both", item: "中華民國護照 (確認效期6個月以上) 🛂", done: false },
@@ -1364,7 +1368,7 @@ function renderItineraryForDay(dayStr) {
 
     items.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = 'timeline-item';
+        div.className = `timeline-item category-${item.category || 'other'}`;
         
         let categoryIcon = '📍';
         if (item.category === 'food') categoryIcon = '🍴';
@@ -1389,7 +1393,7 @@ function renderItineraryForDay(dayStr) {
             ? `<button class="action-btn edit" title="編輯" onclick="openPoolEditModal('${item._poolId}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
             : `<button class="action-btn edit" title="編輯" onclick="openEditEventModal('${dayStr}', '${item.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`;
         div.innerHTML = `
-            <div class="timeline-card ${hasPhotos ? 'has-photo' : ''}">
+            <div class="timeline-card timeline-card-${item.category || 'other'} ${hasPhotos ? 'has-photo' : ''}">
                 <div class="timeline-actions">
                     ${editBtn}
                     <button class="action-btn" title="刪除" onclick="deleteEvent('${dayStr}', '${item.id}')">
