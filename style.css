@@ -2202,11 +2202,11 @@ header p {
 
 /* ITINERARY RESTAURANT HIGHLIGHT */
 .timeline-card-food {
-    background: #FFF2E8;
-    border-left: 5px solid #F97316;
+    background: #FFFAF6;
+    border-left: 5px solid #E9A77C;
 }
 .timeline-item.category-food::before {
-    border-color: #F97316;
+    border-color: #E9A77C;
 }
 .itinerary-legend {
     display: flex;
@@ -2231,4 +2231,4 @@ header p {
     border-radius: 50%;
     display: inline-block;
 }
-.legend-food { background: #F97316; }
+.legend-food { background: #E9A77C; }
