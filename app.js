@@ -1368,10 +1368,12 @@ function renderItineraryForDay(dayStr) {
 
     items.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = `timeline-item category-${item.category || 'other'}`;
+        const isMealItem = item.category === 'food' || /(早餐|午餐|晚餐)/.test(item.title || '');
+        const displayCategory = isMealItem ? 'food' : (item.category || 'other');
+        div.className = `timeline-item category-${displayCategory}`;
         
         let categoryIcon = '📍';
-        if (item.category === 'food') categoryIcon = '🍴';
+        if (isMealItem) categoryIcon = '🍴';
         if (item.category === 'shopping') categoryIcon = '🛍️';
         if (item.category === 'transport') categoryIcon = '🚄';
         if (item.category === 'hotel') categoryIcon = '🏨';
@@ -1393,7 +1395,7 @@ function renderItineraryForDay(dayStr) {
             ? `<button class="action-btn edit" title="編輯" onclick="openPoolEditModal('${item._poolId}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
             : `<button class="action-btn edit" title="編輯" onclick="openEditEventModal('${dayStr}', '${item.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`;
         div.innerHTML = `
-            <div class="timeline-card timeline-card-${item.category || 'other'} ${hasPhotos ? 'has-photo' : ''}">
+            <div class="timeline-card timeline-card-${displayCategory} ${hasPhotos ? 'has-photo' : ''}">
                 <div class="timeline-actions">
                     ${editBtn}
                     <button class="action-btn" title="刪除" onclick="deleteEvent('${dayStr}', '${item.id}')">
