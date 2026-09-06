@@ -3,5 +3,59 @@ from pathlib import Path
 css = Path('style.css')
 css_text = css.read_text(encoding='utf-8')
 start = css_text.find('/* ITINERARY CATEGORY COLORS */')
+replacement_css = """
+
+/* ITINERARY RESTAURANT HIGHLIGHT */
+.timeline-card-food {
+    background: #FFF2E8;
+    border-left: 5px solid #F97316;
+}
+.timeline-item.category-food::before {
+    border-color: #F97316;
+}
+.itinerary-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+}
+.itinerary-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid var(--border-color);
+}
+.itinerary-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.legend-food { background: #F97316; }
+"""
 if start != -1:
-    css_text = css_text[:start].rstrip() + '''\n\n/* ITINERARY RESTAURANT HIGHLIGHT */\n.timeline-card-food {\n    background: #FFF2E8;\n    border-left: 5px solid #F97316;\n}\n.timeline-item.category-food::before {\n    border-color: #F97316;\n}\n.itinerary-legend {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 7px;\n    margin-top: 10px;\n}\n.itinerary-legend-item {\n    display: inline-flex;\n    align-items: center;\n    gap: 5px;\n    padding: 4px 9px;\n    border-radius: 999px;\n    font-size: 0.78rem;\n    font-weight: 600;\n    background: #fff;\n    border: 1px solid var(--border-color);\n}\n.itinerary-legend-dot {\n    width: 9px;\n    height: 9px;\n    border-radius: 50%;\n    display: inline-block;\n}\n.legend-food { background: #F97316; }\n'''\nelse:\n    if 'ITINERARY RESTAURANT HIGHLIGHT' not in css_text:\n        css_text += '''\n\n/* ITINERARY RESTAURANT HIGHLIGHT */\n.timeline-card-food { background: #FFF2E8; border-left: 5px solid #F97316; }\n.timeline-item.category-food::before { border-color: #F97316; }\n'''\ncss.write_text(css_text, encoding='utf-8')\n\nhtml = Path('index.html')\nhtml_text = html.read_text(encoding='utf-8')\nhtml_text = html_text.replace('style.css?v=54', 'style.css?v=55')\nlegend_start = html_text.find('                            <div class="itinerary-legend">')\nif legend_start != -1:\n    legend_end = html_text.find('                            </div>', legend_start)\n    if legend_end != -1:\n        legend_end += len('                            </div>')\n        replacement = '''                            <div class="itinerary-legend">\n                                <span class="itinerary-legend-item"><i class="itinerary-legend-dot legend-food"></i>餐廳</span>\n                            </div>'''\n        html_text = html_text[:legend_start] + replacement + html_text[legend_end:]\nhtml.write_text(html_text, encoding='utf-8')\n
+    css_text = css_text[:start].rstrip() + replacement_css
+elif 'ITINERARY RESTAURANT HIGHLIGHT' not in css_text:
+    css_text += replacement_css
+css.write_text(css_text, encoding='utf-8')
+
+html = Path('index.html')
+html_text = html.read_text(encoding='utf-8')
+html_text = html_text.replace('style.css?v=54', 'style.css?v=55')
+legend_start = html_text.find('                            <div class="itinerary-legend">')
+if legend_start != -1:
+    legend_end = html_text.find('                            </div>', legend_start)
+    if legend_end != -1:
+        legend_end += len('                            </div>')
+        legend = (
+            '                            <div class="itinerary-legend">\n'
+            '                                <span class="itinerary-legend-item"><i class="itinerary-legend-dot legend-food"></i>餐廳</span>\n'
+            '                            </div>'
+        )
+        html_text = html_text[:legend_start] + legend + html_text[legend_end:]
+html.write_text(html_text, encoding='utf-8')
