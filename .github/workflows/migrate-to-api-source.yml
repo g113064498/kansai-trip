@@ -1,0 +1,25 @@
+name: Migrate trip data to API source
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/migrate_to_api_source.py'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply migration patch
+        run: python3 tools/migrate_to_api_source.py
+      - name: Commit migration
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm tools/migrate_to_api_source.py .github/workflows/migrate-to-api-source.yml
+          git add app.js
+          git commit -m 'refactor: make itinerary and pool API-backed only'
+          git push origin main
