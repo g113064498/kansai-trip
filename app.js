@@ -41,8 +41,9 @@ const initialTripData = {
             checkOut: "2026-11-07",
             nights: 3,
             price: 7316,
-            link: "https://www.booking.com/hotel/jp/hop-inn-kyoto-shijo-omiya.zh-tw.html",
-            address: "京都市中京区壬生坊城町18-1",
+            link: "https://www.hopinnhotel.com/our-hotels/hop-inn-kyoto-shijo-omiya",
+            bookingPlatform: "Hop Inn 官方網站",
+            address: "14-2 Mibubojocho, Nakagyo Ward, Kyoto, 604-8804, Japan",
             notes: "從機場搭乘 JR Haruka 直達京都車站，再搭計程車 (約 ¥1500) 或公車前往飯店。鄰近阪急與嵐電，去嵐山跟河原町超方便。"
         },
         {
@@ -54,7 +55,8 @@ const initialTripData = {
             nights: 4,
             price: 7174,
             link: "https://www.booking.com/hotel/jp/color-tsuruhashi-da-ban-fu1.zh-tw.html",
-            address: "大阪市天王寺区筆ケ崎町5-30",
+            bookingPlatform: "Booking.com",
+            address: "14-23 Ajiharacho, Tennoji-ku, Osaka, Japan",
             notes: "預訂連結為 Color Tsuruhashi，請確認入住地點是鶴橋站還是天王寺站。附近有大阪環狀線，交通很方便，搭 Haruka 或是關空快速可直達機場。"
         }
     ],
@@ -584,6 +586,8 @@ async function loadFromRemote() {
                 time: (p.is_enabled == 1 && p.unit && p.unit !== '景點' && p.unit.includes('|')) ? p.unit.split('|')[1] : (data.time || ''),
                 photos: data.photos || [],
                 location: data.location || '',
+                googleRating: data.googleRating || '',
+                tabelogRating: data.tabelogRating || '',
                 _productId: p.id
             };
         });
@@ -753,6 +757,8 @@ function openPoolEditModal(poolId) {
     document.getElementById('pool-edit-category').value = item.category || 'sightseeing';
     document.getElementById('pool-edit-time').value = item.time || '';
     document.getElementById('pool-edit-location').value = item.location || '';
+    document.getElementById('pool-edit-google-rating').value = item.googleRating || '';
+    document.getElementById('pool-edit-tabelog-rating').value = item.tabelogRating || '';
     document.getElementById('pool-edit-cost').value = item.cost || 0;
     const photos = (item.photos || []).join('\n');
     document.getElementById('pool-edit-photos').value = photos;
@@ -770,6 +776,8 @@ function openPoolAddModal() {
     document.getElementById('pool-edit-category').value = 'sightseeing';
     document.getElementById('pool-edit-time').value = '';
     document.getElementById('pool-edit-location').value = '';
+    document.getElementById('pool-edit-google-rating').value = '';
+    document.getElementById('pool-edit-tabelog-rating').value = '';
     document.getElementById('pool-edit-cost').value = '';
     document.getElementById('pool-edit-photos').value = '';
     updatePoolPhotoPreview();
@@ -804,7 +812,7 @@ function editPoolTime(poolId, itemId, el) {
         // Save to API
         if (item._productId) {
             try {
-                const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };
+                const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '' };
                 await hexAPI.updateProduct(item._productId, {
                     title: item.title || '未命名景點',
                     content: JSON.stringify(content),
@@ -838,6 +846,8 @@ async function savePoolEdit(e) {
     const category = document.getElementById('pool-edit-category').value;
     const time = document.getElementById('pool-edit-time').value.trim();
     const location = document.getElementById('pool-edit-location').value.trim();
+    const googleRating = document.getElementById('pool-edit-google-rating').value.trim();
+    const tabelogRating = document.getElementById('pool-edit-tabelog-rating').value.trim();
     const cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
     const photoText = document.getElementById('pool-edit-photos').value;
     const photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
@@ -852,6 +862,8 @@ async function savePoolEdit(e) {
             category: category,
             time: time,
             location: location,
+            googleRating: googleRating,
+            tabelogRating: tabelogRating,
             photos: photos,
             isEnabled: false,
             day: ''
@@ -888,6 +900,8 @@ async function savePoolEdit(e) {
     item.category = category;
     item.time = time;
     item.location = location;
+    item.googleRating = googleRating;
+    item.tabelogRating = tabelogRating;
     item.cost = cost;
     item.photos = photos;
     if (!db.poolPhotos) db.poolPhotos = {};
@@ -897,7 +911,7 @@ async function savePoolEdit(e) {
     renderPool();
     showSyncOverlay();
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
@@ -1284,7 +1298,7 @@ function renderDashboard() {
                 ℹ️ 入住提示: ${h.notes}
             </div>
             <div>
-                <a href="${h.link}" target="_blank" class="btn-link">在 Booking.com 開啟訂房頁面 ↗</a>
+                <a href="${h.link}" target="_blank" rel="noopener noreferrer" class="btn-link">在 ${h.bookingPlatform || '訂房網站'} 開啟訂房頁面 ↗</a>
                 &nbsp;&nbsp;
                 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.address)}" target="_blank" class="btn-link">開啟 Google 地圖導航 🗺️</a>
             </div>
@@ -1521,6 +1535,14 @@ function renderPool() {
         
         const displayCity = item.city === 'Kyoto' ? '京都' : (item.city === 'Osaka' ? '大阪' : (item.city === 'Other' ? '其他' : (item.city || '其他')));
         const displayCategory = item.category === 'sightseeing' ? '景點' : (item.category === 'food' ? '美食' : (item.category === 'shopping' ? '購物' : '其他'));
+        const mapQuery = item.location || `${item.title} ${displayCity} Japan`;
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+        const tabelogUrl = `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;
+        const foodRatingHtml = item.category === 'food' ? `
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">⭐ Google ${item.googleRating ? item.googleRating + ' / 5' : '查看即時評分'}</a>
+                <a href="${tabelogUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">🍽️ Tabelog ${item.tabelogRating ? item.tabelogRating + ' / 5' : '查看評分'}</a>
+            </div>` : '';
 
         card.innerHTML = `
             <div class="pool-card-body">
@@ -1535,6 +1557,10 @@ function renderPool() {
                         </div>
                     </div>
                     <p class="pool-card-desc">${item.desc}</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                        <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">🗺️ Google 地圖</a>
+                    </div>
+                    ${foodRatingHtml}
                     ${(item.photos && item.photos.length > 0) ? `<div class="pool-card-photos">${item.photos.map(p => `<img src="${p}" onerror="this.style.display='none'">`).join('')}</div>` : ''}
                 </div>
             </div>
