@@ -527,7 +527,11 @@ async function loadFromRemote() {
                 if (m.customEvents) {
                     for (const [day, events] of Object.entries(m.customEvents)) {
                         if (db.itinerary.hasOwnProperty(day)) {
-                            db.itinerary[day] = events || [];
+                            const initEvents = initialTripData.itinerary[day] || [];
+                            const mergedMap = new Map();
+                            initEvents.forEach(e => mergedMap.set(e.id, e));
+                            (events || []).forEach(e => mergedMap.set(e.id, e));
+                            db.itinerary[day] = Array.from(mergedMap.values());
                         }
                     }
                 }
