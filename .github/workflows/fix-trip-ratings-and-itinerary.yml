@@ -1,3 +1,4 @@
+# trigger registered workflow
 name: Fix rating merge and restore itinerary
 on:
   push:
@@ -17,7 +18,6 @@ jobs:
           p=Path('app.js')
           s=p.read_text(encoding='utf-8')
 
-          # 1) Restore itinerary entries accidentally removed earlier.
           old='''        "2026-11-08": [],
         "2026-11-09": [],
         "2026-11-10": [],
@@ -37,7 +37,6 @@ jobs:
               raise SystemExit('itinerary restore marker not found')
           s=s.replace(old,new,1)
 
-          # 2) Merge verified static rating metadata into API-loaded candidate items.
           marker='''        const apiPoolItems = dedupedPoolProducts.map(p => {
             const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
             return {
@@ -69,7 +68,6 @@ jobs:
               raise SystemExit('apiPoolItems marker not found')
           s=s.replace(marker,repl,1)
 
-          # Replace rating field mappings so API blank values inherit verified static values.
           old2='''                googleRating: data.googleRating || '',
                 tabelogRating: data.tabelogRating || '',
                 tabelogUrl: data.tabelogUrl || '',
@@ -83,7 +81,6 @@ jobs:
           if old2 not in s:
               raise SystemExit('rating mapping marker not found')
           s=s.replace(old2,new2,1)
-
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit patch
