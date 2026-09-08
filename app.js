@@ -4,80 +4,11 @@ const initialTripData = {
     tripTitle: "關西雙人浪漫楓秋之旅 🍁",
     startDate: "2026-11-04",
     endDate: "2026-11-11",
-    flights: [
-        {
-            id: "flight-1",
-            type: "departure",
-            number: "MM024 (樂桃航空)",
-            airline: "Peach",
-            from: "台北桃園 (TPE)",
-            to: "大阪關西 (KIX)",
-            depTime: "11/04 (三) 09:40",
-            arrTime: "11/04 (三) 13:10",
-            seats: "Standard",
-            price: 10260,
-            notes: "桃園機場第一航廈登機。票價含雙人行李額度。"
-        },
-        {
-            id: "flight-2",
-            type: "return",
-            number: "MM027 (樂桃航空)",
-            airline: "Peach",
-            from: "大阪關西 (KIX)",
-            to: "台北桃園 (TPE)",
-            depTime: "11/11 (三) 15:25",
-            arrTime: "11/11 (三) 17:55",
-            seats: "Standard",
-            price: 10260,
-            notes: "大阪關西機場第二航廈登機。最晚需於 13:25 前抵達一航廈搭接駁公車去二航開櫃。"
-        }
-    ],
-    hotels: [
-        {
-            id: "hotel-1",
-            city: "Kyoto",
-            name: "Hop Inn Kyoto Shijo Omiya (京都四條大宮霍普飯店)",
-            checkIn: "2026-11-04",
-            checkOut: "2026-11-07",
-            nights: 3,
-            price: 7316,
-            link: "https://www.hopinnhotel.com/our-hotels/hop-inn-kyoto-shijo-omiya",
-            bookingPlatform: "Hop Inn 官方網站",
-            address: "14-2 Mibubojocho, Nakagyo Ward, Kyoto, 604-8804, Japan",
-            notes: "從機場搭乘 JR Haruka 直達京都車站，再搭計程車 (約 ¥1500) 或公車前往飯店。鄰近阪急與嵐電，去嵐山跟河原町超方便。"
-        },
-        {
-            id: "hotel-2",
-            city: "Osaka",
-            name: "Color Tsuruhashi / Cu Tennoji",
-            checkIn: "2026-11-07",
-            checkOut: "2026-11-11",
-            nights: 4,
-            price: 7174,
-            link: "https://www.booking.com/hotel/jp/color-tsuruhashi-da-ban-fu1.zh-tw.html",
-            bookingPlatform: "Booking.com",
-            address: "14-23 Ajiharacho, Tennoji-ku, Osaka, Japan",
-            notes: "預訂連結為 Color Tsuruhashi，請確認入住地點是鶴橋站還是天王寺站。附近有大阪環狀線，交通很方便，搭 Haruka 或是關空快速可直達機場。"
-        }
-    ],
+    flights: [],
+    hotels: [],
     itinerary: {},
     attractionPool: [],
-    checklist: [
-        { id: "c1", category: "both", item: "中華民國護照 (確認效期6個月以上) 🛂", done: false },
-        { id: "c2", category: "both", item: "Visit Japan Web 申報 QR Code 截圖 📱", done: false },
-        { id: "c3", category: "both", item: "日本上網 eSIM / 實體網卡購買 📶", done: false },
-        { id: "c4", category: "both", item: "日圓現金 (多換些百圓與千圓面額) 💴", done: false },
-        { id: "c5", category: "both", item: "ICOCA 卡 / 綁定 iPhone Apple Wallet 💳", done: false },
-        { id: "c6", category: "both", item: "雙人投保海外旅遊平安險+不便險 🛡️", done: false },
-        { id: "c7", category: "both", item: "登機手提行李秤重、打包防溢罐 🧳", done: false },
-        { id: "c8", category: "boy", item: "刮鬍刀、個人換洗衣物、盥洗包 🪒", done: false },
-        { id: "c9", category: "boy", item: "行動電源、各類充電線與豆腐頭 🔋", done: false },
-        { id: "c10", category: "boy", item: "預訂門票確認信件彙整 (勝尾寺、Haruka等) 📄", done: false },
-        { id: "c11", category: "girl", item: "保養品、化妝品、卸妝與個人護理用品 🧴", done: false },
-        { id: "c12", category: "girl", item: "隱形眼鏡、常備藥品 (止痛、防蚊、暈車) 💊", done: false },
-        { id: "c13", category: "girl", item: "美美拍照服裝、舒適好走的走路鞋 👟", done: false },
-        { id: "c14", category: "boy", item: "內政部役男出境核准公文（線上申請並列印帶在身上） 🪖", done: false }
-    ],
+    checklist: [],
     messages: []
 };
 // [INITIAL_DATA_END]
@@ -501,6 +432,51 @@ async function loadFromRemote() {
                 lastSyncedMaster = JSON.parse(JSON.stringify(master));
             }
         }
+
+        // Convert master flights/hotels into ordinary Product records once.
+        // They are DB-derived (not hardcoded), appear under "Other", and remain fully editable afterwards.
+        const sourceRefs = new Set(allProducts.filter(p => p.category === '候選景點').map(p => parseContent(p).sourceRef).filter(Boolean));
+        let createdFixedProduct = false;
+        const dateFromMonthDayText = (text) => {
+            const m = String(text || '').match(/(\d{1,2})\/(\d{1,2})/);
+            if (!m) return '';
+            const year = String(db.startDate || '2026-11-04').slice(0,4);
+            return year + '-' + String(m[1]).padStart(2,'0') + '-' + String(m[2]).padStart(2,'0');
+        };
+        const timeFromText = (text) => {
+            const m = String(text || '').match(/(\d{1,2}:\d{2})/);
+            return m ? m[1] : '';
+        };
+        const createFixedProduct = async ({sourceRef, title, desc, category, day, time, location}) => {
+            if (!sourceRef || sourceRefs.has(sourceRef) || !day) return;
+            const content = { city:'Other', desc:desc || '', cost:0, category:category || 'other', day,
+                photos:[], location:location || '', time:time || '', sourceRef };
+            await hexAPI.createProduct({ title, content:JSON.stringify(content), category:'候選景點', origin_price:0, price:0,
+                unit:day + '|' + (time || '10:00 - 12:00'), is_enabled:1, num:1 });
+            sourceRefs.add(sourceRef);
+            createdFixedProduct = true;
+        };
+
+        for (const f of (db.flights || [])) {
+            const day = dateFromMonthDayText(f.depTime);
+            const dep = timeFromText(f.depTime);
+            const arr = timeFromText(f.arrTime);
+            const range = dep && arr ? dep + ' - ' + arr : (dep || '');
+            await createFixedProduct({
+                sourceRef:'flight:' + (f.id || f.number || day),
+                title:(f.number || '航班') + ' ' + (f.from || '') + ' → ' + (f.to || '') + ' ✈️',
+                desc:(f.notes || '') + (f.airline ? '｜航空公司：' + f.airline : ''), category:'transport', day, time:range, location:f.from || ''
+            });
+        }
+        for (const h of (db.hotels || [])) {
+            const inRef='hotel-checkin:' + (h.id || h.name || h.checkIn);
+            const outRef='hotel-checkout:' + (h.id || h.name || h.checkOut);
+            await createFixedProduct({ sourceRef:inRef, title:(h.name || '住宿') + ' Check-in 🏨', desc:h.notes || '', category:'hotel',
+                day:h.checkIn || '', time:h.checkInTime || '15:00 - 16:00', location:h.address || h.name || '' });
+            await createFixedProduct({ sourceRef:outRef, title:(h.name || '住宿') + ' Check-out 🧳', desc:'退房' + (h.notes ? '｜' + h.notes : ''), category:'hotel',
+                day:h.checkOut || '', time:h.checkOutTime || '10:00 - 11:00', location:h.address || h.name || '' });
+        }
+        if (createdFixedProduct) allProducts = await hexAPI.getProducts();
 
         // Products are the sole source for attractionPool and scheduled itinerary entries.
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
@@ -950,6 +926,9 @@ function buildLocalMasterPayload() {
         customEvents[day] = (events || []).filter(e => !e._poolId && !e._productId && !e.id.startsWith('api-'));
     }
     return {
+        tripTitle: db.tripTitle,
+        startDate: db.startDate,
+        endDate: db.endDate,
         flights: db.flights,
         hotels: db.hotels,
         budget: db.budget,
