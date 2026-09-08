@@ -116,34 +116,34 @@ const initialTripData = {
         { id: "g35", city: "Osaka", title: "唐吉訶德 道頓堀店 🛍️", desc: "24小時營業，藥妝、零食、伴手禮應有盡有，是採購與退稅首選。", cost: 0, category: "shopping", isEnabled: false },
         { id: "g36", city: "Osaka", title: "Shinsaibashi PARCO 🛍️", desc: "與大丸百貨相連的時尚商場，6樓有吉卜力共和國、卡普空等動漫專賣店。", cost: 0, category: "shopping", isEnabled: false },
         // === 大阪京都美食地圖.csv ===
-        { id: "f1", city: "Kyoto", title: "松屋 四條大宮站前店", desc: "四條大宮站旁的平價日式牛丼連鎖店，深夜也營業，適合宵夜。", cost: 500, category: "food", isEnabled: false },
-        { id: "f2", city: "Osaka", title: "PRESS BUTTER SAND 大阪高島屋", desc: "高島屋難波店的人氣奶油夾心餅乾專賣店，伴手禮首選。", cost: 1000, category: "food", isEnabled: false },
-        { id: "f3", city: "Osaka", title: "Sugar Butter Tree 阪急梅田店", desc: "阪急梅田站的人氣甜點伴手禮店，奶油樹餅乾香酥可口。", cost: 800, category: "food", isEnabled: false },
-        { id: "f4", city: "Osaka", title: "ÉCHIRÉ Marché au Beurre", desc: "法國高級奶油品牌 ÉCHIRÉ 的專賣店，招牌奶油可頌與費南雪極受歡迎。", cost: 1200, category: "food", isEnabled: false },
-        { id: "f5", city: "Osaka", title: "grenier 梅田店", desc: "梅田的人氣麵包甜點店。", cost: 800, category: "food", isEnabled: false },
-        { id: "f6", city: "Osaka", title: "SUKIYAKI FUJIMOTO", desc: "大阪的高評價壽喜燒專門店，肉質鮮美。", cost: 5000, category: "food", isEnabled: false },
-        { id: "f7", city: "Kyoto", title: "Yasubee", desc: "京都的人氣居酒屋/餐廳。", cost: 2000, category: "food", isEnabled: false },
-        { id: "f8", city: "Kyoto", title: "Kuchibashi Modern", desc: "京都的時尚現代日式餐廳。", cost: 2000, category: "food", isEnabled: false },
-        { id: "f9", city: "Kyoto", title: "Yumemiya", desc: "京都的特色餐廳。", cost: 2000, category: "food", isEnabled: false },
-        { id: "f10", city: "Kyoto", title: "麵屋練之助 🍜", desc: "需預約。京都高評價拉麵店。", cost: 1500, category: "food", isEnabled: false },
-        { id: "f11", city: "Kyoto", title: "Mamemono and Taiyaki 🍴", desc: "嵐山超人氣鯛魚燒店，主打「賞味期限一分鐘」的牛油鯛魚燒。", cost: 500, category: "food", isEnabled: false },
-        { id: "f12", city: "Kyoto", title: "Sukiyaki Kimura 🍲", desc: "12:00-20:30（週一、週五公休）。傳統平價壽喜燒老店。", cost: 3000, category: "food", isEnabled: false },
-        { id: "f13", city: "Kyoto", title: "GION GOZU 四条店", desc: "祇園四條附近的精緻甜點烘焙店，主打宇治抹茶或水果乳酪蛋糕。", cost: 1000, category: "food", isEnabled: false },
-        { id: "f14", city: "Kyoto", title: "Onimaru Kyoto Shijo Kawaramachi 🍙", desc: "精緻好吃的飯糰店，Threads 熱門打卡美食。", cost: 800, category: "food", isEnabled: false },
-        { id: "f15", city: "Kyoto", title: "DONGURI Shijo-Omiya Store", desc: "四條大宮站附近的知名京都御好燒連鎖店，營業至深夜。", cost: 3000, category: "food", isEnabled: false },
-        { id: "f16", city: "Kyoto", title: "麵屋 豬一 🍜", desc: "11:00-14:30 / 17:30-21:00。超人氣排隊拉麵店，不接受預約，湯頭清甜精緻。", cost: 1500, category: "food", isEnabled: false },
-        { id: "f17", city: "Osaka", title: "お好み焼（大阪燒）千草", desc: "天滿站附近隱藏版老字號大阪燒店，曾獲米其林推薦。", cost: 1500, category: "food", isEnabled: false },
-        { id: "f18", city: "Osaka", title: "可樂餅 中村屋", desc: "天神橋筋商店街內的人氣可樂餅老店。09:00-18:00，週日休。", cost: 300, category: "food", isEnabled: false },
-        { id: "f19", city: "Osaka", title: "HARBS 心齋橋Parco店", desc: "心齋橋 Parco 百貨內，招牌水果千層蛋糕鮮奶油清爽不膩。", cost: 1200, category: "food", isEnabled: false },
-        { id: "f20", city: "Osaka", title: "大阪燒 千房", desc: "道頓堀超知名大阪燒連鎖品牌，以美乃滋拉花特技聞名。", cost: 2000, category: "food", isEnabled: false },
-        { id: "f21", city: "Osaka", title: "Kusaka Curry Namba DINING MAISON", desc: "高島屋難波店美食街的高評價日式咖哩店，炸豬排酥脆。", cost: 1500, category: "food", isEnabled: false },
-        { id: "f22", city: "Osaka", title: "HARBS Namba Parks", desc: "難波 Parks 商場內的名店，招牌水果千層蛋糕，關西必吃甜點。", cost: 1200, category: "food", isEnabled: false },
-        { id: "f23", city: "Osaka", title: "Shabuwara 壽喜燒 涮涮鍋 花月店", desc: "高評價日式火鍋餐廳，主打優質壽喜燒與涮涮鍋，適合情侶晚餐。", cost: 6000, category: "food", isEnabled: false },
-        { id: "f24", city: "Osaka", title: "Shabucho", desc: "極受歡迎的個人/雙人涮涮鍋壽喜燒餐廳，湯頭清淡甘甜。", cost: 5000, category: "food", isEnabled: false },
-        { id: "f25", city: "Osaka", title: "飛騨牛一頭家 馬喰一代 KITTE大阪 🥩", desc: "朋友去的是名古屋EAST；同品牌大阪分店位於 KITTE大阪 5F。想吃飛騨牛可安排在梅田購物日。", cost: 5000, category: "food", isEnabled: false, location: "飛騨牛一頭家 馬喰一代 KITTE大阪" },
-        { id: "f26", city: "Osaka", title: "いかれたNOODLE Fishtons 🍜", desc: "大阪人氣沾麵店，西大橋站步行約2分鐘、四ツ橋站約3分鐘。營業時間目前為 11:00-15:00 / 18:00-22:00。", cost: 1500, category: "food", isEnabled: false, location: "大阪府大阪市西区新町1-25-18" },
-        { id: "f27", city: "Other", title: "すき焼きと牛まぶし ももしき 🥩", desc: "奈良的大和牛壽喜燒／牛まぶし名店，近鐵奈良站步行約1分鐘。營業時間目前為 11:00-22:00。若之後安排奈良一日遊很適合當正餐。", cost: 5000, category: "food", isEnabled: false, location: "奈良県奈良市東向中町5-1 浅川ハーベストビル2F" },
-        { id: "f28", city: "Osaka", title: "お好み焼 美津の 🍳", desc: "道頓堀老字號大阪燒，招牌有美津の焼、山芋焼。營業時間目前為 11:00-22:00（L.O.21:00），位於難波／日本橋步行範圍。", cost: 2000, category: "food", isEnabled: false, location: "大阪府大阪市中央区道頓堀1-4-15" },
+        { id: "f1", city: "Kyoto", title: "松屋 四條大宮站前店", desc: "四條大宮站旁的平價日式牛丼連鎖店，深夜也營業，適合宵夜。", cost: 500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.04", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/kyoto/A2601/A260203/26022692/" },
+        { id: "f2", city: "Osaka", title: "PRESS BUTTER SAND 大阪高島屋", desc: "高島屋難波店的人氣奶油夾心餅乾專賣店，伴手禮首選。", cost: 1000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.05", ratingChecked: "2026-09-08" },
+        { id: "f3", city: "Osaka", title: "Sugar Butter Tree 阪急梅田店", desc: "阪急梅田站的人氣甜點伴手禮店，奶油樹餅乾香酥可口。", cost: 800, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.21", ratingChecked: "2026-09-08" },
+        { id: "f4", city: "Osaka", title: "ÉCHIRÉ Marché au Beurre", desc: "法國高級奶油品牌 ÉCHIRÉ 的專賣店，招牌奶油可頌與費南雪極受歡迎。", cost: 1200, category: "food", isEnabled: false, googleRating: "4.0", tabelogRating: "3.76", ratingChecked: "2026-09-08" },
+        { id: "f5", city: "Osaka", title: "grenier 梅田店", desc: "梅田的人氣麵包甜點店。", cost: 800, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.54", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/osaka/A2701/A270101/27130931/" },
+        { id: "f6", city: "Osaka", title: "SUKIYAKI FUJIMOTO", desc: "大阪的高評價壽喜燒專門店，肉質鮮美。", cost: 5000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.39", ratingChecked: "2026-09-08" },
+        { id: "f7", city: "Kyoto", title: "Yasubee", desc: "京都的人氣居酒屋/餐廳。", cost: 2000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.36", ratingChecked: "2026-09-08" },
+        { id: "f8", city: "Kyoto", title: "Kuchibashi Modern", desc: "京都的時尚現代日式餐廳。", cost: 2000, category: "food", isEnabled: false, googleRating: "4.6", tabelogRating: "3.69", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/kyoto/A2601/A260201/26022582/" },
+        { id: "f9", city: "Kyoto", title: "Yumemiya", desc: "京都的特色餐廳。", cost: 2000, category: "food", isEnabled: false, googleRating: "4.6", tabelogRating: "3.05", ratingChecked: "2026-09-08" },
+        { id: "f10", city: "Kyoto", title: "麵屋練之助 🍜", desc: "需預約。京都高評價拉麵店。", cost: 1500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.52", ratingChecked: "2026-09-08" },
+        { id: "f11", city: "Kyoto", title: "Mamemono and Taiyaki 🍴", desc: "嵐山超人氣鯛魚燒店，主打「賞味期限一分鐘」的牛油鯛魚燒。", cost: 500, category: "food", isEnabled: false, googleRating: "4.2", tabelogRating: "3.50", ratingChecked: "2026-09-08" },
+        { id: "f12", city: "Kyoto", title: "Sukiyaki Kimura 🍲", desc: "12:00-20:30（週一、週五公休）。傳統平價壽喜燒老店。", cost: 3000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.50", ratingChecked: "2026-09-08" },
+        { id: "f13", city: "Kyoto", title: "GION GOZU 四条店", desc: "祇園四條附近的精緻甜點烘焙店，主打宇治抹茶或水果乳酪蛋糕。", cost: 1000, category: "food", isEnabled: false, googleRating: "4.5", tabelogRating: "3.20", ratingChecked: "2026-09-08" },
+        { id: "f14", city: "Kyoto", title: "ごちそう焼むすび おにまる 京都四条河原町店 🍙", desc: "精緻好吃的飯糰店，Threads 熱門打卡美食。", cost: 800, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.06", ratingChecked: "2026-09-08" },
+        { id: "f15", city: "Kyoto", title: "DONGURI Shijo-Omiya Store", desc: "四條大宮站附近的知名京都御好燒連鎖店，營業至深夜。", cost: 3000, category: "food", isEnabled: false, googleRating: "4.2", tabelogRating: "3.09", ratingChecked: "2026-09-08" },
+        { id: "f16", city: "Kyoto", title: "麵屋 豬一 🍜", desc: "11:00-14:30 / 17:30-21:00。超人氣排隊拉麵店，不接受預約，湯頭清甜精緻。", cost: 1500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.71", ratingChecked: "2026-09-08" },
+        { id: "f17", city: "Osaka", title: "お好み焼（大阪燒）千草", desc: "天滿站附近隱藏版老字號大阪燒店，曾獲米其林推薦。", cost: 1500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.65", ratingChecked: "2026-09-08" },
+        { id: "f18", city: "Osaka", title: "天神橋 中村屋", desc: "天神橋筋商店街內的人氣可樂餅老店。09:00-18:00，週日休。", cost: 300, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.49", ratingChecked: "2026-09-08" },
+        { id: "f19", city: "Osaka", title: "HARBS 心齋橋Parco店", desc: "心齋橋 Parco 百貨內，招牌水果千層蛋糕鮮奶油清爽不膩。", cost: 1200, category: "food", isEnabled: false, googleRating: "4.1", tabelogRating: "3.09", ratingChecked: "2026-09-08" },
+        { id: "f20", city: "Osaka", title: "千房 道頓堀支店", desc: "道頓堀超知名大阪燒連鎖品牌，以美乃滋拉花特技聞名。", cost: 2000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.16", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/osaka/A2701/A270202/27002622/" },
+        { id: "f21", city: "Osaka", title: "Kusaka Curry Namba DINING MAISON", desc: "高島屋難波店美食街的高評價日式咖哩店，炸豬排酥脆。", cost: 1500, category: "food", isEnabled: false, googleRating: "4.7", tabelogRating: "3.50", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/osaka/A2701/A270202/27145566/" },
+        { id: "f22", city: "Osaka", title: "HARBS Namba Parks", desc: "難波 Parks 商場內的名店，招牌水果千層蛋糕，關西必吃甜點。", cost: 1200, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.15", ratingChecked: "2026-09-08" },
+        { id: "f23", city: "Osaka", title: "しゃぶ笑 なんばグランド花月店", desc: "高評價日式火鍋餐廳，主打優質壽喜燒與涮涮鍋，適合情侶晚餐。", cost: 6000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.09", ratingChecked: "2026-09-08" },
+        { id: "f24", city: "Osaka", title: "Shabucho", desc: "極受歡迎的個人/雙人涮涮鍋壽喜燒餐廳，湯頭清淡甘甜。", cost: 5000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.54", ratingChecked: "2026-09-08" },
+        { id: "f25", city: "Osaka", title: "飛騨牛一頭家 馬喰一代 KITTE大阪 🥩", desc: "朋友去的是名古屋EAST；同品牌大阪分店位於 KITTE大阪 5F。想吃飛騨牛可安排在梅田購物日。", cost: 5000, category: "food", isEnabled: false, location: "飛騨牛一頭家 馬喰一代 KITTE大阪", googleRating: "", tabelogRating: "3.58", ratingChecked: "2026-09-08" },
+        { id: "f26", city: "Osaka", title: "いかれたNOODLE Fishtons 🍜", desc: "大阪人氣沾麵店，西大橋站步行約2分鐘、四ツ橋站約3分鐘。營業時間目前為 11:00-15:00 / 18:00-22:00。", cost: 1500, category: "food", isEnabled: false, location: "大阪府大阪市西区新町1-25-18", googleRating: "4.0", tabelogRating: "3.72", ratingChecked: "2026-09-08" },
+        { id: "f27", city: "Other", title: "すき焼きと牛まぶし ももしき 🥩", desc: "奈良的大和牛壽喜燒／牛まぶし名店，近鐵奈良站步行約1分鐘。營業時間目前為 11:00-22:00。若之後安排奈良一日遊很適合當正餐。", cost: 5000, category: "food", isEnabled: false, location: "奈良県奈良市東向中町5-1 浅川ハーベストビル2F", googleRating: "", tabelogRating: "3.62", ratingChecked: "2026-09-08" },
+        { id: "f28", city: "Osaka", title: "お好み焼 美津の 🍳", desc: "道頓堀老字號大阪燒，招牌有美津の焼、山芋焼。營業時間目前為 11:00-22:00（L.O.21:00），位於難波／日本橋步行範圍。", cost: 2000, category: "food", isEnabled: false, location: "大阪府大阪市中央区道頓堀1-4-15", googleRating: "", tabelogRating: "3.56", ratingChecked: "2026-09-08" },
     ],
     checklist: [
         { id: "c1", category: "both", item: "中華民國護照 (確認效期6個月以上) 🛂", done: false },
@@ -588,6 +588,8 @@ async function loadFromRemote() {
                 location: data.location || '',
                 googleRating: data.googleRating || '',
                 tabelogRating: data.tabelogRating || '',
+                tabelogUrl: data.tabelogUrl || '',
+                ratingChecked: data.ratingChecked || '',
                 _productId: p.id
             };
         });
@@ -812,7 +814,7 @@ function editPoolTime(poolId, itemId, el) {
         // Save to API
         if (item._productId) {
             try {
-                const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '' };
+                const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
                 await hexAPI.updateProduct(item._productId, {
                     title: item.title || '未命名景點',
                     content: JSON.stringify(content),
@@ -911,7 +913,7 @@ async function savePoolEdit(e) {
     renderPool();
     showSyncOverlay();
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '' };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
@@ -1537,7 +1539,7 @@ function renderPool() {
         const displayCategory = item.category === 'sightseeing' ? '景點' : (item.category === 'food' ? '美食' : (item.category === 'shopping' ? '購物' : '其他'));
         const mapQuery = item.location || `${item.title} ${displayCity} Japan`;
         const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
-        const tabelogUrl = `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;
+        const tabelogUrl = item.tabelogUrl || `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;
         const foodRatingHtml = item.category === 'food' ? `
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;">
                 <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">⭐ Google ${item.googleRating ? item.googleRating + ' / 5' : '查看即時評分'}</a>
