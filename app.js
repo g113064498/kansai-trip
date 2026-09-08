@@ -2375,6 +2375,7 @@ async function deleteFromPool(id) {
     }
 
     const backup = [...db.attractionPool];
+    const backupItinerary = JSON.parse(JSON.stringify(db.itinerary || {}));
     const savedScheduled = (db.scheduledItems && item) ? db.scheduledItems[item.id] : null;
     const backupDeleted = db.deletedPoolItems ? [...db.deletedPoolItems] : [];
 
@@ -2400,10 +2401,18 @@ async function deleteFromPool(id) {
         if (item._productId) delete db.poolPhotos['api-' + item._productId];
     }
 
+    const isLinkedItineraryEvent = (e) => {
+        if (!e) return false;
+        if (e._poolId) {
+            return e._poolId === item.id ||
+                (!!item._productId && e._poolId === `api-${item._productId}`);
+        }
+        return !!(e._productId && item._productId && e._productId === item._productId);
+    };
     console.log('[DEBUG deleteFromPool] 正在從 db.itinerary 中排除與此項目關聯的行程事件...');
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         const origLength = events.length;
-        db.itinerary[day] = events.filter(e => e._poolId !== item.id && e._productId !== item._productId);
+        db.itinerary[day] = events.filter(e => !isLinkedItineraryEvent(e));
         const removedCount = origLength - db.itinerary[day].length;
         if (removedCount > 0) {
             console.log(`[DEBUG deleteFromPool] 已從 Day ${day} 移除 ${removedCount} 個行程事件`);
@@ -2446,6 +2455,7 @@ async function deleteFromPool(id) {
     } catch (e) {
         console.error('[DEBUG deleteFromPool] 刪除失敗或同步失敗:', e);
         db.attractionPool = backup;
+        db.itinerary = backupItinerary;
         db.deletedPoolItems = backupDeleted;
         if (savedScheduled) db.scheduledItems[item.id] = savedScheduled;
         console.log('[DEBUG deleteFromPool] 已還原資料庫備份並重新渲染');
