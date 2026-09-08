@@ -63,12 +63,12 @@ const initialTripData = {
     itinerary: {
         "2026-11-04": [
             { id: "s1", time: "09:40 - 13:10", title: "飛往大阪關西機場 (MM024) ✈️", desc: "桃園捷運 ➜ T1 樂桃櫃檯 ➜ 抵達關西二航廈", cost: 0, category: "transport", location: "Kansai International Airport" },
-            { id: "s3", time: "16:00 - 16:30", title: "飯店 Check-in: Hop Inn Kyoto Shijo Omiya 🏨", desc: "京都車站搭公車（約 20 分鐘）或計程車（約 ¥1500）至四條大宮飯店寄物入住", cost: 0, category: "hotel", location: "Hop Inn Kyoto Shijo Omiya" }
+            { id: "s3", title: "飯店 Check-in: Hop Inn Kyoto Shijo Omiya 🏨", time: "17:00 - 17:30", category: "hotel", cost: 2500, location: "Hop Inn Kyoto Shijo Omiya", desc: "搭 HARUKA 到京都車站（約 ¥1800）\n京都車站搭計程車（約 ¥1500）至四條大宮飯店寄物入住", photos: [] }
         ],
         "2026-11-05": [],
         "2026-11-06": [],
         "2026-11-07": [
-            { id: "s9", time: "12:30 - 13:00", title: "大阪飯店 Check-in / 寄行李 🏨", desc: "在 Color Tsuruhashi / Cu Tennoji 寄放行李後，開始大阪行程", cost: 0, category: "hotel", location: "Color Tsuruhashi" }
+            { id: "s9", title: "京都飯店 Check-out ", time: "08:30 - 9:00", category: "hotel", cost: 0, location: "Color Tsuruhashi", desc: "退宿搭阪急京都線到梅田", photos: [] }
         ],
         "2026-11-08": [],
         "2026-11-09": [
