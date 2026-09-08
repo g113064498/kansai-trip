@@ -103,3 +103,4 @@ new='''                // Persist every section to Hexschool, including Products
 if old not in s: raise SystemExit('import sync block missing')
 s=s.replace(old,new,1)
 p.write_text(s)
+# trigger
