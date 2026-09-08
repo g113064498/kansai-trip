@@ -71,8 +71,15 @@ const initialTripData = {
             { id: "s9", time: "12:30 - 13:00", title: "大阪飯店 Check-in / 寄行李 🏨", desc: "在 Color Tsuruhashi / Cu Tennoji 寄放行李後，開始大阪行程", cost: 0, category: "hotel", location: "Color Tsuruhashi" }
         ],
         "2026-11-08": [],
-        "2026-11-09": [],
-        "2026-11-10": [],
+        "2026-11-09": [
+            { id: "s-kkday", time: "08:30 - 18:00", title: "KKday 預訂一日遊行程 🎟️", desc: "集合出發前往 KKday 預訂景點一日遊行程與體驗", cost: 0, category: "sightseeing", location: "大阪集合地點" },
+            { id: "s-d6-dinner", time: "18:30 - 20:00", title: "DAY6 晚餐候選 🍴", desc: "享用在地特色晚餐", cost: 2000, category: "food", location: "難波/心齋橋" }
+        ],
+        "2026-11-10": [
+            { id: "s-namba", time: "09:30 - 10:30", title: "難波八阪神社 🦁️", desc: "巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地", cost: 0, category: "sightseeing", location: "難波八阪神社" },
+            { id: "s-shinsaibashi", time: "10:30 - 17:30", title: "心齋橋 & 道頓堀 🛍️", desc: "大阪最熱鬧購物與美食商圈散步採購", cost: 0, category: "shopping", location: "心齋橋" },
+            { id: "s-d7-lunch", time: "11:30 - 12:30", title: "DAY7 午餐候選 🍴", desc: "品嚐心齋橋/道頓堀排隊美食", cost: 1500, category: "food", location: "道頓堀" }
+        ],
         "2026-11-11": [
             { id: "s12", time: "15:25 - 17:55", title: "搭乘 MM027 航班返台 ✈️", desc: "回到溫暖的家，結束美好旅程", cost: 0, category: "transport", location: "台北桃園 (TPE)" }
         ]
@@ -572,8 +579,27 @@ async function loadFromRemote() {
             }
         }
 
+        const staticRatingAliases = {
+            'Onimaru Kyoto Shijo Kawaramachi': 'ごちそう焼むすび おにまる 京都四条河原町店',
+            '可樂餅 中村屋': '天神橋 中村屋',
+            '大阪燒 千房': '千房 道頓堀支店',
+            'Shabuwara 壽喜燒 涮涮鍋 花月店': 'しゃぶ笑 なんばグランド花月店'
+        };
+        const findStaticPoolMeta = (title) => {
+            const clean = normalizeTitle(title);
+            let hit = (initialTripData.attractionPool || []).find(x => normalizeTitle(x.title) === clean);
+            if (hit) return hit;
+            for (const [oldTitle, newTitle] of Object.entries(staticRatingAliases)) {
+                if (clean === normalizeTitle(oldTitle)) {
+                    return (initialTripData.attractionPool || []).find(x => normalizeTitle(x.title) === normalizeTitle(newTitle)) || null;
+                }
+            }
+            return null;
+        };
+
         const apiPoolItems = dedupedPoolProducts.map(p => {
             const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
+            const staticMeta = findStaticPoolMeta(p.title) || {};
             return {
                 id: 'api-' + p.id,
                 city: data.city || 'Kyoto',
@@ -586,10 +612,10 @@ async function loadFromRemote() {
                 time: (p.is_enabled == 1 && p.unit && p.unit !== '景點' && p.unit.includes('|')) ? p.unit.split('|')[1] : (data.time || ''),
                 photos: data.photos || [],
                 location: data.location || '',
-                googleRating: data.googleRating || '',
-                tabelogRating: data.tabelogRating || '',
-                tabelogUrl: data.tabelogUrl || '',
-                ratingChecked: data.ratingChecked || '',
+                googleRating: data.googleRating || staticMeta.googleRating || '',
+                tabelogRating: data.tabelogRating || staticMeta.tabelogRating || '',
+                tabelogUrl: data.tabelogUrl || staticMeta.tabelogUrl || '',
+                ratingChecked: data.ratingChecked || staticMeta.ratingChecked || '',
                 _productId: p.id
             };
         });
