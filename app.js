@@ -60,98 +60,8 @@ const initialTripData = {
             notes: "預訂連結為 Color Tsuruhashi，請確認入住地點是鶴橋站還是天王寺站。附近有大阪環狀線，交通很方便，搭 Haruka 或是關空快速可直達機場。"
         }
     ],
-    itinerary: {
-        "2026-11-04": [
-            { id: "s1", time: "09:40 - 13:10", title: "飛往大阪關西機場 (MM024) ✈️", desc: "桃園捷運 ➜ T1 樂桃櫃檯 ➜ 抵達關西二航廈", cost: 0, category: "transport", location: "Kansai International Airport" },
-            { id: "s3", time: "16:00 - 16:30", title: "飯店 Check-in: Hop Inn Kyoto Shijo Omiya 🏨", desc: "京都車站搭公車（約 20 分鐘）或計程車（約 ¥1500）至四條大宮飯店寄物入住", cost: 0, category: "hotel", location: "Hop Inn Kyoto Shijo Omiya" }
-        ],
-        "2026-11-05": [],
-        "2026-11-06": [],
-        "2026-11-07": [
-            { id: "s9", time: "12:30 - 13:00", title: "大阪飯店 Check-in / 寄行李 🏨", desc: "在 Color Tsuruhashi / Cu Tennoji 寄放行李後，開始大阪行程", cost: 0, category: "hotel", location: "Color Tsuruhashi" }
-        ],
-        "2026-11-08": [],
-        "2026-11-09": [
-            { id: "s-kkday", time: "08:30 - 18:00", title: "KKday 預訂一日遊行程 🎟️", desc: "集合出發前往 KKday 預訂景點一日遊行程與體驗", cost: 0, category: "sightseeing", location: "大阪集合地點" },
-            { id: "s-d6-dinner", time: "18:30 - 20:00", title: "DAY6 晚餐候選 🍴", desc: "享用在地特色晚餐", cost: 2000, category: "food", location: "難波/心齋橋" }
-        ],
-        "2026-11-10": [
-            { id: "s-namba", time: "09:30 - 10:30", title: "難波八阪神社 🦁️", desc: "巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地", cost: 0, category: "sightseeing", location: "難波八阪神社" },
-            { id: "s-shinsaibashi", time: "10:30 - 17:30", title: "心齋橋 & 道頓堀 🛍️", desc: "大阪最熱鬧購物與美食商圈散步採購", cost: 0, category: "shopping", location: "心齋橋" },
-            { id: "s-d7-lunch", time: "11:30 - 12:30", title: "DAY7 午餐候選 🍴", desc: "品嚐心齋橋/道頓堀排隊美食", cost: 1500, category: "food", location: "道頓堀" }
-        ],
-        "2026-11-11": [
-            { id: "s12", time: "15:25 - 17:55", title: "搭乘 MM027 航班返台 ✈️", desc: "回到溫暖的家，結束美好旅程", cost: 0, category: "transport", location: "台北桃園 (TPE)" }
-        ]
-    },
-    attractionPool: [
-        // === 大阪京都.csv 景點 ===
-        { id: "g1", city: "Kyoto", title: "Shijō Bridge (四條大橋)", desc: "鴨川上的四條大橋，下午日落時非常美麗，可以坐在河畔吹風放鬆。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g2", city: "Kyoto", title: "花見小路", desc: "祇園最具代表性的石板小路，兩旁是傳統茶屋與料亭，偶爾可見藝妓身影。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g3", city: "Kyoto", title: "安井金比羅宮（緣切緣結碑）", desc: "著名的斷惡緣、結良緣神社，參拜者需穿過石碑中央的洞。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g4", city: "Kyoto", title: "高台寺", desc: "09:00-17:30。參觀完清水寺後可順道前往，秋季夜間點燈極美。", cost: 800, category: "sightseeing", isEnabled: false },
-        { id: "g5", city: "Kyoto", title: "慈照寺（銀閣寺）", desc: "08:30-17:00。世界文化遺產，枯山水庭園與銀沙灘著名，哲學之道起點。", cost: 1000, category: "sightseeing", isEnabled: false },
-        { id: "g6", city: "Kyoto", title: "永觀堂（禪林寺）", desc: "09:00-16:00。秋季紅葉名所「紅葉的永觀堂」，寺廟內除花園外禁止拍照。", cost: 1000, category: "sightseeing", isEnabled: false },
-        { id: "g7", city: "Kyoto", title: "金閣寺（鹿苑寺）", desc: "09:00-17:00。金碧輝煌的舍利塔倒映在鏡湖池，京都最具代表性地標之一。", cost: 500, category: "sightseeing", isEnabled: false },
-        { id: "g8", city: "Kyoto", title: "賀茂御祖神社（下鴨神社）", desc: "10:00-16:00。世界文化遺產，京都最古老神社之一，附近有糺之森。", cost: 1000, category: "sightseeing", isEnabled: false },
-        { id: "g9", city: "Osaka", title: "木津市場", desc: "大阪在地人愛去的平價市場，海鮮新鮮便宜，比黑門市場划算許多。", cost: 0, category: "food", isEnabled: false },
-        { id: "g10", city: "Kyoto", title: "渡月橋", desc: "嵐山地標性木造橋樑，秋天楓紅滿山時景色絕美，是京都經典賞楓拍照景點。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g11", city: "Kyoto", title: "貴船神社", desc: "京都北郊山區的神社，以石階兩旁紅色獻燈與水占卜聞名，秋季楓葉隧道極浪漫。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g12", city: "Osaka", title: "難波八阪神社", desc: "06:30-17:00。巨大震撼的獅子頭舞台，能吸走厄運帶來好運。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g13", city: "Kyoto", title: "西本願寺", desc: "05:30-17:00，免費。世界文化遺產，擁有兩棵樹齡超 400 年的巨大御影堂銀杏。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g14", city: "Kyoto", title: "東寺（教王護國寺）", desc: "大門 05:00-17:00。日本最高木造五重塔，秋季夜間拜觀點燈極美。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g15", city: "Kyoto", title: "京都塔", desc: "京都車站前醒目白色地標，頂部觀景台可 360 度俯瞰京都市區與遠山。", cost: 900, category: "sightseeing", isEnabled: false },
-        { id: "g16", city: "Kyoto", title: "二條城", desc: "08:45-16:00。德川家康在京都的寓所，二之丸御殿「鶯聲地板」聞名。", cost: 1300, category: "sightseeing", isEnabled: false },
-        { id: "g17", city: "Kyoto", title: "京都御苑", desc: "24 小時開放，免費。皇室舊御花園，佔地廣大、環境清幽，秋季賞楓名所。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g18", city: "Kyoto", title: "伏見稻荷大社 🦊", desc: "24小時開放。千本鳥居非常壯觀，建議早上 7 點前抵達避開大量團體遊客。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g19", city: "Kyoto", title: "產寧坂（三年坂）", desc: "24小時開放。傳統石板坡道，古色古香，建議清晨去完全沒人，極好拍照。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g20", city: "Kyoto", title: "二寧坂（二年坂）", desc: "24小時開放。與三年坂相連的傳統坡道，沿路有許多特色小店。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g21", city: "Kyoto", title: "八坂神社", desc: "24小時開放。晚上會點燈，非常浪漫，適合夜間散步。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g22", city: "Kyoto", title: "平安神宮 ⛩️", desc: "06:00-17:00。擁有巨大的紅色大鳥居，庭園景色優美。", cost: 0, category: "sightseeing", isEnabled: false },
-        { id: "g23", city: "Kyoto", title: "清水寺 🌸", desc: "06:00-18:00。京都最具代表性寺廟，主殿舞台景觀壯麗，推薦清晨前去避開人潮。", cost: 400, category: "sightseeing", isEnabled: false },
-        { id: "g24", city: "Kyoto", title: "錦市場 🍢", desc: "京都的廚房，有各式海鮮、小吃。注意有店家不開放邊走邊吃。", cost: 0, category: "food", isEnabled: false },
-        { id: "g25", city: "Osaka", title: "大阪日本橋電器街 🎮", desc: "11:00-19:00。類似東京秋葉原，充滿動漫、遊戲周邊與電子產品。", cost: 0, category: "shopping", isEnabled: false },
-        { id: "g26", city: "Osaka", title: "大阪歷史博物館", desc: "常設展展出大阪的歷史變遷，與大阪城公園相鄰。", cost: 600, category: "sightseeing", isEnabled: false },
-        { id: "g27", city: "Kyoto", title: "北野天滿宮 🍁", desc: "07:00-17:00。主祀學問之神菅原道真，秋天賞楓名所，御土居紅葉隧道極美。", cost: 1000, category: "sightseeing", isEnabled: false },
-        { id: "g28", city: "Osaka", title: "大丸百貨心齋橋店 本館 🛍️", desc: "心齋橋地標百貨，與 PARCO 相連，購物美食一站滿足。", cost: 0, category: "shopping", isEnabled: false },
-        { id: "g29", city: "Osaka", title: "購物中心 HEP FIVE 🛍️", desc: "梅田地標性紅色摩天輪商場，摩天輪可俯瞰大阪市中心夜景，適合情侶約會。", cost: 600, category: "shopping", isEnabled: false },
-        { id: "g30", city: "Osaka", title: "大阪城公園 🏯", desc: "09:00-17:00。入園免費，上天守閣需門票（約 ¥600）。雄偉的大阪象徵。", cost: 600, category: "sightseeing", isEnabled: false },
-        { id: "g31", city: "Osaka", title: "Os Drug 天滿店 🛍️", desc: "天神橋筋商店街內的超便宜藥妝店，只收現金，價格比連鎖退稅藥妝店便宜。", cost: 0, category: "shopping", isEnabled: false },
-        { id: "g32", city: "Osaka", title: "勝尾寺 🔴", desc: "08:00-17:00。滿山滿谷紅色達摩。搭御堂筋線到「箕面萱野」轉30號公車。", cost: 500, category: "sightseeing", isEnabled: false },
-        { id: "g33", city: "Osaka", title: "通天閣", desc: "傳統大阪老街風情，通天閣有滑梯。⚠️炸串聽說容易踩雷，請小心挑選。", cost: 1000, category: "sightseeing", isEnabled: false },
-        { id: "g34", city: "Osaka", title: "四天王寺", desc: "08:30-16:00。日本最古老的官寺之一，步行 15 分鐘可達通天閣。", cost: 300, category: "sightseeing", isEnabled: false },
-        { id: "g35", city: "Osaka", title: "唐吉訶德 道頓堀店 🛍️", desc: "24小時營業，藥妝、零食、伴手禮應有盡有，是採購與退稅首選。", cost: 0, category: "shopping", isEnabled: false },
-        { id: "g36", city: "Osaka", title: "Shinsaibashi PARCO 🛍️", desc: "與大丸百貨相連的時尚商場，6樓有吉卜力共和國、卡普空等動漫專賣店。", cost: 0, category: "shopping", isEnabled: false },
-        // === 大阪京都美食地圖.csv ===
-        { id: "f1", city: "Kyoto", title: "松屋 四條大宮站前店", desc: "四條大宮站旁的平價日式牛丼連鎖店，深夜也營業，適合宵夜。", cost: 500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.04", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/kyoto/A2601/A260203/26022692/" },
-        { id: "f2", city: "Osaka", title: "PRESS BUTTER SAND 大阪高島屋", desc: "高島屋難波店的人氣奶油夾心餅乾專賣店，伴手禮首選。", cost: 1000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.05", ratingChecked: "2026-09-08" },
-        { id: "f3", city: "Osaka", title: "Sugar Butter Tree 阪急梅田店", desc: "阪急梅田站的人氣甜點伴手禮店，奶油樹餅乾香酥可口。", cost: 800, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.21", ratingChecked: "2026-09-08" },
-        { id: "f4", city: "Osaka", title: "ÉCHIRÉ Marché au Beurre", desc: "法國高級奶油品牌 ÉCHIRÉ 的專賣店，招牌奶油可頌與費南雪極受歡迎。", cost: 1200, category: "food", isEnabled: false, googleRating: "4.0", tabelogRating: "3.76", ratingChecked: "2026-09-08" },
-        { id: "f5", city: "Osaka", title: "grenier 梅田店", desc: "梅田的人氣麵包甜點店。", cost: 800, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.54", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/osaka/A2701/A270101/27130931/" },
-        { id: "f6", city: "Osaka", title: "SUKIYAKI FUJIMOTO", desc: "大阪的高評價壽喜燒專門店，肉質鮮美。", cost: 5000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.39", ratingChecked: "2026-09-08" },
-        { id: "f7", city: "Kyoto", title: "Yasubee", desc: "京都的人氣居酒屋/餐廳。", cost: 2000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.36", ratingChecked: "2026-09-08" },
-        { id: "f8", city: "Kyoto", title: "Kuchibashi Modern", desc: "京都的時尚現代日式餐廳。", cost: 2000, category: "food", isEnabled: false, googleRating: "4.6", tabelogRating: "3.69", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/kyoto/A2601/A260201/26022582/" },
-        { id: "f9", city: "Kyoto", title: "Yumemiya", desc: "京都的特色餐廳。", cost: 2000, category: "food", isEnabled: false, googleRating: "4.6", tabelogRating: "3.05", ratingChecked: "2026-09-08" },
-        { id: "f10", city: "Kyoto", title: "麵屋練之助 🍜", desc: "需預約。京都高評價拉麵店。", cost: 1500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.52", ratingChecked: "2026-09-08" },
-        { id: "f11", city: "Kyoto", title: "Mamemono and Taiyaki 🍴", desc: "嵐山超人氣鯛魚燒店，主打「賞味期限一分鐘」的牛油鯛魚燒。", cost: 500, category: "food", isEnabled: false, googleRating: "4.2", tabelogRating: "3.50", ratingChecked: "2026-09-08" },
-        { id: "f12", city: "Kyoto", title: "Sukiyaki Kimura 🍲", desc: "12:00-20:30（週一、週五公休）。傳統平價壽喜燒老店。", cost: 3000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.50", ratingChecked: "2026-09-08" },
-        { id: "f13", city: "Kyoto", title: "GION GOZU 四条店", desc: "祇園四條附近的精緻甜點烘焙店，主打宇治抹茶或水果乳酪蛋糕。", cost: 1000, category: "food", isEnabled: false, googleRating: "4.5", tabelogRating: "3.20", ratingChecked: "2026-09-08" },
-        { id: "f14", city: "Kyoto", title: "ごちそう焼むすび おにまる 京都四条河原町店 🍙", desc: "精緻好吃的飯糰店，Threads 熱門打卡美食。", cost: 800, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.06", ratingChecked: "2026-09-08" },
-        { id: "f15", city: "Kyoto", title: "DONGURI Shijo-Omiya Store", desc: "四條大宮站附近的知名京都御好燒連鎖店，營業至深夜。", cost: 3000, category: "food", isEnabled: false, googleRating: "4.2", tabelogRating: "3.09", ratingChecked: "2026-09-08" },
-        { id: "f16", city: "Kyoto", title: "麵屋 豬一 🍜", desc: "11:00-14:30 / 17:30-21:00。超人氣排隊拉麵店，不接受預約，湯頭清甜精緻。", cost: 1500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.71", ratingChecked: "2026-09-08" },
-        { id: "f17", city: "Osaka", title: "お好み焼（大阪燒）千草", desc: "天滿站附近隱藏版老字號大阪燒店，曾獲米其林推薦。", cost: 1500, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.65", ratingChecked: "2026-09-08" },
-        { id: "f18", city: "Osaka", title: "天神橋 中村屋", desc: "天神橋筋商店街內的人氣可樂餅老店。09:00-18:00，週日休。", cost: 300, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.49", ratingChecked: "2026-09-08" },
-        { id: "f19", city: "Osaka", title: "HARBS 心齋橋Parco店", desc: "心齋橋 Parco 百貨內，招牌水果千層蛋糕鮮奶油清爽不膩。", cost: 1200, category: "food", isEnabled: false, googleRating: "4.1", tabelogRating: "3.09", ratingChecked: "2026-09-08" },
-        { id: "f20", city: "Osaka", title: "千房 道頓堀支店", desc: "道頓堀超知名大阪燒連鎖品牌，以美乃滋拉花特技聞名。", cost: 2000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.16", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/osaka/A2701/A270202/27002622/" },
-        { id: "f21", city: "Osaka", title: "Kusaka Curry Namba DINING MAISON", desc: "高島屋難波店美食街的高評價日式咖哩店，炸豬排酥脆。", cost: 1500, category: "food", isEnabled: false, googleRating: "4.7", tabelogRating: "3.50", ratingChecked: "2026-09-08" , tabelogUrl: "https://tabelog.com/osaka/A2701/A270202/27145566/" },
-        { id: "f22", city: "Osaka", title: "HARBS Namba Parks", desc: "難波 Parks 商場內的名店，招牌水果千層蛋糕，關西必吃甜點。", cost: 1200, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.15", ratingChecked: "2026-09-08" },
-        { id: "f23", city: "Osaka", title: "しゃぶ笑 なんばグランド花月店", desc: "高評價日式火鍋餐廳，主打優質壽喜燒與涮涮鍋，適合情侶晚餐。", cost: 6000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.09", ratingChecked: "2026-09-08" },
-        { id: "f24", city: "Osaka", title: "Shabucho", desc: "極受歡迎的個人/雙人涮涮鍋壽喜燒餐廳，湯頭清淡甘甜。", cost: 5000, category: "food", isEnabled: false, googleRating: "", tabelogRating: "3.54", ratingChecked: "2026-09-08" },
-        { id: "f25", city: "Osaka", title: "飛騨牛一頭家 馬喰一代 KITTE大阪 🥩", desc: "朋友去的是名古屋EAST；同品牌大阪分店位於 KITTE大阪 5F。想吃飛騨牛可安排在梅田購物日。", cost: 5000, category: "food", isEnabled: false, location: "飛騨牛一頭家 馬喰一代 KITTE大阪", googleRating: "", tabelogRating: "3.58", ratingChecked: "2026-09-08" },
-        { id: "f26", city: "Osaka", title: "いかれたNOODLE Fishtons 🍜", desc: "大阪人氣沾麵店，西大橋站步行約2分鐘、四ツ橋站約3分鐘。營業時間目前為 11:00-15:00 / 18:00-22:00。", cost: 1500, category: "food", isEnabled: false, location: "大阪府大阪市西区新町1-25-18", googleRating: "4.0", tabelogRating: "3.72", ratingChecked: "2026-09-08" },
-        { id: "f27", city: "Other", title: "すき焼きと牛まぶし ももしき 🥩", desc: "奈良的大和牛壽喜燒／牛まぶし名店，近鐵奈良站步行約1分鐘。營業時間目前為 11:00-22:00。若之後安排奈良一日遊很適合當正餐。", cost: 5000, category: "food", isEnabled: false, location: "奈良県奈良市東向中町5-1 浅川ハーベストビル2F", googleRating: "", tabelogRating: "3.62", ratingChecked: "2026-09-08" },
-        { id: "f28", city: "Osaka", title: "お好み焼 美津の 🍳", desc: "道頓堀老字號大阪燒，招牌有美津の焼、山芋焼。營業時間目前為 11:00-22:00（L.O.21:00），位於難波／日本橋步行範圍。", cost: 2000, category: "food", isEnabled: false, location: "大阪府大阪市中央区道頓堀1-4-15", googleRating: "", tabelogRating: "3.56", ratingChecked: "2026-09-08" },
-    ],
+    itinerary: {},
+    attractionPool: [],
     checklist: [
         { id: "c1", category: "both", item: "中華民國護照 (確認效期6個月以上) 🛂", done: false },
         { id: "c2", category: "both", item: "Visit Japan Web 申報 QR Code 截圖 📱", done: false },
@@ -497,235 +407,168 @@ async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
 
+        // Runtime shell only. itinerary and attractionPool are populated exclusively from Hexschool /v2.
         db = JSON.parse(JSON.stringify(initialTripData));
+        db.itinerary = {};
+        db.attractionPool = [];
         if (!db.messages) db.messages = [];
 
-        // 平行載入：articles + products 同時發
-        // 平行載入 articles + products（含自動分頁）
-        const [allArticles, allProducts] = await Promise.all([
+        const makeEmptyItinerary = () => {
+            const out = {};
+            const start = new Date((db.startDate || '2026-11-04') + 'T00:00:00');
+            const end = new Date((db.endDate || db.startDate || '2026-11-04') + 'T00:00:00');
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                out[key] = [];
+            }
+            return out;
+        };
+        db.itinerary = makeEmptyItinerary();
+
+        let [allArticles, allProducts] = await Promise.all([
             hexAPI.getArticles(),
             hexAPI.getProducts()
         ]);
 
-        // 文章列表已包含 content，直接使用不需額外 getArticle()
-        const masterContent = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER)) || null;
-        const msgContent = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES)) || null;
-        const souvContent = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS)) || null;
+        let masterData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER)) || null;
+        const msgData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES)) || null;
+        const souvData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS)) || null;
+        if (masterData && !masterData.content) masterData = await hexAPI.getArticle(masterData.id).catch(() => masterData);
 
-        // 如果列表的 content 為空，才需要單獨取文章（少數 API 版本列表不含 content）
-        const needFetch = [];
-        if (masterContent && !masterContent.content) needFetch.push(hexAPI.getArticle(masterContent.id).catch(() => null));
-        else needFetch.push(Promise.resolve(masterContent));
-        if (msgContent && !msgContent.content) needFetch.push(hexAPI.getArticle(msgContent.id).catch(() => null));
-        else needFetch.push(Promise.resolve(msgContent));
-        if (souvContent && !souvContent.content) needFetch.push(hexAPI.getArticle(souvContent.id).catch(() => null));
-        else needFetch.push(Promise.resolve(souvContent));
-        const [masterData, msgData, souvData] = await Promise.all(needFetch);
-
-        // 處理 master article
+        let master = {};
         if (masterData && masterData.content) {
-            try {
-                const m = JSON.parse(masterData.content);
-                lastSyncedMaster = JSON.parse(JSON.stringify(m));
-                if (m.flights) db.flights = m.flights;
-                if (m.hotels) db.hotels = m.hotels;
-                if (m.budget) db.budget = m.budget;
-                if (m.checklist) db.checklist = m.checklist;
-                if (m.dayOrder) db.dayOrder = m.dayOrder;
-                if (m.scheduledItems) db.scheduledItems = m.scheduledItems;
-                if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
-                if (m.deletedPoolItems) db.deletedPoolItems = m.deletedPoolItems;
-                if (m.customEvents) {
-                    // Once remote data exists it is the source of truth. GitHub initialTripData is seed-only.
-                    for (const day of Object.keys(db.itinerary || {})) db.itinerary[day] = [];
-                    for (const [day, events] of Object.entries(m.customEvents)) {
-                        if (db.itinerary.hasOwnProperty(day)) {
-                            db.itinerary[day] = Array.isArray(events) ? events : [];
-                        }
-                    }
-                }
-            } catch { /* skip corrupt master */ }
+            try { master = JSON.parse(masterData.content) || {}; } catch { master = {}; }
+        }
+        lastSyncedMaster = JSON.parse(JSON.stringify(master));
+
+        // Master article owns shared trip metadata, never initialTripData once present.
+        if (masterData) {
+            if (master.tripTitle) db.tripTitle = master.tripTitle;
+            if (master.startDate) db.startDate = master.startDate;
+            if (master.endDate) db.endDate = master.endDate;
+            if (master.flights) db.flights = master.flights;
+            if (master.hotels) db.hotels = master.hotels;
+            if (master.budget) db.budget = master.budget;
+            if (master.checklist) db.checklist = master.checklist;
+            if (master.dayOrder) db.dayOrder = master.dayOrder;
+            if (master.poolPhotos) db.poolPhotos = master.poolPhotos;
+            if (master.deletedPoolItems) db.deletedPoolItems = master.deletedPoolItems;
+            db.itinerary = makeEmptyItinerary();
         }
 
-        // 處理 messages
-        db.messages = [];
-
-        // 處理 souvenirs
-        if (souvData && souvData.content) {
-            try {
-                const souv = JSON.parse(souvData.content);
-                if (Array.isArray(souv)) db.souvenirs = souv;
-            } catch { /* skip */ }
-        }
-        if (!db.souvenirs) db.souvenirs = [];
-
-        // 處理 pool 產品
-        const poolProducts = allProducts.filter(p => p.category === '候選景點');
-        // 先以數值 ID 降冪排序，確保最新的產品（ID 較大）先被處理
-        poolProducts.sort((a, b) => (parseInt(b.id, 10) || 0) - (parseInt(a.id, 10) || 0));
-        console.log('[DEBUG loadFromRemote] 從 API 載入的候選景點產品 (已排序):', poolProducts.map(p => ({ id: p.id, title: p.title, is_enabled: p.is_enabled, unit: p.unit })));
-
-        // 標題正規化函式：去除 emoji、空白差異，用於比對去重
         const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+        const parseContent = (p) => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } };
 
-        // API 產品本身也可能有重複（同名產品），以最新的為準
-        const seenApiTitles = new Map();
-        const dedupedPoolProducts = [];
-        for (const p of poolProducts) {
-            const norm = normalizeTitle(p.title);
-            if (!seenApiTitles.has(norm)) {
-                seenApiTitles.set(norm, true);
-                dedupedPoolProducts.push(p);
+        // One-time migration: legacy master.customEvents -> normal Products.
+        // After migration, ALL itinerary entries are Products and can be edited/deleted like pool items.
+        const legacyEvents = master.customEvents && typeof master.customEvents === 'object' ? master.customEvents : {};
+        const hasLegacyEvents = Object.values(legacyEvents).some(v => Array.isArray(v) && v.length);
+        if (hasLegacyEvents) {
+            let changed = false;
+            for (const [day, events] of Object.entries(legacyEvents)) {
+                for (const ev of (events || [])) {
+                    const existing = allProducts.find(prod => {
+                        if (prod.category !== '候選景點') return false;
+                        const d = parseContent(prod);
+                        return d.legacyEventId === ev.id || (normalizeTitle(prod.title) === normalizeTitle(ev.title) && (d.day === day || (prod.unit || '').startsWith(day + '|')));
+                    });
+                    if (existing) continue;
+                    const content = {
+                        city: ev.city || 'Other', desc: ev.desc || '', cost: ev.cost || 0,
+                        category: ev.category || 'other', day, photos: ev.photos || [],
+                        location: ev.location || '', time: ev.time || '', legacyEventId: ev.id || ''
+                    };
+                    await hexAPI.createProduct({
+                        title: ev.title || '未命名行程', content: JSON.stringify(content), category: '候選景點',
+                        origin_price: ev.cost || 0, price: 0,
+                        unit: day + '|' + (ev.time || '10:00 - 12:00'), is_enabled: 1, num: 1
+                    });
+                    changed = true;
+                }
+            }
+            if (changed) allProducts = await hexAPI.getProducts();
+
+            // Clear legacy events only after products are safely present.
+            if (masterData && masterData.id) {
+                const migratedMaster = { ...master, customEvents: {}, customEventsMigratedToProducts: true };
+                const now = Math.floor(Date.now() / 1000);
+                await hexAPI.updateArticle(masterData.id, {
+                    title: masterData.title || '主行程資料', content: JSON.stringify(migratedMaster),
+                    tag: masterData.tag || [ARTICLE_TAGS.MASTER], isPublic: false,
+                    create_at: masterData.create_at || now, author: masterData.author || 'admin'
+                });
+                master = migratedMaster;
+                lastSyncedMaster = JSON.parse(JSON.stringify(master));
             }
         }
 
-        const staticRatingAliases = {
-            'Onimaru Kyoto Shijo Kawaramachi': 'ごちそう焼むすび おにまる 京都四条河原町店',
-            '可樂餅 中村屋': '天神橋 中村屋',
-            '大阪燒 千房': '千房 道頓堀支店',
-            'Shabuwara 壽喜燒 涮涮鍋 花月店': 'しゃぶ笑 なんばグランド花月店'
-        };
-        const findStaticPoolMeta = (title) => {
-            const clean = normalizeTitle(title);
-            let hit = (initialTripData.attractionPool || []).find(x => normalizeTitle(x.title) === clean);
-            if (hit) return hit;
-            for (const [oldTitle, newTitle] of Object.entries(staticRatingAliases)) {
-                if (clean === normalizeTitle(oldTitle)) {
-                    return (initialTripData.attractionPool || []).find(x => normalizeTitle(x.title) === normalizeTitle(newTitle)) || null;
-                }
-            }
-            return null;
-        };
-
-        const apiPoolItems = dedupedPoolProducts.map(p => {
-            const data = (() => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } })();
-            const staticMeta = findStaticPoolMeta(p.title) || {};
-            return {
-                id: 'api-' + p.id,
-                city: data.city || 'Kyoto',
-                title: p.title,
+        // Products are the sole source for attractionPool and scheduled itinerary entries.
+        const poolProducts = allProducts.filter(p => p.category === '候選景點');
+        poolProducts.sort((a, b) => (parseInt(b.id, 10) || 0) - (parseInt(a.id, 10) || 0));
+        const seen = new Set();
+        const apiPoolItems = [];
+        for (const prod of poolProducts) {
+            const data = parseContent(prod);
+            const norm = normalizeTitle(prod.title);
+            // Only dedupe exact title duplicates; newest product wins.
+            if (seen.has(norm)) continue;
+            seen.add(norm);
+            const unit = prod.unit || '';
+            const unitDay = unit.includes('|') ? unit.split('|')[0] : '';
+            const unitTime = unit.includes('|') ? unit.split('|')[1] : '';
+            apiPoolItems.push({
+                id: 'api-' + prod.id,
+                city: data.city || 'Other',
+                title: prod.title,
                 desc: data.desc || '',
-                cost: data.cost || p.origin_price || 0,
-                category: data.category || 'sightseeing',
-                isEnabled: p.is_enabled == 1 || p.is_enabled === true,
-                day: (p.is_enabled == 1 && p.unit && p.unit !== '景點') ? p.unit.split('|')[0] : '',
-                time: (p.is_enabled == 1 && p.unit && p.unit !== '景點' && p.unit.includes('|')) ? p.unit.split('|')[1] : (data.time || ''),
+                cost: data.cost ?? prod.origin_price ?? 0,
+                category: data.category || 'other',
+                isEnabled: prod.is_enabled == 1 || prod.is_enabled === true,
+                day: unitDay || data.day || '',
+                time: unitTime || data.time || '',
                 photos: data.photos || [],
                 location: data.location || '',
-                googleRating: data.googleRating || staticMeta.googleRating || '',
-                tabelogRating: data.tabelogRating || staticMeta.tabelogRating || '',
-                tabelogUrl: data.tabelogUrl || staticMeta.tabelogUrl || '',
-                ratingChecked: data.ratingChecked || staticMeta.ratingChecked || '',
-                _productId: p.id
-            };
-        });
-
-        // Merge with initial data — 用正規化標題與 ID 雙重比對過濾已刪除項目
-        if (!db.deletedPoolItems) db.deletedPoolItems = [];
-        const deletedSet = new Set(db.deletedPoolItems.map(x => normalizeTitle(x)));
-        
-        const filteredApiPoolItems = apiPoolItems.filter(item => 
-            !db.deletedPoolItems.includes(item.id) &&
-            !db.deletedPoolItems.includes(item._productId) &&
-            !deletedSet.has(normalizeTitle(item.title))
-        );
-
-        const apiNormTitles = new Set(filteredApiPoolItems.map(i => normalizeTitle(i.title)));
-        const initialOnly = (initialTripData.attractionPool || []).filter(p => 
-            !apiNormTitles.has(normalizeTitle(p.title)) && 
-            !db.deletedPoolItems.includes(p.id) &&
-            !deletedSet.has(normalizeTitle(p.title))
-        );
-        db.attractionPool = [...filteredApiPoolItems, ...initialOnly];
-
-        // 建立初始 ID 與 API ID 的對照表，解決舊版 dayOrder 的 ID 不相容問題
-        const initialIdMap = {};
-        for (const apiItem of apiPoolItems) {
-            const match = initialTripData.attractionPool.find(initItem => normalizeTitle(initItem.title) === normalizeTitle(apiItem.title));
-            if (match) {
-                initialIdMap[match.id] = apiItem.id;
-            }
+                googleRating: data.googleRating || '',
+                tabelogRating: data.tabelogRating || '',
+                tabelogUrl: data.tabelogUrl || '',
+                ratingChecked: data.ratingChecked || '',
+                _productId: prod.id
+            });
         }
+        db.attractionPool = apiPoolItems;
 
-        // Merge poolPhotos from master article
         if (!db.poolPhotos) db.poolPhotos = {};
+        if (!db.deletedPoolItems) db.deletedPoolItems = [];
         for (const item of db.attractionPool) {
-            if (db.poolPhotos[item.id]) {
-                item.photos = db.poolPhotos[item.id];
-            }
+            if (db.poolPhotos[item.id]) item.photos = db.poolPhotos[item.id];
         }
 
-        // Init scheduledItems: { poolId: "day|time", ... }
-        if (!db.scheduledItems) db.scheduledItems = {};
-
-        // Sync from scheduledItems, fall back to product is_enabled for backward compat
-        console.log('[DEBUG loadFromRemote] scheduledItems 從 master article:', JSON.parse(JSON.stringify(db.scheduledItems)));
-        let migrated = false;
+        db.scheduledItems = {};
         for (const item of db.attractionPool) {
-            if (db.scheduledItems[item.id]) {
-                const parts = db.scheduledItems[item.id].split('|');
-                item.isEnabled = true;
-                item.day = parts[0] || '';
-                item.time = parts[1] || item.time || '10:00 - 12:00';
-            } else if (item.isEnabled && item.day) {
-                db.scheduledItems[item.id] = item.day + '|' + (item.time || '10:00 - 12:00');
-                migrated = true;
-            } else {
-                item.isEnabled = false;
-            }
-        }
-        // 清理 scheduledItems 中不在 attractionPool 的孤兒
-        let cleaned = false;
-        const poolIds = new Set(db.attractionPool.map(i => i.id));
-        for (const sid of Object.keys(db.scheduledItems)) {
-            if (!poolIds.has(sid)) {
-                delete db.scheduledItems[sid];
-                cleaned = true;
-            }
-        }
-        // Loading is read-only. Never overwrite shared remote data just because this client migrated/cleaned local state.
-        if (migrated || cleaned) {
-            console.log('[Sync] migration/cleanup applied locally; remote write deferred until an explicit user edit');
+            if (!item.isEnabled || !item.day || !db.itinerary[item.day]) continue;
+            db.scheduledItems[item.id] = item.day + '|' + (item.time || '10:00 - 12:00');
+            db.itinerary[item.day].push({
+                id: item.id, _poolId: item.id, _productId: item._productId,
+                time: item.time || '10:00 - 12:00', title: item.title,
+                desc: item.desc || '', cost: item.cost || 0, category: item.category || 'other',
+                photos: item.photos || [], location: item.location || ''
+            });
         }
 
-        // Add scheduled pool items to itinerary by day
-        console.log('[DEBUG loadFromRemote] 準備加入日程的 pool items:', db.attractionPool.filter(i => i.isEnabled && i.day).map(i => ({ id: i.id, title: i.title, day: i.day, isEnabled: i.isEnabled })));
-        for (const item of db.attractionPool) {
-            if (item.isEnabled && item.day && db.itinerary.hasOwnProperty(item.day)) {
-                db.itinerary[item.day].push({
-                    id: item.id,
-                    _poolId: item.id,
-                    time: item.time || '10:00 - 12:00',
-                    title: item.title || '未命名景點',
-                    desc: item.desc,
-                    cost: item.cost || 0,
-                    category: item.category,
-                    photos: item.photos || [],
-                    location: item.location || item.title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,''),
-                    _productId: item._productId
-                });
-            }
-        }
-
-        // Sort itinerary items by dayOrder from master article, without discarding any items
+        // Preserve optional manual order from master, but never filter/delete API items.
         if (db.dayOrder) {
             for (const [day, order] of Object.entries(db.dayOrder)) {
-                if (db.itinerary[day] && Array.isArray(order)) {
-                    const translatedOrder = order.map(id => initialIdMap[id] || id);
-                    const orderMap = new Map(translatedOrder.map((id, i) => [id, i]));
-                    // 依據 dayOrder 排序，未進入 orderMap 的項目排在後面，絕對不刪除任何自訂事件與景點
-                    db.itinerary[day].sort((a, b) => {
-                        const idxA = orderMap.has(a.id) ? orderMap.get(a.id) : 9999;
-                        const idxB = orderMap.has(b.id) ? orderMap.get(b.id) : 9999;
-                        return idxA - idxB;
-                    });
-                }
+                if (!db.itinerary[day] || !Array.isArray(order)) continue;
+                const orderMap = new Map(order.map((id, i) => [id, i]));
+                db.itinerary[day].sort((a, b) => (orderMap.get(a.id) ?? 9999) - (orderMap.get(b.id) ?? 9999));
             }
         }
-        // 依據時間自動排序所有日程項目
-        for (const day of Object.keys(db.itinerary)) {
-            db.itinerary[day] = sortItineraryByTime(db.itinerary[day]);
-        }
+        for (const day of Object.keys(db.itinerary)) db.itinerary[day] = sortItineraryByTime(db.itinerary[day]);
+
+        db.messages = [];
+        if (souvData && souvData.content) {
+            try { const v = JSON.parse(souvData.content); db.souvenirs = Array.isArray(v) ? v : []; } catch { db.souvenirs = []; }
+        } else if (!db.souvenirs) db.souvenirs = [];
 
         setSyncStatus('synced');
         return true;
@@ -1112,7 +955,7 @@ function buildLocalMasterPayload() {
         budget: db.budget,
         checklist: db.checklist,
         dayOrder,
-        customEvents,
+        customEvents: {},
         scheduledItems: db.scheduledItems || {},
         poolPhotos: db.poolPhotos || {},
         deletedPoolItems: db.deletedPoolItems || []
@@ -1436,8 +1279,12 @@ function renderDaysSidebar() {
     const sidebar = document.getElementById('days-sidebar');
     sidebar.innerHTML = '';
     
-    for (let i = 0; i < 8; i++) {
-        const d = new Date(2026, 10, 4 + i); // 2026-11-04 + i
+    const start = new Date((db.startDate || '2026-11-04') + 'T00:00:00');
+    const end = new Date((db.endDate || db.startDate || '2026-11-04') + 'T00:00:00');
+    const totalDays = Math.max(1, Math.round((end - start) / 86400000) + 1);
+    for (let i = 0; i < totalDays; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
         const dayStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         const weekdayStr = ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
         const dayNum = i + 1;
@@ -1478,7 +1325,7 @@ function sortItineraryByTime(dayEvents) {
 function getDayNumber(dayStr) {
     const parts = dayStr.split('-').map(Number);
     const d = new Date(parts[0], parts[1] - 1, parts[2]);
-    const base = new Date(2026, 10, 4); // 2026-11-04
+    const base = new Date((db.startDate || '2026-11-04') + 'T00:00:00');
     return Math.round((d - base) / 86400000) + 1;
 }
 
@@ -2134,7 +1981,7 @@ function closeEventModal() {
 }
 
 // SAVE EVENT (ADD OR UPDATE)
-function saveEvent(e) {
+async function saveEvent(e) {
     e.preventDefault();
 
     const id = document.getElementById('event-id').value;
@@ -2145,34 +1992,44 @@ function saveEvent(e) {
     const cost = parseInt(document.getElementById('event-cost-input').value) || 0;
     const location = document.getElementById('event-location-input').value;
     const desc = document.getElementById('event-desc-input').value;
-
     const photos = currentEventPhotos.length > 0 ? currentEventPhotos : [];
 
-    if (id) {
-        // Edit existing
-        const items = db.itinerary[dayStr] || [];
-        const itemIndex = items.findIndex(ev => ev.id === id);
-        if (itemIndex > -1) {
-            db.itinerary[dayStr][itemIndex] = { id, title, time, category, cost, location, desc, photos };
+    showSyncOverlay();
+    try {
+        if (id) {
+            const oldEntry = (db.itinerary[dayStr] || []).find(ev => ev.id === id);
+            if (oldEntry && oldEntry._poolId) {
+                const poolItem = db.attractionPool.find(p => p.id === oldEntry._poolId);
+                if (!poolItem) throw new Error('找不到對應的 API 行程資料');
+                Object.assign(poolItem, { title, time, category, cost, location, desc, photos, day: dayStr, isEnabled: true });
+                const content = { city: poolItem.city || 'Other', desc, cost, category, day: dayStr, photos, location, time,
+                    googleRating: poolItem.googleRating || '', tabelogRating: poolItem.tabelogRating || '', tabelogUrl: poolItem.tabelogUrl || '', ratingChecked: poolItem.ratingChecked || '' };
+                await hexAPI.updateProduct(poolItem._productId, { title, content: JSON.stringify(content), category: '候選景點', origin_price: cost, price: 0, unit: dayStr + '|' + (time || '10:00 - 12:00'), is_enabled: 1, num: 1 });
+            } else {
+                // Legacy/direct entry: convert it to a normal API product on edit.
+                const tmp = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
+                const pid = await ensurePoolProduct(tmp);
+                if (!pid) throw new Error('無法建立 API 行程資料');
+                await hexAPI.updateProduct(pid, { title, content: JSON.stringify({ city:'Other', desc, cost, category, day:dayStr, photos, location, time }), category:'候選景點', origin_price:cost, price:0, unit:dayStr+'|'+(time || '10:00 - 12:00'), is_enabled:1, num:1 });
+            }
+        } else {
+            const newItem = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
+            const pid = await ensurePoolProduct(newItem);
+            if (!pid) throw new Error('無法建立 API 行程資料');
+            await hexAPI.updateProduct(pid, { title, content: JSON.stringify({ city:'Other', desc, cost, category, day:dayStr, photos, location, time }), category:'候選景點', origin_price:cost, price:0, unit:dayStr+'|'+(time || '10:00 - 12:00'), is_enabled:1, num:1 });
         }
-    } else {
-        // Add new
-        const newId = 'evt-' + Date.now();
-        if (!db.itinerary[dayStr]) {
-            db.itinerary[dayStr] = [];
-        }
-        db.itinerary[dayStr].push({ id: newId, title, time, category, cost, location, desc, photos });
+        closeEventModal();
+        await loadFromRemote();
+        saveToLocalStorage();
+        renderAllUI();
+        selectDay(dayStr);
+        showToast('已儲存到 Hexschool 資料庫！');
+    } catch (err) {
+        console.warn('[SaveEvent] 同步失敗:', err);
+        showToast('儲存失敗：' + err.message, 3000);
+    } finally {
+        hideSyncOverlay();
     }
-
-    // 依時間自動排序
-    db.itinerary[dayStr] = sortItineraryByTime(db.itinerary[dayStr]);
-
-    closeEventModal();
-    renderItineraryForDay(dayStr);
-    updateBudgetCalculations();
-    saveItineraryToRemote().catch(err => {
-        console.warn('[SaveEvent] 同步失敗:', err.message);
-    });
 }
 
 // MOVE EVENT (UP / DOWN)
