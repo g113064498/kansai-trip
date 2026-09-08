@@ -548,8 +548,8 @@ async function loadFromRemote() {
 
         // 處理 pool 產品
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
-        // 先以 ID 降冪排序，確保最新的產品（ID 較大）先被處理，使去重邏輯結果是確定性且最新的
-        poolProducts.sort((a, b) => b.id.localeCompare(a.id));
+        // 先以數值 ID 降冪排序，確保最新的產品（ID 較大）先被處理
+        poolProducts.sort((a, b) => (parseInt(b.id, 10) || 0) - (parseInt(a.id, 10) || 0));
         console.log('[DEBUG loadFromRemote] 從 API 載入的候選景點產品 (已排序):', poolProducts.map(p => ({ id: p.id, title: p.title, is_enabled: p.is_enabled, unit: p.unit })));
 
         // 標題正規化函式：去除 emoji、空白差異，用於比對去重
@@ -584,14 +584,23 @@ async function loadFromRemote() {
             };
         });
 
-        // Merge with initial data — 用正規化標題比對，避免 emoji 差異造成重複
+        // Merge with initial data — 用正規化標題與 ID 雙重比對過濾已刪除項目
         if (!db.deletedPoolItems) db.deletedPoolItems = [];
-        const apiNormTitles = new Set(apiPoolItems.map(i => normalizeTitle(i.title)));
-        const initialOnly = (db.attractionPool || []).filter(p => 
-            !apiNormTitles.has(normalizeTitle(p.title)) && 
-            !db.deletedPoolItems.includes(p.id)
+        const deletedSet = new Set(db.deletedPoolItems.map(x => normalizeTitle(x)));
+        
+        const filteredApiPoolItems = apiPoolItems.filter(item => 
+            !db.deletedPoolItems.includes(item.id) &&
+            !db.deletedPoolItems.includes(item._productId) &&
+            !deletedSet.has(normalizeTitle(item.title))
         );
-        db.attractionPool = [...apiPoolItems, ...initialOnly];
+
+        const apiNormTitles = new Set(filteredApiPoolItems.map(i => normalizeTitle(i.title)));
+        const initialOnly = (initialTripData.attractionPool || []).filter(p => 
+            !apiNormTitles.has(normalizeTitle(p.title)) && 
+            !db.deletedPoolItems.includes(p.id) &&
+            !deletedSet.has(normalizeTitle(p.title))
+        );
+        db.attractionPool = [...filteredApiPoolItems, ...initialOnly];
 
         // 建立初始 ID 與 API ID 的對照表，解決舊版 dayOrder 的 ID 不相容問題
         const initialIdMap = {};
@@ -2220,24 +2229,28 @@ async function deleteFromPool(id) {
     db.attractionPool = db.attractionPool.filter(p => p.id !== id);
 
     if (!db.deletedPoolItems) db.deletedPoolItems = [];
-    if (!db.deletedPoolItems.includes(id)) {
-        console.log('[DEBUG deleteFromPool] 將項目 ID 紀錄到已刪除列表 (deletedPoolItems):', id);
-        db.deletedPoolItems.push(id);
-    }
+    const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+    const normTitle = normalizeTitle(item.title);
+    
+    [id, item._productId, item.title, normTitle].forEach(val => {
+        if (val && !db.deletedPoolItems.includes(val)) {
+            db.deletedPoolItems.push(val);
+        }
+    });
 
     if (db.scheduledItems) {
-        console.log('[DEBUG deleteFromPool] 正在從 scheduledItems 移除項目 ID:', item.id);
         delete db.scheduledItems[item.id];
+        if (item._productId) delete db.scheduledItems['api-' + item._productId];
     }
     if (db.poolPhotos) {
-        console.log('[DEBUG deleteFromPool] 正在從 poolPhotos 移除項目 ID:', item.id);
         delete db.poolPhotos[item.id];
+        if (item._productId) delete db.poolPhotos['api-' + item._productId];
     }
 
     console.log('[DEBUG deleteFromPool] 正在從 db.itinerary 中排除與此項目關聯的行程事件...');
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         const origLength = events.length;
-        db.itinerary[day] = events.filter(e => e._poolId !== item.id);
+        db.itinerary[day] = events.filter(e => e._poolId !== item.id && e._productId !== item._productId);
         const removedCount = origLength - db.itinerary[day].length;
         if (removedCount > 0) {
             console.log(`[DEBUG deleteFromPool] 已從 Day ${day} 移除 ${removedCount} 個行程事件`);
@@ -2250,23 +2263,25 @@ async function deleteFromPool(id) {
 
     try {
         setSyncStatus('syncing');
-        if (item._productId) {
-            console.log('[DEBUG deleteFromPool] 項目有對應的遠端 _productId:', item._productId, '，呼叫 hexAPI.deleteProduct...');
-            await hexAPI.deleteProduct(item._productId);
-            console.log('[DEBUG deleteFromPool] hexAPI.deleteProduct 呼叫成功');
-            removeCacheId('pool', `pool:${id}`);
-        } else {
-            console.log('[DEBUG deleteFromPool] 項目無 _productId，嘗試在遠端搜尋是否有同名產品...');
-            const allProducts = await hexAPI.getProducts();
-            const found = allProducts.find(p => p.title === item.title && p.category === '候選景點');
-            if (found) {
-                console.log('[DEBUG deleteFromPool] 找到同名遠端產品, ID:', found.id, '，開始執行刪除...');
-                await hexAPI.deleteProduct(found.id);
-                console.log('[DEBUG deleteFromPool] hexAPI.deleteProduct 呼叫成功');
-                removeCacheId('pool', `pool:${id}`);
-            } else {
-                console.log('[DEBUG deleteFromPool] 遠端查無同名產品，無須呼叫刪除 API');
+        // 在遠端搜尋所有同名或同 ID 的候選景點產品並全數刪除，避免舊版重複產品殘留
+        const allProducts = await hexAPI.getProducts();
+        const targets = allProducts.filter(p => 
+            p.category === '候選景點' && 
+            (p.id === item._productId || normalizeTitle(p.title) === normTitle || p.title === item.title)
+        );
+
+        if (targets.length > 0) {
+            console.log(`[DEBUG deleteFromPool] 找到 ${targets.length} 個符合的遠端產品，開始全數刪除:`, targets.map(t => t.id));
+            for (const target of targets) {
+                try {
+                    await hexAPI.deleteProduct(target.id);
+                    removeCacheId('pool', `pool:${target.id}`);
+                } catch (err) {
+                    console.warn(`[DEBUG deleteFromPool] 刪除產品 ${target.id} 失敗:`, err.message);
+                }
             }
+        } else {
+            console.log('[DEBUG deleteFromPool] 遠端查無同名產品，無須呼叫刪除 API');
         }
 
         console.log('[DEBUG deleteFromPool] 正在呼叫 saveItineraryToRemote 同步行程與排程狀態至遠端 Master...');
