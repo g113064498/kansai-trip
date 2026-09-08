@@ -357,6 +357,7 @@ function isTokenExpired() {
 let syncIndicatorEl = null;
 
 const ARTICLE_TAGS = { MESSAGES: 'messages', MASTER: 'master', SOUVENIRS: 'souvenirs' };
+let lastSyncedMaster = null; // last master snapshot read from HexSchool; used for conflict-safe merges
 
 function setSyncStatus(status) {
     if (!syncIndicatorEl) {
@@ -469,7 +470,7 @@ async function ensureProduct(title, content) {
 async function ensurePoolProduct(item) {
     const productData = {
         title: item.title || '未命名景點',
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' }),
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
@@ -525,6 +526,7 @@ async function loadFromRemote() {
         if (masterData && masterData.content) {
             try {
                 const m = JSON.parse(masterData.content);
+                lastSyncedMaster = JSON.parse(JSON.stringify(m));
                 if (m.flights) db.flights = m.flights;
                 if (m.hotels) db.hotels = m.hotels;
                 if (m.budget) db.budget = m.budget;
@@ -534,13 +536,11 @@ async function loadFromRemote() {
                 if (m.poolPhotos) db.poolPhotos = m.poolPhotos;
                 if (m.deletedPoolItems) db.deletedPoolItems = m.deletedPoolItems;
                 if (m.customEvents) {
+                    // Once remote data exists it is the source of truth. GitHub initialTripData is seed-only.
+                    for (const day of Object.keys(db.itinerary || {})) db.itinerary[day] = [];
                     for (const [day, events] of Object.entries(m.customEvents)) {
                         if (db.itinerary.hasOwnProperty(day)) {
-                            const initEvents = initialTripData.itinerary[day] || [];
-                            const mergedMap = new Map();
-                            initEvents.forEach(e => mergedMap.set(e.id, e));
-                            (events || []).forEach(e => mergedMap.set(e.id, e));
-                            db.itinerary[day] = Array.from(mergedMap.values());
+                            db.itinerary[day] = Array.isArray(events) ? events : [];
                         }
                     }
                 }
@@ -683,8 +683,10 @@ async function loadFromRemote() {
                 cleaned = true;
             }
         }
-        // 合併 migration 與 cleanup 的存檔，只呼叫一次
-        if (migrated || cleaned) saveItineraryToRemote();
+        // Loading is read-only. Never overwrite shared remote data just because this client migrated/cleaned local state.
+        if (migrated || cleaned) {
+            console.log('[Sync] migration/cleanup applied locally; remote write deferred until an explicit user edit');
+        }
 
         // Add scheduled pool items to itinerary by day
         console.log('[DEBUG loadFromRemote] 準備加入日程的 pool items:', db.attractionPool.filter(i => i.isEnabled && i.day).map(i => ({ id: i.id, title: i.title, day: i.day, isEnabled: i.isEnabled })));
@@ -1017,17 +1019,122 @@ async function saveToRemote() {
     catch (err) { console.warn('[Sync] 寫入 API 失敗:', err); setSyncStatus('offline'); }
 }
 
-async function saveAllToRemote() {
-    if (!db) return;
-    removeCacheId('art', 'art:master:主行程資料');
+function cloneJson(value) {
+    return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+}
+
+function jsonEqual(a, b) {
+    return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function isPlainObject(v) {
+    return !!v && typeof v === 'object' && !Array.isArray(v);
+}
+
+// Three-way merge: remote changes are preserved when this browser did not change that field.
+// If both users changed different nested fields, both survive. Only the exact same leaf is last-write-wins.
+function mergeConcurrent(base, local, remote) {
+    if (jsonEqual(local, base)) return cloneJson(remote);
+    if (jsonEqual(remote, base)) return cloneJson(local);
+    if (jsonEqual(local, remote)) return cloneJson(local);
+
+    if (Array.isArray(base) && Array.isArray(local) && Array.isArray(remote)) {
+        const maxLen = Math.max(base.length, local.length, remote.length);
+        const out = [];
+        for (let i = 0; i < maxLen; i++) {
+            const bHas = i < base.length, lHas = i < local.length, rHas = i < remote.length;
+            if (!lHas && !rHas) continue;
+            if (!bHas) {
+                if (lHas && rHas) out[i] = jsonEqual(local[i], remote[i]) ? cloneJson(local[i]) : cloneJson(local[i]);
+                else out[i] = cloneJson(lHas ? local[i] : remote[i]);
+                continue;
+            }
+            if (!lHas) {
+                if (rHas && !jsonEqual(remote[i], base[i])) out[i] = cloneJson(remote[i]);
+                continue;
+            }
+            if (!rHas) {
+                if (!jsonEqual(local[i], base[i])) out[i] = cloneJson(local[i]);
+                continue;
+            }
+            out[i] = mergeConcurrent(base[i], local[i], remote[i]);
+        }
+        return out.filter(v => v !== undefined);
+    }
+
+    if (isPlainObject(base) && isPlainObject(local) && isPlainObject(remote)) {
+        const out = {};
+        const keys = new Set([...Object.keys(base), ...Object.keys(local), ...Object.keys(remote)]);
+        for (const key of keys) {
+            const bHas = Object.prototype.hasOwnProperty.call(base, key);
+            const lHas = Object.prototype.hasOwnProperty.call(local, key);
+            const rHas = Object.prototype.hasOwnProperty.call(remote, key);
+            if (!bHas) {
+                if (lHas && rHas) out[key] = jsonEqual(local[key], remote[key]) ? cloneJson(local[key]) : cloneJson(local[key]);
+                else if (lHas || rHas) out[key] = cloneJson(lHas ? local[key] : remote[key]);
+                continue;
+            }
+            if (!lHas) {
+                if (rHas && !jsonEqual(remote[key], base[key])) out[key] = cloneJson(remote[key]);
+                continue;
+            }
+            if (!rHas) {
+                if (!jsonEqual(local[key], base[key])) out[key] = cloneJson(local[key]);
+                continue;
+            }
+            out[key] = mergeConcurrent(base[key], local[key], remote[key]);
+        }
+        return out;
+    }
+
+    // Both changed the exact same scalar/leaf: the current user's explicit save wins.
+    return cloneJson(local);
+}
+
+async function fetchLatestMasterPayload() {
+    const articles = await hexAPI.getArticles();
+    let master = articles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER)) || null;
+    if (master && !master.content) master = await hexAPI.getArticle(master.id).catch(() => master);
+    if (!master || !master.content) return {};
+    try { return JSON.parse(master.content); } catch { return {}; }
+}
+
+function buildLocalMasterPayload() {
     const dayOrder = {};
     const customEvents = {};
     for (const [day, events] of Object.entries(db.itinerary || {})) {
         dayOrder[day] = (events || []).map(e => e.id);
         customEvents[day] = (events || []).filter(e => !e._poolId && !e._productId && !e.id.startsWith('api-'));
     }
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify({ flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, customEvents: customEvents, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] }));
-    // 清空遠端留言板資料
+    return {
+        flights: db.flights,
+        hotels: db.hotels,
+        budget: db.budget,
+        checklist: db.checklist,
+        dayOrder,
+        customEvents,
+        scheduledItems: db.scheduledItems || {},
+        poolPhotos: db.poolPhotos || {},
+        deletedPoolItems: db.deletedPoolItems || []
+    };
+}
+
+async function saveMasterConflictSafe(localPayload) {
+    // Read immediately before write so another editor's newer fields are not overwritten by a stale browser snapshot.
+    const remotePayload = await fetchLatestMasterPayload();
+    const basePayload = lastSyncedMaster || remotePayload || {};
+    const mergedPayload = mergeConcurrent(basePayload, localPayload, remotePayload || {});
+    removeCacheId('art', 'art:master:主行程資料');
+    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify(mergedPayload));
+    lastSyncedMaster = cloneJson(mergedPayload);
+    return mergedPayload;
+}
+
+async function saveAllToRemote() {
+    if (!db) return;
+    const localPayload = buildLocalMasterPayload();
+    await saveMasterConflictSafe(localPayload);
+    // 留言板仍獨立儲存，不與 master 混在同一筆資料。
     await ensureArticle(ARTICLE_TAGS.MESSAGES, '留言板資料', JSON.stringify([]));
 }
 
@@ -1044,17 +1151,8 @@ async function saveItineraryToRemote() {
     showSyncOverlay();
     try {
         setSyncStatus('syncing');
-        removeCacheId('art', 'art:master:主行程資料');
-        const dayOrder = {};
-        const customEvents = {};
-        for (const [day, events] of Object.entries(db.itinerary || {})) {
-            dayOrder[day] = (events || []).map(e => e.id);
-            customEvents[day] = (events || []).filter(e => !e._poolId && !e._productId && !e.id.startsWith('api-'));
-        }
-        const masterPayload = { flights: db.flights, hotels: db.hotels, budget: db.budget, checklist: db.checklist, dayOrder: dayOrder, customEvents: customEvents, scheduledItems: db.scheduledItems || {}, poolPhotos: db.poolPhotos || {}, deletedPoolItems: db.deletedPoolItems || [] };
-        console.log('[DEBUG saveItineraryToRemote] 儲存 scheduledItems:', JSON.parse(JSON.stringify(db.scheduledItems || {})));
-        console.log('[DEBUG saveItineraryToRemote] 儲存 dayOrder:', JSON.parse(JSON.stringify(dayOrder)));
-    await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify(masterPayload));
+        const localPayload = buildLocalMasterPayload();
+        await saveMasterConflictSafe(localPayload);
         setSyncStatus('synced');
     } catch (err) {
         console.warn('[Sync] 行程同步失敗:', err);
@@ -1175,10 +1273,8 @@ async function initApp() {
     }
 
     if (loggedIn) {
-        // 若有快取，我們在背景默默進行 API 同步，不阻礙使用者操作；若無快取則顯示同步遮罩
-        if (!cacheLoaded) {
-            showSyncOverlay();
-        }
+        // 快取只用來秒開畫面；在拿到最新共享資料前一律鎖住編輯，避免用舊快取覆蓋另一位使用者。
+        showSyncOverlay();
         try {
             await loadFromRemote();
             // 同步完畢後儲存至本地快取並重新渲染 UI
@@ -1192,9 +1288,7 @@ async function initApp() {
                 renderAllUI();
             }
         } finally {
-            if (!cacheLoaded) {
-                hideSyncOverlay();
-            }
+            hideSyncOverlay();
         }
     }
 }
