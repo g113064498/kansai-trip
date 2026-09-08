@@ -1,0 +1,52 @@
+name: Apply verified restaurant metadata
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/apply-restaurant-ratings.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch restaurant metadata
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('app.js'); s=p.read_text()
+          data={
+          'f1':('3.04',''), 'f2':('3.05',''), 'f3':('3.21',''), 'f4':('3.76','4.0'), 'f5':('3.54',''), 'f6':('3.39',''), 'f7':('3.36',''), 'f8':('3.69','4.6'), 'f9':('3.05','4.6'), 'f10':('3.52',''), 'f11':('3.50','4.2'), 'f12':('3.50',''), 'f13':('3.20','4.5'), 'f14':('3.06',''), 'f15':('3.09','4.2'), 'f16':('3.71',''), 'f17':('3.65',''), 'f18':('3.49',''), 'f19':('3.09','4.1'), 'f20':('3.16',''), 'f21':('3.50','4.7'), 'f22':('3.15',''), 'f23':('3.09',''), 'f24':('3.54',''), 'f25':('3.58',''), 'f26':('3.72','4.0'), 'f27':('3.62',''), 'f28':('3.56','')}
+          ren={'f14':'ごちそう焼むすび おにまる 京都四条河原町店 🍙','f18':'天神橋 中村屋','f20':'千房 道頓堀支店','f23':'しゃぶ笑 なんばグランド花月店'}
+          for i,(t,g) in data.items():
+              m=re.search(r'\{ id: "'+i+r'"[^\n]*\}',s)
+              if not m: raise SystemExit('missing '+i)
+              x=m.group(0)
+              if i in ren: x=re.sub(r'title: "[^"]*"', 'title: "'+ren[i]+'"', x)
+              x=x[:-2]+f', googleRating: "{g}", tabelogRating: "{t}", ratingChecked: "2026-09-08" }}'
+              s=s[:m.start()]+x+s[m.end():]
+          # exact Tabelog pages we verified and can safely deep-link
+          urls={
+          'f1':'https://tabelog.com/kyoto/A2601/A260203/26022692/',
+          'f5':'https://tabelog.com/osaka/A2701/A270101/27130931/',
+          'f8':'https://tabelog.com/kyoto/A2601/A260201/26022582/',
+          'f20':'https://tabelog.com/osaka/A2701/A270202/27002622/',
+          'f21':'https://tabelog.com/osaka/A2701/A270202/27145566/' }
+          for i,u in urls.items():
+              m=re.search(r'\{ id: "'+i+r'"[^\n]*\}',s); x=m.group(0); x=x[:-1]+f', tabelogUrl: "{u}" }}'; s=s[:m.start()]+x+s[m.end():]
+          # make UI prefer exact URL, fall back to search
+          s=s.replace("const tabelogUrl = `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;", "const tabelogUrl = item.tabelogUrl || `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;")
+          # remote data mapping/persistence
+          s=s.replace("tabelogRating: data.tabelogRating || '',", "tabelogRating: data.tabelogRating || '',\n                tabelogUrl: data.tabelogUrl || '',\n                ratingChecked: data.ratingChecked || '',")
+          s=s.replace("tabelogRating: item.tabelogRating || '' };", "tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };")
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/apply-restaurant-ratings.yml
+          git add app.js
+          git commit -m 'data: add verified restaurant ratings and links'
+          git push
