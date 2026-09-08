@@ -1,0 +1,21 @@
+name: Fix fixed items API migration
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 tools/fix_fixed_items_api.py
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm tools/fix_fixed_items_api.py .github/workflows/fix-fixed-items-api.yml
+          git add app.js
+          git commit -m 'refactor: derive fixed itinerary items from Hexschool data'
+          git push origin main
