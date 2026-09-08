@@ -1126,7 +1126,9 @@ async function saveMasterConflictSafe(localPayload) {
     const mergedPayload = mergeConcurrent(basePayload, localPayload, remotePayload || {});
     removeCacheId('art', 'art:master:主行程資料');
     await ensureArticle(ARTICLE_TAGS.MASTER, '主行程資料', JSON.stringify(mergedPayload));
-    lastSyncedMaster = cloneJson(mergedPayload);
+    // Baseline must remain what THIS browser last knew, not the merged remote result.
+    // Otherwise a second save from a stale UI could accidentally revert another editor's newly merged value.
+    lastSyncedMaster = cloneJson(localPayload);
     return mergedPayload;
 }
 
