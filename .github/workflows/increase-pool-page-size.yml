@@ -1,0 +1,22 @@
+name: Increase pool page size
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/increase-pool-page-size.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch page size
+        run: python3 tools/increase_pool_page_size.py
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm tools/increase_pool_page_size.py .github/workflows/increase-pool-page-size.yml
+          git add app.js
+          git commit -m 'ui: show more attraction candidates per page'
+          git push origin main
