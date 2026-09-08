@@ -363,8 +363,10 @@ async function loadFromRemote() {
 
         let masterData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MASTER)) || null;
         const msgData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.MESSAGES)) || null;
-        const souvData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS)) || null;
+        let souvData = allArticles.find(a => a.tag && a.tag.includes(ARTICLE_TAGS.SOUVENIRS)) || null;
         if (masterData && !masterData.content) masterData = await hexAPI.getArticle(masterData.id).catch(() => masterData);
+        // Hexschool article list responses may omit content; fetch the full souvenir article before parsing it.
+        if (souvData && !souvData.content) souvData = await hexAPI.getArticle(souvData.id).catch(() => souvData);
 
         let master = {};
         if (masterData && masterData.content) {
