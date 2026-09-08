@@ -1512,7 +1512,7 @@ function renderPool() {
     }
 
     // 計算分頁
-    const itemsPerPage = 10;
+    const itemsPerPage = 24;
     const totalPages = Math.ceil(items.length / itemsPerPage) || 1;
     
     // 確保當前頁碼在有效範圍內
