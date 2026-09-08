@@ -1,0 +1,185 @@
+name: One-off trip UI patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-trip-ui.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch app.js and index.html
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          app = Path('app.js')
+          s = app.read_text(encoding='utf-8')
+
+          # 1) Hotel booking links / source labels / corrected official address.
+          old = '''            link: "https://www.booking.com/hotel/jp/hop-inn-kyoto-shijo-omiya.zh-tw.html",
+            address: "京都市中京区壬生坊城町18-1",'''
+          new = '''            link: "https://www.hopinnhotel.com/our-hotels/hop-inn-kyoto-shijo-omiya",
+            bookingPlatform: "Hop Inn 官方網站",
+            address: "14-2 Mibubojocho, Nakagyo Ward, Kyoto, 604-8804, Japan",'''
+          if old not in s:
+              raise SystemExit('Hop Inn hotel block not found')
+          s = s.replace(old, new, 1)
+
+          old = '''            link: "https://www.booking.com/hotel/jp/color-tsuruhashi-da-ban-fu1.zh-tw.html",
+            address: "大阪市天王寺区筆ケ崎町5-30",'''
+          new = '''            link: "https://www.booking.com/hotel/jp/color-tsuruhashi-da-ban-fu1.zh-tw.html",
+            bookingPlatform: "Booking.com",
+            address: "14-23 Ajiharacho, Tennoji-ku, Osaka, Japan",'''
+          if old not in s:
+              raise SystemExit('Cu Tennoji hotel block not found')
+          s = s.replace(old, new, 1)
+
+          old = '''                <a href="${h.link}" target="_blank" class="btn-link">在 Booking.com 開啟訂房頁面 ↗</a>'''
+          new = '''                <a href="${h.link}" target="_blank" rel="noopener noreferrer" class="btn-link">在 ${h.bookingPlatform || '訂房網站'} 開啟訂房頁面 ↗</a>'''
+          if old not in s:
+              raise SystemExit('Hotel booking button not found')
+          s = s.replace(old, new, 1)
+
+          # 2) Load rating fields from remote candidate data.
+          old = '''                location: data.location || '',
+                _productId: p.id'''
+          new = '''                location: data.location || '',
+                googleRating: data.googleRating || '',
+                tabelogRating: data.tabelogRating || '',
+                _productId: p.id'''
+          if old not in s:
+              raise SystemExit('apiPoolItems location mapping not found')
+          s = s.replace(old, new, 1)
+
+          # 3) Edit/add modal JS bindings for restaurant ratings.
+          old = '''    document.getElementById('pool-edit-location').value = item.location || '';
+    document.getElementById('pool-edit-cost').value = item.cost || 0;'''
+          new = '''    document.getElementById('pool-edit-location').value = item.location || '';
+    document.getElementById('pool-edit-google-rating').value = item.googleRating || '';
+    document.getElementById('pool-edit-tabelog-rating').value = item.tabelogRating || '';
+    document.getElementById('pool-edit-cost').value = item.cost || 0;'''
+          if old not in s:
+              raise SystemExit('openPoolEditModal fields not found')
+          s = s.replace(old, new, 1)
+
+          old = '''    document.getElementById('pool-edit-location').value = '';
+    document.getElementById('pool-edit-cost').value = '';'''
+          new = '''    document.getElementById('pool-edit-location').value = '';
+    document.getElementById('pool-edit-google-rating').value = '';
+    document.getElementById('pool-edit-tabelog-rating').value = '';
+    document.getElementById('pool-edit-cost').value = '';'''
+          if old not in s:
+              raise SystemExit('openPoolAddModal fields not found')
+          s = s.replace(old, new, 1)
+
+          old = '''    const location = document.getElementById('pool-edit-location').value.trim();
+    const cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;'''
+          new = '''    const location = document.getElementById('pool-edit-location').value.trim();
+    const googleRating = document.getElementById('pool-edit-google-rating').value.trim();
+    const tabelogRating = document.getElementById('pool-edit-tabelog-rating').value.trim();
+    const cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;'''
+          if old not in s:
+              raise SystemExit('savePoolEdit input block not found')
+          s = s.replace(old, new, 1)
+
+          old = '''            location: location,
+            photos: photos,'''
+          new = '''            location: location,
+            googleRating: googleRating,
+            tabelogRating: tabelogRating,
+            photos: photos,'''
+          if old not in s:
+              raise SystemExit('newItem rating insert point not found')
+          s = s.replace(old, new, 1)
+
+          old = '''    item.location = location;
+    item.cost = cost;'''
+          new = '''    item.location = location;
+    item.googleRating = googleRating;
+    item.tabelogRating = tabelogRating;
+    item.cost = cost;'''
+          if old not in s:
+              raise SystemExit('edit item assignment not found')
+          s = s.replace(old, new, 1)
+
+          # Preserve rating fields in every matching candidate-product serialization block.
+          old = "const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '' };"
+          new = "const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '' };"
+          s = s.replace(old, new)
+
+          # 4) Candidate-pool Google Maps button for every item + Google/Tabelog rating UI for food.
+          marker = '''        const displayCategory = item.category === 'sightseeing' ? '景點' : (item.category === 'food' ? '美食' : (item.category === 'shopping' ? '購物' : '其他'));
+
+        card.innerHTML = `'''
+          replacement = '''        const displayCategory = item.category === 'sightseeing' ? '景點' : (item.category === 'food' ? '美食' : (item.category === 'shopping' ? '購物' : '其他'));
+        const mapQuery = item.location || `${item.title} ${displayCity} Japan`;
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+        const tabelogUrl = `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;
+        const foodRatingHtml = item.category === 'food' ? `
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">⭐ Google ${item.googleRating ? item.googleRating + ' / 5' : '查看即時評分'}</a>
+                <a href="${tabelogUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">🍽️ Tabelog ${item.tabelogRating ? item.tabelogRating + ' / 5' : '查看評分'}</a>
+            </div>` : '';
+
+        card.innerHTML = `'''
+          if marker not in s:
+              raise SystemExit('renderPool display marker not found')
+          s = s.replace(marker, replacement, 1)
+
+          old = '''                    <p class="pool-card-desc">${item.desc}</p>
+                    ${(item.photos && item.photos.length > 0) ?'''
+          new = '''                    <p class="pool-card-desc">${item.desc}</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                        <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">🗺️ Google 地圖</a>
+                    </div>
+                    ${foodRatingHtml}
+                    ${(item.photos && item.photos.length > 0) ?'''
+          if old not in s:
+              raise SystemExit('renderPool description marker not found')
+          s = s.replace(old, new, 1)
+
+          app.write_text(s, encoding='utf-8')
+
+          # 5) Add editable Google/Tabelog rating fields to the pool modal.
+          html = Path('index.html')
+          h = html.read_text(encoding='utf-8')
+          old = '''                <div class="form-group">
+                    <label for="pool-edit-cost">預估花費 (¥)</label>'''
+          new = '''                <div class="form-group" style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label for="pool-edit-google-rating">Google 評分</label>
+                        <input type="number" id="pool-edit-google-rating" class="form-control" placeholder="例如 4.5" min="0" max="5" step="0.1">
+                    </div>
+                    <div style="flex:1;">
+                        <label for="pool-edit-tabelog-rating">Tabelog 評分</label>
+                        <input type="number" id="pool-edit-tabelog-rating" class="form-control" placeholder="例如 3.62" min="0" max="5" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pool-edit-cost">預估花費 (¥)</label>'''
+          if old not in h:
+              raise SystemExit('pool cost field marker not found')
+          h = h.replace(old, new, 1)
+          html.write_text(h, encoding='utf-8')
+          PY
+
+      - name: Commit patched site and remove one-off workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/patch-trip-ui.yml
+          git add app.js index.html
+          git commit -m "feat: add map links and restaurant rating fields"
+          git push origin main
