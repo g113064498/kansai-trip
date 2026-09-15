@@ -1,0 +1,20 @@
+name: Fix Cu Tennoji name
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fix-cu-tennoji-name.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/fix_cu_tennoji_name.py
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm tools/fix_cu_tennoji_name.py .github/workflows/fix-cu-tennoji-name.yml
+          git add app.js
+          git commit -m 'fix: normalize Osaka hotel name to Cu Tennoji'
+          git push origin main
