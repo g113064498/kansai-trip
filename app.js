@@ -364,7 +364,8 @@ const VERIFIED_RESTAURANT_RATINGS = [
     { names:['飛騨牛一頭家 馬喰一代 KITTE大阪'], t:'3.58' },
     { names:['いかれたNOODLE Fishtons'], g:'4.0', t:'3.72' },
     { names:['すき焼きと牛まぶし ももしき'], t:'3.62' },
-    { names:['お好み焼 美津の'], t:'3.56' }
+    { names:['お好み焼 美津の'], t:'3.56' },
+    { names:['焼肉ごりちゃん お初天神店','黒毛和牛タンとハラミ 焼肉ごりちゃん お初天神店'], t:'3.51', u:'https://tabelog.com/osaka/A2701/A270101/27148234/' }
 ];
 
 async function backfillVerifiedRestaurantRatings(allProducts) {
@@ -401,6 +402,50 @@ async function backfillVerifiedRestaurantRatings(allProducts) {
     }
     if (changed) console.log('[Ratings] 已把缺少的 Google/Tabelog 評分補寫到 Hexschool Products');
     return allProducts;
+}
+
+
+// One-time migration for confirmed restaurant bookings.
+// It only replaces the still-unconfirmed Day 7 dinner placeholder, so later manual edits are preserved.
+async function migrateConfirmedRestaurantBookings(allProducts) {
+    let changed = false;
+    for (const prod of allProducts) {
+        if (prod.category !== '候選景點') continue;
+        let data = {};
+        try { data = JSON.parse(prod.content || '{}'); } catch { data = {}; }
+        const unit = prod.unit || '';
+        const unitDay = unit.includes('|') ? unit.split('|')[0] : '';
+        const day = unitDay || data.day || '';
+        const isTargetPlaceholder =
+            day === '2026-11-10' &&
+            (prod.title === 'DAY6 晚餐後選' || prod.title === 'DAY7 晚餐後選');
+        if (!isTargetPlaceholder) continue;
+
+        const nextData = {
+            ...data,
+            city: 'Osaka',
+            desc: '已預約｜2026/11/10 18:30｜2人',
+            category: 'food',
+            day: '2026-11-10',
+            time: '18:30',
+            location: '大阪府大阪市北区曾根崎2-14-7 グランデ曽根崎ビル 1F',
+            tabelogRating: '3.51',
+            tabelogUrl: 'https://tabelog.com/osaka/A2701/A270101/27148234/',
+            ratingChecked: '2026-09-25'
+        };
+        await hexAPI.updateProduct(prod.id, {
+            title: '焼肉ごりちゃん お初天神店',
+            content: JSON.stringify(nextData),
+            category: prod.category || '候選景點',
+            origin_price: prod.origin_price || 0,
+            price: prod.price || 0,
+            unit: '2026-11-10|18:30',
+            is_enabled: 1,
+            num: prod.num || 1
+        });
+        changed = true;
+    }
+    return changed ? await hexAPI.getProducts() : allProducts;
 }
 
 async function loadFromRemote() {
@@ -548,6 +593,9 @@ async function loadFromRemote() {
                 day:h.checkOut || '', time:h.checkOutTime || '10:00 - 11:00', location:h.address || h.name || '' });
         }
         if (createdFixedProduct) allProducts = await hexAPI.getProducts();
+
+        // Apply confirmed-booking migrations before rendering the itinerary.
+        allProducts = await migrateConfirmedRestaurantBookings(allProducts);
 
         // Restore verified restaurant ratings into the API itself when older imports are missing them.
         allProducts = await backfillVerifiedRestaurantRatings(allProducts);
