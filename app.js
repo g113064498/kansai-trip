@@ -448,6 +448,141 @@ async function migrateConfirmedRestaurantBookings(allProducts) {
     return changed ? await hexAPI.getProducts() : allProducts;
 }
 
+
+async function migrateTripCorrections20260925(masterData, master, allProducts) {
+    const HOTEL_ADDRESS = '大阪府大阪市天王寺区味原町14-23';
+    let masterDirty = false;
+    master = { ...(master || {}) };
+
+    // Correct the confirmed Osaka accommodation.
+    if (Array.isArray(master.hotels)) {
+        master.hotels = master.hotels.map(h => {
+            if (h.id !== 'hotel-2' && h.checkIn !== '2026-11-07') return h;
+            const next = {
+                ...h,
+                city: 'Osaka',
+                name: 'Cu Tennoji',
+                address: HOTEL_ADDRESS,
+                link: '',
+                notes: '已確認住宿為 Cu Tennoji。自助入住公寓，入住前約24小時提供房號與 self check-in instructions；位置靠近鶴橋站。'
+            };
+            if (JSON.stringify(next) !== JSON.stringify(h)) masterDirty = true;
+            return next;
+        });
+    }
+
+    // Correct airport access for Peach flights using Terminal 2.
+    if (Array.isArray(master.flights)) {
+        master.flights = master.flights.map(f => {
+            if (f.id === 'flight-1' || f.number === 'MM024 (樂桃航空)') {
+                const notes = '桃園機場第一航廈登機。抵達關西機場第二航廈後，直接從T2搭機場利木津巴士前往京都站八条口（目前單程¥2,800/人），再前往京都四條大宮住宿。';
+                if (f.notes !== notes) masterDirty = true;
+                return { ...f, notes };
+            }
+            if (f.id === 'flight-2' || f.number === 'MM027 (樂桃航空)') {
+                const notes = 'Peach國際線由關西機場第二航廈出發。退房後由Cu Tennoji前往近鐵上本町2F巴士總站，搭機場利木津巴士直達T2；目前時刻表建議11:40發、12:42抵達T2。MM027 15:25起飛，國際線須最晚於起飛前50分鐘完成報到。出發前再確認最新巴士時刻。';
+                if (f.notes !== notes) masterDirty = true;
+                return { ...f, notes };
+            }
+            return f;
+        });
+    }
+
+    if (masterDirty && masterData && masterData.id) {
+        const now = Math.floor(Date.now() / 1000);
+        await hexAPI.updateArticle(masterData.id, {
+            title: masterData.title || '主行程資料',
+            content: JSON.stringify(master),
+            tag: masterData.tag || [ARTICLE_TAGS.MASTER],
+            isPublic: false,
+            create_at: masterData.create_at || now,
+            author: masterData.author || 'admin'
+        });
+    }
+
+    const parse = p => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } };
+    const updateExisting = async (prod, title, dataPatch, unit) => {
+        const data = { ...parse(prod), ...dataPatch };
+        await hexAPI.updateProduct(prod.id, {
+            title: title || prod.title,
+            content: JSON.stringify(data),
+            category: prod.category || '候選景點',
+            origin_price: prod.origin_price || 0,
+            price: prod.price || 0,
+            unit: unit || prod.unit || '景點',
+            is_enabled: prod.is_enabled == 1 || prod.is_enabled === true ? 1 : 0,
+            num: prod.num || 1
+        });
+    };
+
+    let productsDirty = false;
+    for (const prod of allProducts) {
+        if (prod.category !== '候選景點') continue;
+        const data = parse(prod);
+        const unitDay = (prod.unit || '').includes('|') ? prod.unit.split('|')[0] : '';
+        const day = unitDay || data.day || '';
+
+        if (data.sourceRef === 'flight:flight-1' || (day === '2026-11-04' && String(prod.title).includes('MM024'))) {
+            await updateExisting(prod, prod.title, {
+                desc: '抵達關西機場第二航廈後，直接從T2搭機場利木津巴士前往京都站八条口（目前單程¥2,800/人），再搭計程車前往Hop Inn Kyoto Shijo Omiya。',
+                location: '關西國際機場 第2航廈'
+            });
+            productsDirty = true;
+        } else if (data.sourceRef === 'flight:flight-2' || (day === '2026-11-11' && String(prod.title).includes('MM027'))) {
+            await updateExisting(prod, prod.title, {
+                desc: 'Cu Tennoji退房後前往近鐵上本町2F巴士總站，搭機場利木津巴士直達關西機場第2航廈。目前時刻表建議11:40發→12:42抵達T2；MM027 15:25起飛。Peach國際線報到在T2 1F，最晚起飛前50分鐘完成。出發前再確認最新時刻。',
+                location: '關西國際機場 第2航廈'
+            });
+            productsDirty = true;
+        } else if (data.sourceRef === 'hotel-checkin:hotel-2' || String(prod.title).includes('Color Tsuruhashi / Cu Tennoji')) {
+            const isCheckout = String(prod.title).includes('Check-out');
+            await updateExisting(prod, 'Cu Tennoji ' + (isCheckout ? 'Check-out 🧳' : 'Check-in 🏨'), {
+                desc: isCheckout
+                    ? 'Cu Tennoji 退房。自助入住公寓，位置靠近鶴橋站。'
+                    : '已確認住宿為 Cu Tennoji。自助入住公寓，入住前約24小時提供房號與入住說明。',
+                location: HOTEL_ADDRESS
+            });
+            productsDirty = true;
+        } else if (prod.title === 'Cu Tennoji 放行李') {
+            await updateExisting(prod, prod.title, {
+                desc: '大阪住宿已確認為 Cu Tennoji。可先寄放／處理行李；正式入住依住宿方自助入住說明。',
+                location: HOTEL_ADDRESS
+            });
+            productsDirty = true;
+        }
+    }
+
+    if (productsDirty) allProducts = await hexAPI.getProducts();
+
+    // Add Day 7 Umeda department-store catch-up block once.
+    const hasUmedaCatchup = allProducts.some(p => p.category === '候選景點' && p.title === '梅田百貨補逛 & 採買 🛍️');
+    if (!hasUmedaCatchup) {
+        const data = {
+            city: 'Osaka',
+            desc: '大阪城公園附近午餐後前往梅田，把前幾天漏逛／漏買的東西補齊。可依需求逛阪急百貨、阪神百貨、LUCUA／LUCUA1100、大丸梅田、友都八喜／LINKS。18:30已預約焼肉ごりちゃん お初天神店，建議17:45左右結束購物準備移動。',
+            cost: 0,
+            category: 'shopping',
+            day: '2026-11-10',
+            photos: [],
+            location: '梅田・大阪駅',
+            time: '13:30 - 17:30'
+        };
+        await hexAPI.createProduct({
+            title: '梅田百貨補逛 & 採買 🛍️',
+            content: JSON.stringify(data),
+            category: '候選景點',
+            origin_price: 0,
+            price: 0,
+            unit: '2026-11-10|13:30 - 17:30',
+            is_enabled: 1,
+            num: 1
+        });
+        allProducts = await hexAPI.getProducts();
+    }
+
+    return { master, allProducts };
+}
+
 async function loadFromRemote() {
     try {
         setSyncStatus('syncing');
@@ -486,6 +621,12 @@ async function loadFromRemote() {
         if (masterData && masterData.content) {
             try { master = JSON.parse(masterData.content) || {}; } catch { master = {}; }
         }
+
+        // Apply confirmed corrections for Osaka lodging, T2 airport access, and Day 7 Umeda shopping.
+        const tripCorrections = await migrateTripCorrections20260925(masterData, master, allProducts);
+        master = tripCorrections.master;
+        allProducts = tripCorrections.allProducts;
+
         lastSyncedMaster = JSON.parse(JSON.stringify(master));
 
         // Master article owns shared trip metadata, never initialTripData once present.
