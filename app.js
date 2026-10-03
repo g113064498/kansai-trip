@@ -20,6 +20,7 @@ let activeTab = 'dashboard';
 let currentSelectedDay = "2026-11-04";
 let currentPoolFilter = 'Kyoto-sightseeing';
 let currentPoolPage = 1;
+const JPY_TO_TWD_RATE = 0.20;
 
 // Clean up old localStorage data on page load
 (function cleanupOldLocalStorage() {
@@ -311,7 +312,7 @@ async function ensureProduct(title, content) {
 async function ensurePoolProduct(item) {
     const productData = {
         title: item.title || '未命名景點',
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' }),
+        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, costTwd: item.costTwd || 0, paymentStatus: item.paymentStatus || '', bookingPlatform: item.bookingPlatform || '', bookingMarker: item.bookingMarker || '', category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
@@ -446,6 +447,63 @@ async function migrateConfirmedRestaurantBookings(allProducts) {
         changed = true;
     }
     return changed ? await hexAPI.getProducts() : allProducts;
+}
+
+
+async function migrateConfirmedNov8DayTrip(allProducts) {
+    const parse = (p) => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } };
+    const candidates = (allProducts || []).filter(p => {
+        if (p.category !== '候選景點') return false;
+        const data = parse(p);
+        const unit = p.unit || '';
+        const unitDay = unit.includes('|') ? unit.split('|')[0] : '';
+        const day = unitDay || data.day || '';
+        if (day !== '2026-11-08') return false;
+        const text = [p.title, data.desc].filter(Boolean).join(' ');
+        return /(天橋立|伊根|Amanohashidate|丹後|Ine)/i.test(text);
+    });
+    if (!candidates.length) return allProducts;
+
+    const score = (p) => {
+        const data = parse(p);
+        const text = [p.title, data.desc].filter(Boolean).join(' ');
+        let s = 0;
+        if (/(天橋立|Amanohashidate)/i.test(text)) s += 2;
+        if (/(伊根|Ine)/i.test(text)) s += 2;
+        if (/丹後/i.test(text)) s += 1;
+        return s;
+    };
+    candidates.sort((a, b) => score(b) - score(a));
+    const target = candidates[0];
+    const data = parse(target);
+    if (data.bookingMarker === '2026-10-02-klook-amanohashidate-ine') return allProducts;
+
+    const bookingNote = '已預訂｜Klook 丹後鐵道路線｜單人 NT$1,973（已付款）';
+    const currentDesc = data.desc || '';
+    const nextDesc = currentDesc.includes('NT$1,973')
+        ? currentDesc
+        : (currentDesc ? currentDesc + '｜' + bookingNote : bookingNote);
+    const nextData = {
+        ...data,
+        desc: nextDesc,
+        cost: 0,
+        costTwd: 1973,
+        paymentStatus: 'paid',
+        bookingPlatform: 'Klook',
+        bookingMarker: '2026-10-02-klook-amanohashidate-ine'
+    };
+
+    await hexAPI.updateProduct(target.id, {
+        title: target.title,
+        content: JSON.stringify(nextData),
+        category: target.category || '候選景點',
+        origin_price: 0,
+        price: target.price || 0,
+        unit: target.unit || '2026-11-08|10:00 - 12:00',
+        is_enabled: target.is_enabled == 1 || target.is_enabled === true ? 1 : 0,
+        num: target.num || 1
+    });
+    return await hexAPI.getProducts();
 }
 
 
@@ -737,6 +795,7 @@ async function loadFromRemote() {
 
         // Apply confirmed-booking migrations before rendering the itinerary.
         allProducts = await migrateConfirmedRestaurantBookings(allProducts);
+        allProducts = await migrateConfirmedNov8DayTrip(allProducts);
 
         // Restore verified restaurant ratings into the API itself when older imports are missing them.
         allProducts = await backfillVerifiedRestaurantRatings(allProducts);
@@ -761,6 +820,10 @@ async function loadFromRemote() {
                 title: prod.title,
                 desc: data.desc || '',
                 cost: data.cost ?? prod.origin_price ?? 0,
+                costTwd: data.costTwd || 0,
+                paymentStatus: data.paymentStatus || '',
+                bookingPlatform: data.bookingPlatform || '',
+                bookingMarker: data.bookingMarker || '',
                 category: data.category || 'other',
                 isEnabled: prod.is_enabled == 1 || prod.is_enabled === true,
                 day: unitDay || data.day || '',
@@ -789,7 +852,7 @@ async function loadFromRemote() {
             db.itinerary[item.day].push({
                 id: item.id, _poolId: item.id, _productId: item._productId,
                 time: item.time || '10:00 - 12:00', title: item.title,
-                desc: item.desc || '', cost: item.cost || 0, category: item.category || 'other',
+                desc: item.desc || '', cost: item.cost || 0, costTwd: item.costTwd || 0, paymentStatus: item.paymentStatus || '', bookingPlatform: item.bookingPlatform || '', category: item.category || 'other',
                 photos: item.photos || [], location: item.location || ''
             });
         }
@@ -924,7 +987,7 @@ function editPoolTime(poolId, itemId, el) {
         // Save to API
         if (item._productId) {
             try {
-                const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
+                const content = { city: item.city, desc: item.desc, cost: item.cost, costTwd: item.costTwd || 0, paymentStatus: item.paymentStatus || '', bookingPlatform: item.bookingPlatform || '', bookingMarker: item.bookingMarker || '', category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
                 await hexAPI.updateProduct(item._productId, {
                     title: item.title || '未命名景點',
                     content: JSON.stringify(content),
@@ -1023,7 +1086,7 @@ async function savePoolEdit(e) {
     renderPool();
     showSyncOverlay();
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
+        const content = { city: item.city, desc: item.desc, cost: item.cost, costTwd: item.costTwd || 0, paymentStatus: item.paymentStatus || '', bookingPlatform: item.bookingPlatform || '', bookingMarker: item.bookingMarker || '', category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
@@ -1654,11 +1717,15 @@ function renderItineraryForDay(dayStr) {
                                     <a href="${item.location && item.location.startsWith('http') ? item.location : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(item.location)}" target="_blank" style="color:inherit; text-decoration:none;">導航地圖</a>
                                 </div>
                             ` : ''}
-                            ${item.cost > 0 ? `
+                            ${item.costTwd > 0 ? `
+                                <div class="timeline-meta-item" style="color:var(--accent-green); font-weight:600;">
+                                    💵 NT$ ${item.costTwd.toLocaleString()}${item.paymentStatus === 'paid' ? '（已付款）' : ''}
+                                </div>
+                            ` : (item.cost > 0 ? `
                                 <div class="timeline-meta-item" style="color:var(--accent-green); font-weight:600;">
                                     💵 ¥ ${item.cost.toLocaleString()}
                                 </div>
-                            ` : ''}
+                            ` : '')}
                         </div>
                     </div>
                     ${hasPhotos ? `
@@ -1765,7 +1832,7 @@ function renderPool() {
                         <div class="pool-card-tags">
                             <span class="tag tag-city">${displayCity}</span>
                             <span class="tag tag-city">${displayCategory}</span>
-                            ${item.cost > 0 ? `<span class="tag tag-cost">¥ ${item.cost.toLocaleString()}</span>` : ''}
+                            ${item.costTwd > 0 ? `<span class="tag tag-cost">NT$ ${item.costTwd.toLocaleString()}</span>` : (item.cost > 0 ? `<span class="tag tag-cost">¥ ${item.cost.toLocaleString()}</span>` : '')}
                             ${warningBanner}
                         </div>
                     </div>
@@ -1948,20 +2015,24 @@ function updateBudgetCalculations() {
     const flightTotalTwd = db.flights.reduce((sum, f) => sum + f.price, 0) / 2;
     const hotelTotalTwd = db.hotels.reduce((sum, h) => sum + h.price, 0) / 2;
     const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd;
-    const rate = 0.20;
+    const rate = JPY_TO_TWD_RATE;
 
     const flightHotelTotalJpy = Math.round(flightHotelTotalTwd / rate);
 
     // Dynamic values from itinerary (原幣值為 JPY)
     let activityTotalJpy = 0;
+    let activityPaidTwd = 0;
     Object.values(db.itinerary).forEach(dayEvents => {
         dayEvents.forEach(e => {
-            if (e.cost && !isNaN(e.cost)) {
+            if (e.costTwd && !isNaN(e.costTwd)) {
+                activityPaidTwd += parseInt(e.costTwd);
+            } else if (e.cost && !isNaN(e.cost)) {
                 activityTotalJpy += parseInt(e.cost);
             }
         });
     });
-    const activityTotalTwd = Math.round(activityTotalJpy * rate);
+    const activityTotalTwd = Math.round(activityTotalJpy * rate) + activityPaidTwd;
+    const activityTotalJpyEquivalent = activityTotalJpy + Math.round(activityPaidTwd / rate);
 
     // Souvenirs (only checked items, value in JPY)
     let souvenirTotalJpy = 0;
@@ -1975,20 +2046,22 @@ function updateBudgetCalculations() {
     const souvenirTotalTwd = Math.round(souvenirTotalJpy * rate);
 
     const totalSumTwd = flightHotelTotalTwd + activityTotalTwd + souvenirTotalTwd;
-    const totalSumJpy = flightHotelTotalJpy + activityTotalJpy + souvenirTotalJpy;
+    const totalSumJpy = flightHotelTotalJpy + activityTotalJpyEquivalent + souvenirTotalJpy;
 
     document.getElementById('budget-flighthotel').innerText = `NT$ ${flightHotelTotalTwd.toLocaleString()}`;
     document.getElementById('budget-flighthotel-jpy').innerText = `¥ ${flightHotelTotalJpy.toLocaleString()}`;
     document.getElementById('budget-activities').innerText = `NT$ ${activityTotalTwd.toLocaleString()}`;
-    document.getElementById('budget-activities-jpy').innerText = `¥ ${activityTotalJpy.toLocaleString()}`;
+    document.getElementById('budget-activities-jpy').innerText = `¥ ${activityTotalJpyEquivalent.toLocaleString()}`;
     document.getElementById('budget-souvenirs').innerText = `NT$ ${souvenirTotalTwd.toLocaleString()}`;
     document.getElementById('budget-souvenirs-jpy').innerText = `¥ ${souvenirTotalJpy.toLocaleString()}`;
     document.getElementById('budget-total').innerText = `NT$ ${totalSumTwd.toLocaleString()}`;
     document.getElementById('budget-total-jpy').innerText = `¥ ${totalSumJpy.toLocaleString()}`;
     const localBudgetTwd = activityTotalTwd + souvenirTotalTwd;
-    const localBudgetJpy = activityTotalJpy + souvenirTotalJpy;
+    const localBudgetJpy = activityTotalJpyEquivalent + souvenirTotalJpy;
     document.getElementById('budget-sum').innerText = localBudgetTwd.toLocaleString();
     document.getElementById('budget-sum-jpy').innerText = localBudgetJpy.toLocaleString();
+    const exchangeRateDisplay = document.getElementById('exchange-rate-display');
+    if (exchangeRateDisplay) exchangeRateDisplay.innerText = rate.toFixed(2);
 }
 
 // EXPANDABLE BUDGET DETAILS
@@ -2008,7 +2081,7 @@ function renderBudgetDetail() {
     if (!container) return;
     container.innerHTML = '';
 
-    const rate = 0.20;
+    const rate = JPY_TO_TWD_RATE;
 
     // 1. Flights Section
     let flightHtml = '';
@@ -2063,15 +2136,17 @@ function renderBudgetDetail() {
     Object.entries(db.itinerary).forEach(([day, events]) => {
         const dayNum = getDayNum(day);
         events.forEach(e => {
-            if (e.cost && !isNaN(e.cost) && parseInt(e.cost) > 0) {
-                const costJpy = parseInt(e.cost);
-                const costTwd = Math.round(costJpy * rate);
+            const directTwd = parseInt(e.costTwd) || 0;
+            const jpyCost = parseInt(e.cost) || 0;
+            if (directTwd > 0 || jpyCost > 0) {
+                const costTwd = directTwd > 0 ? directTwd : Math.round(jpyCost * rate);
+                const costJpy = directTwd > 0 ? Math.round(directTwd / rate) : jpyCost;
                 activitySumJpy += costJpy;
                 activitySumTwd += costTwd;
                 activityHtml += `
                     <div class="budget-detail-item">
-                        <span class="item-label">Day ${dayNum} - ${e.title}</span>
-                        <span class="item-cost-jpy">¥ ${costJpy.toLocaleString()}</span>
+                        <span class="item-label">Day ${dayNum} - ${e.title}${directTwd > 0 ? '（台幣實付）' : ''}</span>
+                        <span class="item-cost-jpy">${directTwd > 0 ? '≈ ' : ''}¥ ${costJpy.toLocaleString()}</span>
                         <span class="item-cost-twd">NT$ ${costTwd.toLocaleString()}</span>
                     </div>
                 `;
@@ -2088,7 +2163,7 @@ function renderBudgetDetail() {
     checkedSouvenirs.forEach(s => {
         if (s.price && !isNaN(s.price) && parseInt(s.price) > 0) {
             const costJpy = parseInt(s.price);
-            const costTwd = Math.round(costJpy / rate);
+            const costTwd = Math.round(costJpy * rate);
             souvenirSumJpy += costJpy;
             souvenirHtml += `
                 <div class="budget-detail-item">
@@ -2246,7 +2321,7 @@ async function saveEvent(e) {
                 const poolItem = db.attractionPool.find(p => p.id === oldEntry._poolId);
                 if (!poolItem) throw new Error('找不到對應的 API 行程資料');
                 Object.assign(poolItem, { title, time, category, cost, location, desc, photos, day: dayStr, isEnabled: true });
-                const content = { city: poolItem.city || 'Other', desc, cost, category, day: dayStr, photos, location, time,
+                const content = { city: poolItem.city || 'Other', desc, cost, costTwd: poolItem.costTwd || 0, paymentStatus: poolItem.paymentStatus || '', bookingPlatform: poolItem.bookingPlatform || '', bookingMarker: poolItem.bookingMarker || '', category, day: dayStr, photos, location, time,
                     googleRating: poolItem.googleRating || '', tabelogRating: poolItem.tabelogRating || '', tabelogUrl: poolItem.tabelogUrl || '', ratingChecked: poolItem.ratingChecked || '' };
                 await hexAPI.updateProduct(poolItem._productId, { title, content: JSON.stringify(content), category: '候選景點', origin_price: cost, price: 0, unit: dayStr + '|' + (time || '10:00 - 12:00'), is_enabled: 1, num: 1 });
             } else {
@@ -2319,7 +2394,7 @@ async function deleteEvent(dayStr, id) {
             if (db.scheduledItems) delete db.scheduledItems[item._poolId];
             console.log('[DEBUG deleteEvent] 刪除後 scheduledItems:', JSON.parse(JSON.stringify(db.scheduledItems || {})));
             if (poolItem._productId) {
-                const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
+                const content = { city: poolItem.city, desc: poolItem.desc, cost: poolItem.cost, costTwd: poolItem.costTwd || 0, paymentStatus: poolItem.paymentStatus || '', bookingPlatform: poolItem.bookingPlatform || '', bookingMarker: poolItem.bookingMarker || '', category: poolItem.category, day: '', photos: poolItem.photos || [], location: poolItem.location || '', time: poolItem.time || '' };
                 const updateData = {
                     title: poolItem.title || '未命名景點',
                     content: JSON.stringify(content),
