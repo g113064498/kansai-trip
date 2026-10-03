@@ -622,33 +622,139 @@ async function migrateTripCorrections20260925(masterData, master, allProducts) {
 
     if (productsDirty) allProducts = await hexAPI.getProducts();
 
-    // Add Day 7 Umeda department-store catch-up block once.
-    const hasUmedaCatchup = allProducts.some(p => p.category === '候選景點' && p.title === '梅田百貨補逛 & 採買 🛍️');
-    if (!hasUmedaCatchup) {
+    // 2026-10-04: the old 11/10 Umeda catch-up block was retired.
+    // Osaka Castle now sits on 11/7 before the existing Umeda shopping cluster,
+    // while 11/10 is reserved for Katsuoji plus the confirmed 18:30 dinner.
+
+    return { master, allProducts };
+}
+
+
+async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
+    const parse = p => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } };
+    const enabled = p => p.is_enabled == 1 || p.is_enabled === true;
+    const dayOf = p => {
+        const data = parse(p);
+        const unitDay = (p.unit || '').includes('|') ? p.unit.split('|')[0] : '';
+        return unitDay || data.day || '';
+    };
+    const timeOf = p => {
+        const data = parse(p);
+        return (p.unit || '').includes('|') ? (p.unit.split('|')[1] || '') : (data.time || '');
+    };
+    const update = async (prod, patch, day, time, isEnabled = true) => {
+        const data = { ...parse(prod), ...patch, day, time };
+        await hexAPI.updateProduct(prod.id, {
+            title: patch.title || prod.title,
+            content: JSON.stringify(data),
+            category: prod.category || '候選景點',
+            origin_price: Number.isFinite(Number(data.cost)) ? Number(data.cost) : (prod.origin_price || 0),
+            price: prod.price || 0,
+            unit: isEnabled && day ? day + '|' + time : '景點',
+            is_enabled: isEnabled ? 1 : 0,
+            num: prod.num || 1
+        });
+    };
+
+    let dirty = false;
+
+    // Move Osaka Castle from Tue 11/10 to Sat 11/7, after luggage drop and before Umeda.
+    const castleCandidates = (allProducts || []).filter(p =>
+        p.category === '候選景點' &&
+        /大阪城/.test(String(p.title || '')) &&
+        (enabled(p) || dayOf(p) === '2026-11-10')
+    );
+    for (const prod of castleCandidates) {
+        const data = parse(prod);
+        const note = '11/7 京都退房後先處理大阪住宿行李，再前往大阪城。以大阪城公園、天守外觀與豐國神社為主，不強制進天守；逛完約12:30離開，下午前往梅田。';
+        await update(prod, {
+            ...data,
+            title: prod.title,
+            desc: note,
+            location: '大阪城公園',
+            scheduleMarker: '2026-10-04-osaka-castle-to-nov7'
+        }, '2026-11-07', '11:00 - 12:30', true);
+        dirty = true;
+    }
+
+    // Push the existing Umeda shopping cluster later so it follows Osaka Castle.
+    const umedaTitles = /(LINKS|GRAND FRONT OSAKA|阪急百貨|阪神百貨|友都八喜|HEP FIVE|大丸百貨\s*梅田|LUCUA)/i;
+    for (const prod of (allProducts || [])) {
+        if (prod.category !== '候選景點' || !enabled(prod) || dayOf(prod) !== '2026-11-07') continue;
+        if (!umedaTitles.test(String(prod.title || ''))) continue;
+        const currentTime = timeOf(prod);
+        if (currentTime !== '12:00' && currentTime !== '12:00 - 17:30') continue;
+        const data = parse(prod);
+        await update(prod, {
+            ...data,
+            scheduleMarker: '2026-10-04-umeda-after-castle'
+        }, '2026-11-07', '13:30', true);
+        dirty = true;
+    }
+
+    // The old Day 7 catch-up block is no longer needed on 11/10; disable it rather than delete it.
+    for (const prod of (allProducts || [])) {
+        if (prod.category !== '候選景點' || prod.title !== '梅田百貨補逛 & 採買 🛍️') continue;
+        const data = parse(prod);
+        await update(prod, {
+            ...data,
+            desc: data.desc || '',
+            scheduleMarker: '2026-10-04-umeda-catchup-disabled'
+        }, '', '', false);
+        dirty = true;
+    }
+
+    // Use an existing Katsuoji candidate if present; otherwise create one.
+    let katsuoji = (allProducts || []).find(p =>
+        p.category === '候選景點' && /勝尾寺/.test(String(p.title || ''))
+    );
+    const katsuojiDesc = [
+        '11/10 以勝尾寺為當天主行程。',
+        '建議07:45左右由大阪出發，先到箕面萱野站；官方直行巴士09:00起約每10分鐘一班。',
+        '平日參拜08:00–17:00（最終受付16:30），成人入山志納料¥500。',
+        '箕面萱野站～勝尾寺直行巴士成人單程¥800；2026/10/1起完全無現金，可用ICOCA／Suica／PiTaPa等，車內不能儲值。',
+        '此項預算先計入山¥500＋巴士來回¥1,600＝¥2,100／人；大阪市區鐵路與午餐另計。',
+        '預計16:00前回到大阪市區，保留18:30焼肉ごりちゃん お初天神店訂位。'
+    ].join('\n');
+    if (katsuoji) {
+        const data = parse(katsuoji);
+        await update(katsuoji, {
+            ...data,
+            title: katsuoji.title || '勝尾寺 🎋',
+            city: 'Osaka',
+            desc: katsuojiDesc,
+            cost: 2100,
+            category: 'sightseeing',
+            location: '勝尾寺',
+            scheduleMarker: '2026-10-04-katsuoji-nov10'
+        }, '2026-11-10', '07:45 - 16:00', true);
+        dirty = true;
+    } else {
         const data = {
             city: 'Osaka',
-            desc: '大阪城公園附近午餐後前往梅田，把前幾天漏逛／漏買的東西補齊。可依需求逛阪急百貨、阪神百貨、LUCUA／LUCUA1100、大丸梅田、友都八喜／LINKS。18:30已預約焼肉ごりちゃん お初天神店，建議17:45左右結束購物準備移動。',
-            cost: 0,
-            category: 'shopping',
+            desc: katsuojiDesc,
+            cost: 2100,
+            category: 'sightseeing',
             day: '2026-11-10',
             photos: [],
-            location: '梅田・大阪駅',
-            time: '13:30 - 17:30'
+            location: '勝尾寺',
+            time: '07:45 - 16:00',
+            scheduleMarker: '2026-10-04-katsuoji-nov10'
         };
         await hexAPI.createProduct({
-            title: '梅田百貨補逛 & 採買 🛍️',
+            title: '勝尾寺 🎋',
             content: JSON.stringify(data),
             category: '候選景點',
-            origin_price: 0,
+            origin_price: 2100,
             price: 0,
-            unit: '2026-11-10|13:30 - 17:30',
+            unit: '2026-11-10|07:45 - 16:00',
             is_enabled: 1,
             num: 1
         });
-        allProducts = await hexAPI.getProducts();
+        dirty = true;
     }
 
-    return { master, allProducts };
+    return dirty ? await hexAPI.getProducts() : allProducts;
 }
 
 async function loadFromRemote() {
@@ -694,6 +800,9 @@ async function loadFromRemote() {
         const tripCorrections = await migrateTripCorrections20260925(masterData, master, allProducts);
         master = tripCorrections.master;
         allProducts = tripCorrections.allProducts;
+
+        // 2026-10-04 itinerary decision: Osaka Castle on 11/7, Katsuoji as 11/10 main day.
+        allProducts = await migrateOsakaCastleAndKatsuoji20261004(allProducts);
 
         lastSyncedMaster = JSON.parse(JSON.stringify(master));
 
