@@ -6,6 +6,7 @@
     'use strict';
     const TAG = 'split-ledger-v1';
     const HOTEL_URL = 'https://www.booking.com/hotel/jp/color-tsuruhashi-da-ban-fu1.zh-tw.html';
+    const HOP_INN_KYOTO_URL = 'https://www.hopinnhotel.com/our-hotels/hop-inn-kyoto-shijo-omiya';
     const PEOPLE = { me: '我', girl: '女友' };
     const CURRENCIES = ['JPY', 'TWD'];
     const hasPerson = p => p === 'me' || p === 'girl';
@@ -100,6 +101,9 @@
         return balance > 0 ? '女友還我 ' + money(balance, currency) : balance < 0 ? '我還女友 ' + money(-balance, currency) : '目前互不相欠';
     }
     function hotelLink(hotel, currentUrl) {
+        // The owner supplied the official Kyoto Shijo Omiya page; prefer it to stale links.
+        const name = String(hotel.name || '').trim();
+        if (/\bhop\s*inn?\b/i.test(name) && /kyoto|京都/i.test(name) && /shijo[\s-]*omiya|四[條条]大[宮宫]/i.test(name)) return HOP_INN_KYOTO_URL;
         const raw = String(hotel.link || '').trim();
         try {
             const url = new URL(raw);
@@ -145,6 +149,7 @@
             } else {
                 link.href = href; link.hidden = false; link.rel = 'noopener noreferrer';
                 if (href === HOTEL_URL) link.textContent = '在 Booking.com 查看 Cu Tennoji 住宿頁面 ↗';
+                else if (href === HOP_INN_KYOTO_URL) link.textContent = 'HOP INN 官方網站 ↗';
             }
         });
         return result;
