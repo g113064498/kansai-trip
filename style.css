@@ -2613,3 +2613,71 @@ header p {
         grid-column: 2;
     }
 }
+
+
+/* TWO-PERSON SOUVENIR CHECKS */
+.souvenir-owner-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.souvenir-person-check {
+    min-width: 62px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-base);
+    color: var(--text-muted);
+    border-radius: 999px;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.souvenir-person-check:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.souvenir-person-check.checked {
+    border-color: rgba(0, 64, 120, 0.35);
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.souvenir-person-box {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid currentColor;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    line-height: 1;
+}
+
+.souvenir-card.both-done {
+    background: rgba(0, 64, 120, 0.025);
+}
+
+@media (max-width: 620px) {
+    .souvenir-card {
+        align-items: flex-start;
+    }
+
+    .souvenir-owner-checks {
+        gap: 5px;
+    }
+
+    .souvenir-person-check {
+        min-width: 58px;
+        padding: 4px 7px;
+    }
+}
