@@ -1638,31 +1638,8 @@ function parseMonthDayFromText(text) {
 function collectConfirmedBookings() {
     const rows = [];
 
-    (db.flights || []).forEach(f => {
-        const date = parseMonthDayFromText(f.depTime);
-        rows.push({
-            date,
-            time: String(f.depTime || '').match(/\d{1,2}:\d{2}/)?.[0] || '',
-            title: f.number || '航班',
-            type: '航班',
-            status: '已預訂',
-            detail: (f.from || '') + ' → ' + (f.to || ''),
-            day: date
-        });
-    });
-
-    (db.hotels || []).forEach(h => {
-        rows.push({
-            date: h.checkIn || '',
-            time: h.checkInTime || '',
-            title: h.name || '住宿',
-            type: '住宿',
-            status: '已預訂',
-            detail: (h.nights || '') + ' 晚',
-            day: h.checkIn || ''
-        });
-    });
-
+    // Important booking center intentionally excludes flights and accommodation.
+    // Those already have dedicated sections on the dashboard.
     Object.entries(db.itinerary || {}).forEach(([day, events]) => {
         (events || []).forEach(item => {
             const desc = item.desc || '';
