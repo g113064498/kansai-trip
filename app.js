@@ -666,6 +666,7 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
     );
     for (const prod of castleCandidates) {
         const data = parse(prod);
+        if (data.scheduleMarker === '2026-10-04-osaka-castle-to-nov7') continue;
         const note = '11/7 京都退房後先處理大阪住宿行李，再前往大阪城。以大阪城公園、天守外觀與豐國神社為主，不強制進天守；逛完約12:30離開，下午前往梅田。';
         await update(prod, {
             ...data,
@@ -685,6 +686,7 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
         const currentTime = timeOf(prod);
         if (currentTime !== '12:00' && currentTime !== '12:00 - 17:30') continue;
         const data = parse(prod);
+        if (data.scheduleMarker === '2026-10-04-umeda-after-castle') continue;
         await update(prod, {
             ...data,
             scheduleMarker: '2026-10-04-umeda-after-castle'
@@ -696,6 +698,7 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
     for (const prod of (allProducts || [])) {
         if (prod.category !== '候選景點' || prod.title !== '梅田百貨補逛 & 採買 🛍️') continue;
         const data = parse(prod);
+        if (data.scheduleMarker === '2026-10-04-umeda-catchup-disabled') continue;
         await update(prod, {
             ...data,
             desc: data.desc || '',
@@ -718,6 +721,7 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
     ].join('\n');
     if (katsuoji) {
         const data = parse(katsuoji);
+        if (data.scheduleMarker !== '2026-10-04-katsuoji-nov10') {
         await update(katsuoji, {
             ...data,
             title: katsuoji.title || '勝尾寺 🎋',
@@ -729,6 +733,7 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
             scheduleMarker: '2026-10-04-katsuoji-nov10'
         }, '2026-11-10', '07:45 - 16:00', true);
         dirty = true;
+        }
     } else {
         const data = {
             city: 'Osaka',
