@@ -942,8 +942,6 @@ function openPoolEditModal(poolId) {
     document.getElementById('pool-edit-category').value = item.category || 'sightseeing';
     document.getElementById('pool-edit-time').value = item.time || '';
     document.getElementById('pool-edit-location').value = item.location || '';
-    document.getElementById('pool-edit-google-rating').value = item.googleRating || '';
-    document.getElementById('pool-edit-tabelog-rating').value = item.tabelogRating || '';
     document.getElementById('pool-edit-cost').value = item.cost || 0;
     const photos = (item.photos || []).join('\n');
     document.getElementById('pool-edit-photos').value = photos;
@@ -961,8 +959,6 @@ function openPoolAddModal() {
     document.getElementById('pool-edit-category').value = 'sightseeing';
     document.getElementById('pool-edit-time').value = '';
     document.getElementById('pool-edit-location').value = '';
-    document.getElementById('pool-edit-google-rating').value = '';
-    document.getElementById('pool-edit-tabelog-rating').value = '';
     document.getElementById('pool-edit-cost').value = '';
     document.getElementById('pool-edit-photos').value = '';
     updatePoolPhotoPreview();
@@ -1031,8 +1027,6 @@ async function savePoolEdit(e) {
     const category = document.getElementById('pool-edit-category').value;
     const time = document.getElementById('pool-edit-time').value.trim();
     const location = document.getElementById('pool-edit-location').value.trim();
-    const googleRating = document.getElementById('pool-edit-google-rating').value.trim();
-    const tabelogRating = document.getElementById('pool-edit-tabelog-rating').value.trim();
     const cost = parseInt(document.getElementById('pool-edit-cost').value) || 0;
     const photoText = document.getElementById('pool-edit-photos').value;
     const photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
@@ -1047,8 +1041,6 @@ async function savePoolEdit(e) {
             category: category,
             time: time,
             location: location,
-            googleRating: googleRating,
-            tabelogRating: tabelogRating,
             photos: photos,
             isEnabled: false,
             day: ''
@@ -1085,8 +1077,6 @@ async function savePoolEdit(e) {
     item.category = category;
     item.time = time;
     item.location = location;
-    item.googleRating = googleRating;
-    item.tabelogRating = tabelogRating;
     item.cost = cost;
     item.photos = photos;
     if (!db.poolPhotos) db.poolPhotos = {};
@@ -1997,6 +1987,33 @@ function renderItineraryForDay(dayStr) {
     });
 }
 
+// QUICK COPY FOR CANDIDATE CARDS
+function copyPoolField(poolId, mode) {
+    const item = (db.attractionPool || []).find(p => String(p.id) === String(poolId));
+    if (!item) return;
+
+    if (mode === 'title') {
+        copyTextToClipboard(item.title || '', '名稱');
+        return;
+    }
+    if (mode === 'location') {
+        copyTextToClipboard(item.location || '', '地址');
+        return;
+    }
+
+    const displayCity = item.city === 'Kyoto' ? '京都' : (item.city === 'Osaka' ? '大阪' : (item.city || '其他'));
+    const lines = [
+        item.title || '',
+        '城市：' + displayCity,
+        item.category ? '分類：' + (item.category === 'sightseeing' ? '景點' : item.category === 'food' ? '美食' : item.category === 'shopping' ? '購物' : '其他') : '',
+        item.time ? '時間：' + item.time : '',
+        item.location ? '地點：' + item.location : '',
+        item.costTwd > 0 ? '費用：NT$ ' + item.costTwd.toLocaleString() : (item.cost > 0 ? '費用：¥ ' + item.cost.toLocaleString() : ''),
+        item.desc ? '備註：' + item.desc : ''
+    ].filter(Boolean);
+    copyTextToClipboard(lines.join('\n'), '候選資訊');
+}
+
 // RENDER ATTRACTION POOL
 function renderPool() {
     const container = document.getElementById('pool-items-container');
@@ -2070,13 +2087,6 @@ function renderPool() {
         const displayCategory = item.category === 'sightseeing' ? '景點' : (item.category === 'food' ? '美食' : (item.category === 'shopping' ? '購物' : '其他'));
         const mapQuery = item.location || `${item.title} ${displayCity} Japan`;
         const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
-        const tabelogUrl = item.tabelogUrl || `https://tabelog.com/rstLst/?sk=${encodeURIComponent(item.title)}`;
-        const foodRatingHtml = item.category === 'food' ? `
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;">
-                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">⭐ Google ${item.googleRating ? item.googleRating + ' / 5' : '查看即時評分'}</a>
-                <a href="${tabelogUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">🍽️ Tabelog ${item.tabelogRating ? item.tabelogRating + ' / 5' : '查看評分'}</a>
-            </div>` : '';
-
         card.innerHTML = `
             <div class="pool-card-body">
                 <div class="pool-card-info">
@@ -2090,10 +2100,12 @@ function renderPool() {
                         </div>
                     </div>
                     <p class="pool-card-desc">${item.desc}</p>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;">
                         <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-link" style="font-size:0.82rem;">🗺️ Google 地圖</a>
+                        <button type="button" class="quick-copy-btn" onclick="copyPoolField('${item.id}', 'title')">複製名稱</button>
+                        ${item.location ? `<button type="button" class="quick-copy-btn" onclick="copyPoolField('${item.id}', 'location')">複製地址</button>` : ''}
+                        <button type="button" class="quick-copy-btn" onclick="copyPoolField('${item.id}', 'info')">複製資訊</button>
                     </div>
-                    ${foodRatingHtml}
                     ${(item.photos && item.photos.length > 0) ? `<div class="pool-card-photos">${item.photos.map(p => `<img src="${p}" onerror="this.style.display='none'">`).join('')}</div>` : ''}
                 </div>
             </div>
