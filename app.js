@@ -1525,8 +1525,211 @@ function updateCountdown() {
     }
 }
 
+// TRAVEL CONTROL CENTER
+function formatLocalDateKey(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+}
+
+function openTripDay(dayStr) {
+    if (!dayStr) return;
+    currentSelectedDay = dayStr;
+    switchTab('itinerary');
+    selectDay(dayStr);
+}
+
+function getTripControlContext() {
+    const now = new Date();
+    const todayKey = formatLocalDateKey(now);
+    const start = db.startDate || '2026-11-04';
+    const end = db.endDate || start;
+
+    if (todayKey < start) return { mode: 'preview', day: start, now };
+    if (todayKey > end) return { mode: 'finished', day: end, now };
+    return { mode: 'today', day: todayKey, now };
+}
+
+function buildMapUrl(location, title) {
+    const query = location || title || '';
+    if (!query) return '';
+    if (String(query).startsWith('http')) return query;
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
+}
+
+function renderTravelTodayPanel() {
+    const panel = document.getElementById('travel-today-panel');
+    const badge = document.getElementById('travel-mode-badge');
+    if (!panel || !badge || !db) return;
+
+    const ctx = getTripControlContext();
+    const day = ctx.day;
+    const items = sortItineraryByTime([...(db.itinerary[day] || [])]);
+    const dayNum = getDayNumber(day);
+    const dateObj = new Date(day + 'T00:00:00');
+    const weekday = ["日", "一", "二", "三", "四", "五", "六"][dateObj.getDay()];
+
+    let modeTitle = '行前預覽';
+    let intro = '先確認第一天的重要行程，出發後這裡會自動切換成「今天」。';
+    if (ctx.mode === 'today') {
+        modeTitle = '今天';
+        intro = '依目前時間自動顯示下一站；不需要額外定位或交通 API。';
+    } else if (ctx.mode === 'finished') {
+        modeTitle = '旅程完成';
+        intro = '顯示最後一天行程，方便回顧與整理。';
+    }
+    badge.textContent = modeTitle;
+
+    let focusItem = items[0] || null;
+    if (ctx.mode === 'today' && items.length) {
+        const nowMinutes = ctx.now.getHours() * 60 + ctx.now.getMinutes();
+        focusItem = items.find(item => parseStartTime(item.time) >= nowMinutes) || items[items.length - 1];
+    }
+
+    const mapUrl = focusItem ? buildMapUrl(focusItem.location, focusItem.title) : '';
+    const upcomingItems = ctx.mode === 'today'
+        ? items.filter(item => parseStartTime(item.time) >= (ctx.now.getHours() * 60 + ctx.now.getMinutes())).slice(0, 4)
+        : items.slice(0, 4);
+
+    panel.innerHTML = `
+        <div class="travel-panel-heading">
+            <div>
+                <div class="travel-panel-label">${ctx.mode === 'today' ? '今日行程' : (ctx.mode === 'finished' ? '最後一天' : '第一天預覽')}</div>
+                <h3>Day ${dayNum} · ${day.replace(/-/g, '/')}（${weekday}）</h3>
+                <p>${intro}</p>
+            </div>
+            <button class="btn btn-outline travel-small-btn" onclick="openTripDay('${day}')">完整日程</button>
+        </div>
+        ${focusItem ? `
+            <div class="next-stop-card">
+                <span class="next-stop-label">${ctx.mode === 'today' ? '下一站' : '重點行程'}</span>
+                <div class="next-stop-time">${focusItem.time || '時間未定'}</div>
+                <div class="next-stop-title">${focusItem.title}</div>
+                <div class="next-stop-meta">
+                    ${focusItem.costTwd > 0 ? `<span>NT$ ${focusItem.costTwd.toLocaleString()}${focusItem.paymentStatus === 'paid' ? ' · 已付款' : ''}</span>` : (focusItem.cost > 0 ? `<span>¥ ${focusItem.cost.toLocaleString()}</span>` : '')}
+                    ${focusItem.bookingPlatform ? `<span>${focusItem.bookingPlatform}</span>` : ''}
+                </div>
+                <div class="next-stop-actions">
+                    ${mapUrl ? `<a class="btn btn-primary" href="${mapUrl}" target="_blank" rel="noopener noreferrer">開啟導航</a>` : ''}
+                    <button class="btn btn-outline" onclick="openTripDay('${day}')">查看這一天</button>
+                </div>
+            </div>
+        ` : `
+            <div class="travel-empty">這一天目前沒有排入行程。</div>
+        `}
+        ${upcomingItems.length ? `
+            <div class="today-mini-list">
+                ${upcomingItems.map(item => `
+                    <div class="today-mini-item">
+                        <span class="today-mini-time">${item.time || '--:--'}</span>
+                        <span class="today-mini-title">${item.title}</span>
+                    </div>
+                `).join('')}
+            </div>
+        ` : ''}
+    `;
+}
+
+function parseMonthDayFromText(text) {
+    const m = String(text || '').match(/(\d{1,2})\/(\d{1,2})/);
+    if (!m) return '';
+    const year = String(db.startDate || '2026-11-04').slice(0, 4);
+    return year + '-' + String(m[1]).padStart(2, '0') + '-' + String(m[2]).padStart(2, '0');
+}
+
+function collectConfirmedBookings() {
+    const rows = [];
+
+    (db.flights || []).forEach(f => {
+        const date = parseMonthDayFromText(f.depTime);
+        rows.push({
+            date,
+            time: String(f.depTime || '').match(/\d{1,2}:\d{2}/)?.[0] || '',
+            title: f.number || '航班',
+            type: '航班',
+            status: '已預訂',
+            detail: (f.from || '') + ' → ' + (f.to || ''),
+            day: date
+        });
+    });
+
+    (db.hotels || []).forEach(h => {
+        rows.push({
+            date: h.checkIn || '',
+            time: h.checkInTime || '',
+            title: h.name || '住宿',
+            type: '住宿',
+            status: '已預訂',
+            detail: (h.nights || '') + ' 晚',
+            day: h.checkIn || ''
+        });
+    });
+
+    Object.entries(db.itinerary || {}).forEach(([day, events]) => {
+        (events || []).forEach(item => {
+            const desc = item.desc || '';
+            const confirmed = item.paymentStatus === 'paid' || /(已預約|已訂位|已付款|已預訂)/.test(desc);
+            if (!confirmed) return;
+            rows.push({
+                date: day,
+                time: item.time || '',
+                title: item.title,
+                type: item.bookingPlatform || (item.category === 'food' ? '餐廳' : '行程'),
+                status: item.paymentStatus === 'paid' || /已付款/.test(desc) ? '已付款' : '已預約',
+                detail: item.costTwd > 0 ? 'NT$ ' + item.costTwd.toLocaleString() : (item.cost > 0 ? '¥ ' + item.cost.toLocaleString() : ''),
+                day
+            });
+        });
+    });
+
+    const seen = new Set();
+    return rows
+        .filter(r => r.date)
+        .filter(r => {
+            const key = [r.date, r.title, r.type].join('|');
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        })
+        .sort((a, b) => (a.date + ' ' + a.time).localeCompare(b.date + ' ' + b.time));
+}
+
+function renderReservationCenter() {
+    const panel = document.getElementById('reservation-center');
+    if (!panel || !db) return;
+    const rows = collectConfirmedBookings();
+    const ctx = getTripControlContext();
+    const relevant = rows.filter(r => ctx.mode === 'finished' ? true : r.date >= formatLocalDateKey(ctx.now));
+    const displayRows = (relevant.length ? relevant : rows).slice(0, 6);
+
+    panel.innerHTML = `
+        <div class="travel-panel-heading">
+            <div>
+                <div class="travel-panel-label">已預約中心</div>
+                <h3>重要預訂一次看</h3>
+                <p>由現有航班、住宿與行程中的「已預約 / 已付款」標記自動整理。</p>
+            </div>
+            <span class="reservation-count">${rows.length} 筆</span>
+        </div>
+        <div class="reservation-list">
+            ${displayRows.length ? displayRows.map(row => `
+                <button class="reservation-row" onclick="openTripDay('${row.day}')">
+                    <span class="reservation-date">${row.date.substring(5).replace('-', '/')}</span>
+                    <span class="reservation-main">
+                        <strong>${row.title}</strong>
+                        <small>${row.type}${row.time ? ' · ' + row.time : ''}${row.detail ? ' · ' + row.detail : ''}</small>
+                    </span>
+                    <span class="reservation-status ${row.status === '已付款' ? 'paid' : ''}">${row.status}</span>
+                </button>
+            `).join('') : '<div class="travel-empty">目前沒有可辨識的預約資料。</div>'}
+        </div>
+        <div class="reservation-note">不新增訂位服務串接；資料仍由你們目前的網站同步內容管理。</div>
+    `;
+}
+
 // RENDER DASHBOARD
 function renderDashboard() {
+    renderTravelTodayPanel();
+    renderReservationCenter();
+
     // 1. Flights
     const flightsContainer = document.getElementById('flights-container');
     flightsContainer.innerHTML = '';
