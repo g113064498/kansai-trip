@@ -2286,31 +2286,37 @@ function updateBudgetCalculations() {
     const activityTotalTwd = Math.round(activityTotalJpy * rate) + activityPaidTwd;
     const activityTotalJpyEquivalent = activityTotalJpy + Math.round(activityPaidTwd / rate);
 
-    // 目前所有已勾選伴手禮都歸女友；我的伴手禮暫時為 0。
+    // 伴手禮由「我 / 女友」各自勾選、各自計入個人預算。
+    // 舊資料的 done=true 會由 isSouvenirCheckedFor() 自動視為女友已勾。
+    let mySouvenirJpy = 0;
     let girlfriendSouvenirJpy = 0;
     (db.souvenirs || []).forEach(s => {
-        if (s.done && s.price && !isNaN(s.price)) {
-            girlfriendSouvenirJpy += parseInt(s.price);
-        }
+        if (!s.price || isNaN(s.price)) return;
+        const price = parseInt(s.price);
+        if (isSouvenirCheckedFor(s, 'me')) mySouvenirJpy += price;
+        if (isSouvenirCheckedFor(s, 'girl')) girlfriendSouvenirJpy += price;
     });
+    const mySouvenirTwd = Math.round(mySouvenirJpy * rate);
     const girlfriendSouvenirTwd = Math.round(girlfriendSouvenirJpy * rate);
 
-    const myLocalTwd = activityTotalTwd;
-    const myLocalJpy = activityTotalJpyEquivalent;
+    const myLocalTwd = activityTotalTwd + mySouvenirTwd;
+    const myLocalJpy = activityTotalJpyEquivalent + mySouvenirJpy;
     const girlfriendLocalTwd = activityTotalTwd + girlfriendSouvenirTwd;
     const girlfriendLocalJpy = activityTotalJpyEquivalent + girlfriendSouvenirJpy;
 
-    const myTotalTwd = flightHotelTotalTwd + activityTotalTwd;
-    const myTotalJpy = flightHotelTotalJpy + activityTotalJpyEquivalent;
-    const girlfriendTotalTwd = myTotalTwd + girlfriendSouvenirTwd;
-    const girlfriendTotalJpy = myTotalJpy + girlfriendSouvenirJpy;
+    const myTotalTwd = flightHotelTotalTwd + activityTotalTwd + mySouvenirTwd;
+    const myTotalJpy = flightHotelTotalJpy + activityTotalJpyEquivalent + mySouvenirJpy;
+    const girlfriendTotalTwd = flightHotelTotalTwd + activityTotalTwd + girlfriendSouvenirTwd;
+    const girlfriendTotalJpy = flightHotelTotalJpy + activityTotalJpyEquivalent + girlfriendSouvenirJpy;
 
     document.getElementById('budget-flighthotel').innerText = `NT$ ${flightHotelTotalTwd.toLocaleString()}`;
     document.getElementById('budget-flighthotel-jpy').innerText = `¥ ${flightHotelTotalJpy.toLocaleString()}`;
     document.getElementById('budget-activities').innerText = `NT$ ${activityTotalTwd.toLocaleString()}`;
     document.getElementById('budget-activities-jpy').innerText = `¥ ${activityTotalJpyEquivalent.toLocaleString()}`;
-    document.getElementById('budget-souvenirs').innerText = `NT$ ${girlfriendSouvenirTwd.toLocaleString()}`;
-    document.getElementById('budget-souvenirs-jpy').innerText = `¥ ${girlfriendSouvenirJpy.toLocaleString()}`;
+    document.getElementById('budget-souvenirs-me').innerText = `NT$ ${mySouvenirTwd.toLocaleString()}`;
+    document.getElementById('budget-souvenirs-me-jpy').innerText = `¥ ${mySouvenirJpy.toLocaleString()}`;
+    document.getElementById('budget-souvenirs-girl').innerText = `NT$ ${girlfriendSouvenirTwd.toLocaleString()}`;
+    document.getElementById('budget-souvenirs-girl-jpy').innerText = `¥ ${girlfriendSouvenirJpy.toLocaleString()}`;
 
     document.getElementById('budget-local-me').innerText = myLocalTwd.toLocaleString();
     document.getElementById('budget-local-me-jpy').innerText = myLocalJpy.toLocaleString();
@@ -2418,29 +2424,30 @@ function renderBudgetDetail() {
 
     if (activityHtml === '') activityHtml = '<div class="budget-detail-empty">無行程費用</div>';
 
-    // 4. Souvenirs Section
-    let souvenirHtml = '';
-    let souvenirSumJpy = 0;
-    const checkedSouvenirs = (db.souvenirs || []).filter(s => s.done);
-    checkedSouvenirs.forEach(s => {
-        if (s.price && !isNaN(s.price) && parseInt(s.price) > 0) {
-            const costJpy = parseInt(s.price);
-            const costTwd = Math.round(costJpy * rate);
-            souvenirSumJpy += costJpy;
-            souvenirHtml += `
-                <div class="budget-detail-item">
-                    <span class="item-label">🎁 ${s.name} (${s.category || '其他'})</span>
-                    <span class="item-cost-jpy">¥ ${costJpy.toLocaleString()}</span>
-                    <span class="item-cost-twd">NT$ ${costTwd.toLocaleString()}</span>
-                </div>
-            `;
-        }
-    });
+    // 4. Souvenirs Section — split by person
+    const buildSouvenirDetail = (person) => {
+        let html = '';
+        let sumJpy = 0;
+        (db.souvenirs || []).filter(s => isSouvenirCheckedFor(s, person)).forEach(s => {
+            if (s.price && !isNaN(s.price) && parseInt(s.price) > 0) {
+                const costJpy = parseInt(s.price);
+                const costTwd = Math.round(costJpy * rate);
+                sumJpy += costJpy;
+                html += `
+                    <div class="budget-detail-item">
+                        <span class="item-label">🎁 ${s.name} (${s.category || '其他'})</span>
+                        <span class="item-cost-jpy">¥ ${costJpy.toLocaleString()}</span>
+                        <span class="item-cost-twd">NT$ ${costTwd.toLocaleString()}</span>
+                    </div>
+                `;
+            }
+        });
+        if (!html) html = '<div class="budget-detail-empty">目前沒有已勾選且有填價格的伴手禮</div>';
+        return { html, sumJpy, sumTwd: Math.round(sumJpy * rate) };
+    };
 
-    if (souvenirHtml === '') {
-        souvenirHtml = '<div class="budget-detail-empty">女友目前沒有已勾選且有填價格的伴手禮</div>';
-    }
-    const souvenirSumTwd = Math.round(souvenirSumJpy * rate);
+    const mySouvenirDetail = buildSouvenirDetail('me');
+    const girlSouvenirDetail = buildSouvenirDetail('girl');
 
     container.innerHTML = `
         <div class="budget-detail-section">
@@ -2463,11 +2470,20 @@ function renderBudgetDetail() {
         </div>
         <div class="budget-detail-section">
             <div class="budget-detail-section-header">
-                <span>🎁 女友伴手禮費用（已勾選）</span>
-                <span>NT$ ${souvenirSumTwd.toLocaleString()}</span>
+                <span>🎁 我的伴手禮</span>
+                <span>NT$ ${mySouvenirDetail.sumTwd.toLocaleString()}</span>
             </div>
             <div class="budget-detail-section-body">
-                ${souvenirHtml}
+                ${mySouvenirDetail.html}
+            </div>
+        </div>
+        <div class="budget-detail-section">
+            <div class="budget-detail-section-header">
+                <span>🎁 女友伴手禮</span>
+                <span>NT$ ${girlSouvenirDetail.sumTwd.toLocaleString()}</span>
+            </div>
+            <div class="budget-detail-section-body">
+                ${girlSouvenirDetail.html}
             </div>
         </div>
     `;
@@ -3376,6 +3392,19 @@ async function saveSouvenirsToRemote() {
     }
 }
 
+function isSouvenirCheckedFor(item, person) {
+    if (!item) return false;
+    if (person === 'me') return item.meDone === true;
+    // Backward compatibility: legacy done=true means girlfriend already checked it.
+    if (typeof item.girlDone === 'boolean') return item.girlDone;
+    return item.done === true;
+}
+
+function syncLegacySouvenirDone(item) {
+    if (!item) return;
+    item.done = isSouvenirCheckedFor(item, 'me') || isSouvenirCheckedFor(item, 'girl');
+}
+
 function renderSouvenirs() {
     const container = document.getElementById('souvenir-container');
     if (!container) return;
@@ -3389,10 +3418,21 @@ function renderSouvenirs() {
         return;
     }
     items.forEach(item => {
+        const meChecked = isSouvenirCheckedFor(item, 'me');
+        const girlChecked = isSouvenirCheckedFor(item, 'girl');
         const div = document.createElement('div');
-        div.className = 'souvenir-card' + (item.done ? ' done' : '');
+        div.className = 'souvenir-card' + (meChecked && girlChecked ? ' both-done' : '');
         div.innerHTML = `
-            <div class="souvenir-check" onclick="toggleSouvenir('${item.id}')">${item.done ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
+            <div class="souvenir-owner-checks">
+                <button type="button" class="souvenir-person-check ${meChecked ? 'checked' : ''}" onclick="toggleSouvenir('${item.id}', 'me')" title="我的伴手禮">
+                    <span class="souvenir-person-box">${meChecked ? '✓' : ''}</span>
+                    <span>我</span>
+                </button>
+                <button type="button" class="souvenir-person-check ${girlChecked ? 'checked' : ''}" onclick="toggleSouvenir('${item.id}', 'girl')" title="女友的伴手禮">
+                    <span class="souvenir-person-box">${girlChecked ? '✓' : ''}</span>
+                    <span>女友</span>
+                </button>
+            </div>
             <div class="souvenir-content">
                 <div class="souvenir-info">
                     <div class="souvenir-name">${item.name} <span class="tag tag-city" style="font-size:0.7rem;">${item.category || '其他'}</span></div>
@@ -3455,7 +3495,7 @@ async function addSouvenir(e) {
         editingSouvenirId = null;
         document.querySelector('#souvenirs form button[type=submit]').textContent = '新增';
     } else {
-        db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, notes, done: false });
+        db.souvenirs.push({ id: 'souv-' + Date.now(), name, category: cat, shop, price: parseInt(price) || 0, photo, notes, done: false, meDone: false, girlDone: false });
     }
     document.getElementById('souv-name').value = '';
     document.getElementById('souv-shop').value = '';
@@ -3486,10 +3526,17 @@ function filterSouvenirs(cat, el) {
     renderSouvenirs();
 }
 
-function toggleSouvenir(id) {
+function toggleSouvenir(id, person) {
     const item = (db.souvenirs || []).find(s => s.id === id);
     if (!item) return;
-    item.done = !item.done;
+
+    if (person === 'me') {
+        item.meDone = !isSouvenirCheckedFor(item, 'me');
+    } else {
+        item.girlDone = !isSouvenirCheckedFor(item, 'girl');
+    }
+    syncLegacySouvenirDone(item);
+
     renderSouvenirs();
     updateBudgetCalculations();
     saveSouvenirsToRemote().catch(function(){});
