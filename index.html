@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=58">
+    <link rel="stylesheet" href="style.css?v=59">
 </head>
 <body>
 
@@ -248,9 +248,19 @@
                     <div class="budget-badge-jpy" id="budget-activities-jpy">¥ --</div>
                 </div>
                 <div class="budget-badge clickable" onclick="toggleBudgetDetail()">
-                    <div class="budget-badge-label">女友伴手禮費用（已勾選）</div>
-                    <div class="budget-badge-value" id="budget-souvenirs">NT$ --</div>
-                    <div class="budget-badge-jpy" id="budget-souvenirs-jpy">¥ --</div>
+                    <div class="budget-badge-label">伴手禮費用</div>
+                    <div class="budget-person-total">
+                        <div class="budget-person-total-row">
+                            <span class="budget-person-name">我的</span>
+                            <strong id="budget-souvenirs-me">NT$ --</strong>
+                            <small id="budget-souvenirs-me-jpy">¥ --</small>
+                        </div>
+                        <div class="budget-person-total-row">
+                            <span class="budget-person-name">女友</span>
+                            <strong id="budget-souvenirs-girl">NT$ --</strong>
+                            <small id="budget-souvenirs-girl-jpy">¥ --</small>
+                        </div>
+                    </div>
                 </div>
                 <div class="budget-badge total-badge clickable" onclick="toggleBudgetDetail()">
                     <div class="budget-badge-label">預計總費用</div>
@@ -277,7 +287,7 @@
                 </div>
                 <div id="budget-detail-content" class="budget-detail-content"></div>
                 <div class="budget-exchange-note">
-                    匯率參考：1 JPY ≈ NT$ <span id="exchange-rate-display">0.20</span> ｜共同行程兩人各算一份；目前所有已勾選伴手禮歸女友，我的伴手禮暫不計算
+                    匯率參考：1 JPY ≈ NT$ <span id="exchange-rate-display">0.20</span> ｜共同行程兩人各算一份；伴手禮依「我 / 女友」各自勾選，分別計入個人預算
                 </div>
             </div>
 <!-- Double Checklist -->
@@ -347,7 +357,7 @@
         <section id="souvenirs" class="content-section">
             <div class="card-header">
                 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M22 6H2l4-4h12l4 4z"/><path d="M12 6v16"/></svg> 必買伴手禮</h3>
-                <p>關西必買推薦清單，買過打勾</p>
+                <p>關西必買推薦清單，可分別勾選「我」與「女友」</p>
             </div>
             <form onsubmit="addSouvenir(event)" class="souv-form">
                 <div class="souv-inputs-grid">
@@ -375,7 +385,7 @@
                 <button class="filter-chip" onclick="filterSouvenirs('服飾', this)">服飾</button>
                 <button class="filter-chip" onclick="filterSouvenirs('其他', this)">其他</button>
             </div>
-            <div class="souvenir-owner-note">預算規則：目前「已勾選」的伴手禮全部計入女友；我的伴手禮暫不計算。</div>
+            <div class="souvenir-owner-note">每項伴手禮可分別勾選「我」或「女友」。舊有已勾選項目會保留為「女友已勾」。</div>
             <div class="souvenir-grid" id="souvenir-container"></div>
         </section>
     </main>
@@ -592,6 +602,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=60" defer></script>
+    <script src="app.js?v=61" defer></script>
 </body>
 </html>
