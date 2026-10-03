@@ -1985,8 +1985,10 @@ function updateBudgetCalculations() {
     document.getElementById('budget-souvenirs-jpy').innerText = `¥ ${souvenirTotalJpy.toLocaleString()}`;
     document.getElementById('budget-total').innerText = `NT$ ${totalSumTwd.toLocaleString()}`;
     document.getElementById('budget-total-jpy').innerText = `¥ ${totalSumJpy.toLocaleString()}`;
-    document.getElementById('budget-sum').innerText = totalSumTwd.toLocaleString();
-    document.getElementById('budget-sum-jpy').innerText = totalSumJpy.toLocaleString();
+    const localBudgetTwd = activityTotalTwd + souvenirTotalTwd;
+    const localBudgetJpy = activityTotalJpy + souvenirTotalJpy;
+    document.getElementById('budget-sum').innerText = localBudgetTwd.toLocaleString();
+    document.getElementById('budget-sum-jpy').innerText = localBudgetJpy.toLocaleString();
 }
 
 // EXPANDABLE BUDGET DETAILS
@@ -2042,7 +2044,7 @@ function renderBudgetDetail() {
 
     let flightHotelBody = flightHtml + hotelHtml;
     if (flightHotelBody === '') {
-        flightHotelBody = '<div class="budget-detail-empty">無機加酒費用</div>';
+        flightHotelBody = '<div class="budget-detail-empty">無行前必備開銷</div>';
     }
 
     // 3. Activities Section
@@ -2106,7 +2108,7 @@ function renderBudgetDetail() {
     container.innerHTML = `
         <div class="budget-detail-section">
             <div class="budget-detail-section-header">
-                <span>✈️🏨 機加酒費用 (單人)</span>
+                <span>✈️🏨 行前必備開銷 (單人)</span>
                 <span>NT$ ${(flightSumTwd + hotelSumTwd).toLocaleString()}</span>
             </div>
             <div class="budget-detail-section-body">
