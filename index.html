@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=57">
+    <link rel="stylesheet" href="style.css?v=58">
 </head>
 <body>
 
@@ -36,9 +36,12 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     總天數：<span>8 天 7 夜</span>
                 </div>
-                <div class="stat-badge" id="budget-summary-badge">
+                <div class="stat-badge budget-person-summary" id="budget-summary-badge">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 1 0 0-4Z"/><path d="M6 12h.01M18 12h.01"/></svg>
-                    單人當地預算：NT$ <span id="budget-sum">--</span> / ¥<span id="budget-sum-jpy">--</span>
+                    <div class="budget-person-summary-lines">
+                        <div>我的當地預算：NT$ <span id="budget-local-me">--</span> / ¥<span id="budget-local-me-jpy">--</span></div>
+                        <div>女友當地預算：NT$ <span id="budget-local-girl">--</span> / ¥<span id="budget-local-girl-jpy">--</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -245,26 +248,36 @@
                     <div class="budget-badge-jpy" id="budget-activities-jpy">¥ --</div>
                 </div>
                 <div class="budget-badge clickable" onclick="toggleBudgetDetail()">
-                    <div class="budget-badge-label">伴手禮費用 (單人)</div>
+                    <div class="budget-badge-label">女友伴手禮費用（已勾選）</div>
                     <div class="budget-badge-value" id="budget-souvenirs">NT$ --</div>
                     <div class="budget-badge-jpy" id="budget-souvenirs-jpy">¥ --</div>
                 </div>
                 <div class="budget-badge total-badge clickable" onclick="toggleBudgetDetail()">
-                    <div class="budget-badge-label">預計總費用 (單人)</div>
-                    <div class="budget-badge-value total" id="budget-total">NT$ --</div>
-                    <div class="budget-badge-jpy" id="budget-total-jpy">¥ --</div>
+                    <div class="budget-badge-label">預計總費用</div>
+                    <div class="budget-person-total">
+                        <div class="budget-person-total-row">
+                            <span class="budget-person-name">我的</span>
+                            <strong id="budget-total-me">NT$ --</strong>
+                            <small id="budget-total-me-jpy">¥ --</small>
+                        </div>
+                        <div class="budget-person-total-row">
+                            <span class="budget-person-name">女友</span>
+                            <strong id="budget-total-girl">NT$ --</strong>
+                            <small id="budget-total-girl-jpy">¥ --</small>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Budget Detail Expandable Panel -->
             <div id="budget-detail-panel" class="budget-detail-panel" style="display:none;">
                 <div class="budget-detail-header">
-                    <h4>預算明細 (單人)</h4>
+                    <h4>預算明細（共同費用以每人計）</h4>
                     <button class="btn btn-outline" onclick="toggleBudgetDetail()" style="font-size:0.8rem; padding:4px 12px;">收起 ▲</button>
                 </div>
                 <div id="budget-detail-content" class="budget-detail-content"></div>
                 <div class="budget-exchange-note">
-                    匯率參考：1 JPY ≈ NT$ <span id="exchange-rate-display">0.20</span> ｜一般行程以日圓記錄；已用台幣付款的項目以實付台幣計入，日圓僅為換算參考
+                    匯率參考：1 JPY ≈ NT$ <span id="exchange-rate-display">0.20</span> ｜共同行程兩人各算一份；目前所有已勾選伴手禮歸女友，我的伴手禮暫不計算
                 </div>
             </div>
 <!-- Double Checklist -->
@@ -362,6 +375,7 @@
                 <button class="filter-chip" onclick="filterSouvenirs('服飾', this)">服飾</button>
                 <button class="filter-chip" onclick="filterSouvenirs('其他', this)">其他</button>
             </div>
+            <div class="souvenir-owner-note">預算規則：目前「已勾選」的伴手禮全部計入女友；我的伴手禮暫不計算。</div>
             <div class="souvenir-grid" id="souvenir-container"></div>
         </section>
     </main>
@@ -578,6 +592,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=59" defer></script>
+    <script src="app.js?v=60" defer></script>
 </body>
 </html>
