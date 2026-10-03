@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=56">
+    <link rel="stylesheet" href="style.css?v=57">
 </head>
 <body>
 
@@ -73,6 +73,25 @@
 
         <!-- 1. DASHBOARD VIEW -->
         <section id="dashboard" class="content-section active">
+            <!-- Travel control center: uses existing trip data only, no external API -->
+            <div class="travel-control-card card">
+                <div class="travel-control-header">
+                    <div>
+                        <span class="travel-control-kicker">TRIP CONTROL</span>
+                        <h2>旅途中控台</h2>
+                    </div>
+                    <div id="travel-mode-badge" class="travel-mode-badge">行前預覽</div>
+                </div>
+                <div class="travel-control-grid">
+                    <div id="travel-today-panel" class="travel-control-panel">
+                        <!-- JS: today / next stop -->
+                    </div>
+                    <div id="reservation-center" class="travel-control-panel">
+                        <!-- JS: confirmed bookings -->
+                    </div>
+                </div>
+            </div>
+
             <div class="dashboard-grid">
                 <!-- Left panel: Flights, Hotels -->
                 <div>
@@ -559,6 +578,6 @@
     </div>
 
     <!-- Script files -->
-    <script src="app.js?v=56" defer></script>
+    <script src="app.js?v=57" defer></script>
 </body>
 </html>
