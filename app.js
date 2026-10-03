@@ -1682,7 +1682,7 @@ function renderReservationCenter() {
             <div>
                 <div class="travel-panel-label">已預約中心</div>
                 <h3>重要預訂一次看</h3>
-                <p>由現有航班、住宿與行程中的「已預約 / 已付款」標記自動整理。</p>
+                <p>由現有行程中的「已預約 / 已訂位 / 已付款」標記自動整理。</p>
             </div>
             <span class="reservation-count">${rows.length} 筆</span>
         </div>
