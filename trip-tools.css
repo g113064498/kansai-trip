@@ -1,0 +1,58 @@
+/* Isolated ledger layout; reuse the trip's existing theme. */
+#split-ledger [hidden] { display: none !important; }
+#split-ledger h2, #split-ledger h3, #split-ledger h4 { color: var(--secondary); }
+#split-ledger h2 { font-size: 1.55rem; }
+#split-ledger h3 { font-size: 1.08rem; margin-bottom: 12px; }
+#split-ledger .card:hover { transform: none; }
+#split-ledger button { min-height: 40px; }
+#split-ledger button:disabled { opacity: .5; cursor: not-allowed; }
+#split-ledger button:focus-visible, #split-ledger input:focus-visible, #split-ledger select:focus-visible, #split-ledger textarea:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.split-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+.split-heading p { color: var(--text-muted); margin-top: 6px; }
+.split-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#split-status { flex-basis: 100%; font-size: .84rem; margin: 0; }
+#split-status.split-stale, #split-form-error { color: var(--accent-red); }
+#split-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.split-balance { min-width: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-top: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px; }
+.split-debt { display: block; font-size: 1.3rem; color: var(--primary); overflow-wrap: anywhere; }
+.split-balance > p { color: var(--text-muted); font-size: .87rem; margin: 8px 0; }
+.split-balance dl { margin: 12px 0 16px; }
+.split-balance dl > div { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 6px 0; font-size: .83rem; }
+.split-balance dt { color: var(--text-muted); }
+.split-balance dd { margin: 0; font-variant-numeric: tabular-nums; }
+.split-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
+#split-form fieldset { border: 0; min-width: 0; padding: 0; margin: 0; }
+.split-form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin: 14px 0; }
+#split-form label { display: block; font-size: .86rem; font-weight: 600; min-width: 0; }
+#split-form .form-control { width: 100%; margin-top: 6px; min-height: 44px; font-size: 16px; }
+.split-full { grid-column: 1 / -1; }
+#split-preview { display: block; padding: 12px; margin: 14px 0; background: var(--bg-base); border-radius: var(--radius-sm); font-size: .83rem; }
+#split-form-error { font-size: .87rem; margin: 10px 0; }
+#split-save { width: 100%; }
+.split-history-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.split-history-heading label { font-size: .8rem; }
+.split-help, .split-empty { color: var(--text-muted); font-size: .83rem; }
+.split-help { margin-bottom: 14px; }
+.split-entry { padding: 16px 0; border-top: 1px solid var(--border-color); }
+.split-entry-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.split-entry-top > div { min-width: 0; }
+.split-entry-top h4 { overflow-wrap: anywhere; font-size: .98rem; }
+.split-entry-top strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.split-entry small { font-size: .76rem; color: var(--text-muted); }
+.split-entry p { margin: 6px 0; font-size: .83rem; overflow-wrap: anywhere; }
+.split-note { white-space: pre-wrap; color: var(--text-muted); }
+.split-entry .quick-copy-btn { margin-top: 6px; }
+.split-voided { opacity: .65; }
+.split-voided h4 { text-decoration: line-through; }
+#split-pending { border: 2px solid var(--accent-orange); }
+#split-pending > div { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
+@media (max-width: 760px) {
+    #split-balances, .split-layout { grid-template-columns: minmax(0, 1fr); }
+    #split-ledger .card, .split-balance { padding: 18px; }
+    .split-actions { width: 100%; }
+    .split-actions .btn { flex: 1 1 auto; }
+    .split-debt { font-size: 1.2rem; }
+}
+@media (min-width: 768px) {
+    .main-nav { max-width: 960px; }
+}
