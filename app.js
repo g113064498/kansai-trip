@@ -452,16 +452,26 @@ async function migrateConfirmedRestaurantBookings(allProducts) {
 
 async function migrateConfirmedNov8DayTrip(allProducts) {
     const parse = (p) => { try { return JSON.parse(p.content || '{}'); } catch { return {}; } };
-    const candidates = (allProducts || []).filter(p => {
+    const dayItems = (allProducts || []).filter(p => {
         if (p.category !== '候選景點') return false;
         const data = parse(p);
         const unit = p.unit || '';
         const unitDay = unit.includes('|') ? unit.split('|')[0] : '';
         const day = unitDay || data.day || '';
-        if (day !== '2026-11-08') return false;
+        return day === '2026-11-08' && (p.is_enabled == 1 || p.is_enabled === true);
+    });
+    let candidates = dayItems.filter(p => {
+        const data = parse(p);
         const text = [p.title, data.desc].filter(Boolean).join(' ');
         return /(天橋立|伊根|Amanohashidate|丹後|Ine)/i.test(text);
     });
+    if (!candidates.length) {
+        const likelyDayTours = dayItems.filter(p => {
+            const data = parse(p);
+            return !['food', 'transport', 'hotel'].includes(data.category || '');
+        });
+        if (likelyDayTours.length === 1) candidates = likelyDayTours;
+    }
     if (!candidates.length) return allProducts;
 
     const score = (p) => {
