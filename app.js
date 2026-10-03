@@ -1609,6 +1609,8 @@ function renderTravelTodayPanel() {
                 </div>
                 <div class="next-stop-actions">
                     ${mapUrl ? `<a class="btn btn-primary" href="${mapUrl}" target="_blank" rel="noopener noreferrer">開啟導航</a>` : ''}
+                    <button class="btn btn-outline" onclick="copyItineraryField('${day}', '${focusItem.id}', 'title')">複製名稱</button>
+                    ${focusItem.location ? `<button class="btn btn-outline" onclick="copyItineraryField('${day}', '${focusItem.id}', 'location')">複製地址</button>` : ''}
                     <button class="btn btn-outline" onclick="openTripDay('${day}')">查看這一天</button>
                 </div>
             </div>
@@ -1838,6 +1840,62 @@ function selectDay(dayStr) {
     renderItineraryForDay(dayStr);
 }
 
+// QUICK COPY HELPERS
+async function copyTextToClipboard(text, label) {
+    if (!text) {
+        showToast('沒有可複製的內容', 1600);
+        return;
+    }
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+        }
+        showToast((label || '內容') + '已複製！', 1400);
+    } catch (err) {
+        console.warn('[Copy] 複製失敗:', err);
+        showToast('複製失敗，請長按文字手動複製', 2200);
+    }
+}
+
+function getItineraryItem(dayStr, id) {
+    return (db.itinerary[dayStr] || []).find(item => String(item.id) === String(id)) || null;
+}
+
+function copyItineraryField(dayStr, id, mode) {
+    const item = getItineraryItem(dayStr, id);
+    if (!item) return;
+
+    if (mode === 'title') {
+        copyTextToClipboard(item.title || '', '名稱');
+        return;
+    }
+    if (mode === 'location') {
+        copyTextToClipboard(item.location || '', '地址');
+        return;
+    }
+
+    const lines = [
+        item.title || '',
+        item.time ? '時間：' + item.time : '',
+        item.location ? '地點：' + item.location : '',
+        item.bookingPlatform ? '平台：' + item.bookingPlatform : '',
+        item.costTwd > 0 ? '費用：NT$ ' + item.costTwd.toLocaleString() + (item.paymentStatus === 'paid' ? '（已付款）' : '') : '',
+        item.cost > 0 ? '費用：¥ ' + item.cost.toLocaleString() : '',
+        item.desc ? '備註：' + item.desc : ''
+    ].filter(Boolean);
+    copyTextToClipboard(lines.join('\n'), '行程資訊');
+}
+
 // RENDER ITINERARY FOR A DAY
 function renderItineraryForDay(dayStr) {
     const container = document.getElementById('timeline-container');
@@ -1916,6 +1974,11 @@ function renderItineraryForDay(dayStr) {
                                     💵 ¥ ${item.cost.toLocaleString()}
                                 </div>
                             ` : '')}
+                            <div class="timeline-copy-actions">
+                                <button type="button" class="quick-copy-btn" onclick="copyItineraryField('${dayStr}', '${item.id}', 'title')">複製名稱</button>
+                                ${item.location ? `<button type="button" class="quick-copy-btn" onclick="copyItineraryField('${dayStr}', '${item.id}', 'location')">複製地址</button>` : ''}
+                                ${(item.paymentStatus === 'paid' || /(已預約|已訂位|已付款|已預訂)/.test(item.desc || '')) ? `<button type="button" class="quick-copy-btn" onclick="copyItineraryField('${dayStr}', '${item.id}', 'info')">複製訂位資訊</button>` : ''}
+                            </div>
                         </div>
                     </div>
                     ${hasPhotos ? `
@@ -2201,15 +2264,14 @@ function toggleChecklistItem(id) {
 
 // UPDATE BUDGET TOTALS
 function updateBudgetCalculations() {
-    // Static values (單人費用需除以 2)
+    // 行前機票／住宿原始價格為雙人總額，這裡換算成每人。
     const flightTotalTwd = db.flights.reduce((sum, f) => sum + f.price, 0) / 2;
     const hotelTotalTwd = db.hotels.reduce((sum, h) => sum + h.price, 0) / 2;
     const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd;
     const rate = JPY_TO_TWD_RATE;
-
     const flightHotelTotalJpy = Math.round(flightHotelTotalTwd / rate);
 
-    // Dynamic values from itinerary (原幣值為 JPY)
+    // 行程費用視為每人費用，因此我與女友各算一份。
     let activityTotalJpy = 0;
     let activityPaidTwd = 0;
     Object.values(db.itinerary).forEach(dayEvents => {
@@ -2224,32 +2286,42 @@ function updateBudgetCalculations() {
     const activityTotalTwd = Math.round(activityTotalJpy * rate) + activityPaidTwd;
     const activityTotalJpyEquivalent = activityTotalJpy + Math.round(activityPaidTwd / rate);
 
-    // Souvenirs (only checked items, value in JPY)
-    let souvenirTotalJpy = 0;
-    if (db.souvenirs) {
-        db.souvenirs.forEach(s => {
-            if (s.done && s.price && !isNaN(s.price)) {
-                souvenirTotalJpy += parseInt(s.price);
-            }
-        });
-    }
-    const souvenirTotalTwd = Math.round(souvenirTotalJpy * rate);
+    // 目前所有已勾選伴手禮都歸女友；我的伴手禮暫時為 0。
+    let girlfriendSouvenirJpy = 0;
+    (db.souvenirs || []).forEach(s => {
+        if (s.done && s.price && !isNaN(s.price)) {
+            girlfriendSouvenirJpy += parseInt(s.price);
+        }
+    });
+    const girlfriendSouvenirTwd = Math.round(girlfriendSouvenirJpy * rate);
 
-    const totalSumTwd = flightHotelTotalTwd + activityTotalTwd + souvenirTotalTwd;
-    const totalSumJpy = flightHotelTotalJpy + activityTotalJpyEquivalent + souvenirTotalJpy;
+    const myLocalTwd = activityTotalTwd;
+    const myLocalJpy = activityTotalJpyEquivalent;
+    const girlfriendLocalTwd = activityTotalTwd + girlfriendSouvenirTwd;
+    const girlfriendLocalJpy = activityTotalJpyEquivalent + girlfriendSouvenirJpy;
+
+    const myTotalTwd = flightHotelTotalTwd + activityTotalTwd;
+    const myTotalJpy = flightHotelTotalJpy + activityTotalJpyEquivalent;
+    const girlfriendTotalTwd = myTotalTwd + girlfriendSouvenirTwd;
+    const girlfriendTotalJpy = myTotalJpy + girlfriendSouvenirJpy;
 
     document.getElementById('budget-flighthotel').innerText = `NT$ ${flightHotelTotalTwd.toLocaleString()}`;
     document.getElementById('budget-flighthotel-jpy').innerText = `¥ ${flightHotelTotalJpy.toLocaleString()}`;
     document.getElementById('budget-activities').innerText = `NT$ ${activityTotalTwd.toLocaleString()}`;
     document.getElementById('budget-activities-jpy').innerText = `¥ ${activityTotalJpyEquivalent.toLocaleString()}`;
-    document.getElementById('budget-souvenirs').innerText = `NT$ ${souvenirTotalTwd.toLocaleString()}`;
-    document.getElementById('budget-souvenirs-jpy').innerText = `¥ ${souvenirTotalJpy.toLocaleString()}`;
-    document.getElementById('budget-total').innerText = `NT$ ${totalSumTwd.toLocaleString()}`;
-    document.getElementById('budget-total-jpy').innerText = `¥ ${totalSumJpy.toLocaleString()}`;
-    const localBudgetTwd = activityTotalTwd + souvenirTotalTwd;
-    const localBudgetJpy = activityTotalJpyEquivalent + souvenirTotalJpy;
-    document.getElementById('budget-sum').innerText = localBudgetTwd.toLocaleString();
-    document.getElementById('budget-sum-jpy').innerText = localBudgetJpy.toLocaleString();
+    document.getElementById('budget-souvenirs').innerText = `NT$ ${girlfriendSouvenirTwd.toLocaleString()}`;
+    document.getElementById('budget-souvenirs-jpy').innerText = `¥ ${girlfriendSouvenirJpy.toLocaleString()}`;
+
+    document.getElementById('budget-local-me').innerText = myLocalTwd.toLocaleString();
+    document.getElementById('budget-local-me-jpy').innerText = myLocalJpy.toLocaleString();
+    document.getElementById('budget-local-girl').innerText = girlfriendLocalTwd.toLocaleString();
+    document.getElementById('budget-local-girl-jpy').innerText = girlfriendLocalJpy.toLocaleString();
+
+    document.getElementById('budget-total-me').innerText = `NT$ ${myTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-total-me-jpy').innerText = `¥ ${myTotalJpy.toLocaleString()}`;
+    document.getElementById('budget-total-girl').innerText = `NT$ ${girlfriendTotalTwd.toLocaleString()}`;
+    document.getElementById('budget-total-girl-jpy').innerText = `¥ ${girlfriendTotalJpy.toLocaleString()}`;
+
     const exchangeRateDisplay = document.getElementById('exchange-rate-display');
     if (exchangeRateDisplay) exchangeRateDisplay.innerText = rate.toFixed(2);
 }
@@ -2366,7 +2438,7 @@ function renderBudgetDetail() {
     });
 
     if (souvenirHtml === '') {
-        souvenirHtml = '<div class="budget-detail-empty">無伴手禮費用 (僅計算已打勾且有填寫價錢的項目)</div>';
+        souvenirHtml = '<div class="budget-detail-empty">女友目前沒有已勾選且有填價格的伴手禮</div>';
     }
     const souvenirSumTwd = Math.round(souvenirSumJpy * rate);
 
@@ -2391,7 +2463,7 @@ function renderBudgetDetail() {
         </div>
         <div class="budget-detail-section">
             <div class="budget-detail-section-header">
-                <span>🎁 伴手禮費用 (單人)</span>
+                <span>🎁 女友伴手禮費用（已勾選）</span>
                 <span>NT$ ${souvenirSumTwd.toLocaleString()}</span>
             </div>
             <div class="budget-detail-section-body">
