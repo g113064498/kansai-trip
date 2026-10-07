@@ -591,11 +591,14 @@ async function migrateTripCorrections20260925(masterData, master, allProducts) {
         const day = unitDay || data.day || '';
 
         if (data.sourceRef === 'flight:flight-1' || (day === '2026-11-04' && String(prod.title).includes('MM024'))) {
-            await updateExisting(prod, prod.title, {
-                desc: '抵達關西機場第二航廈後，直接從T2搭機場利木津巴士前往京都站八条口（目前單程¥2,800/人），再搭計程車前往Hop Inn Kyoto Shijo Omiya。',
-                location: '關西國際機場 第2航廈'
-            });
-            productsDirty = true;
+            const nextDesc = '搭乘 06:07 的高鐵至桃園站（06:49 抵達），轉乘 A18 機場捷運至 A12 第一航廈，約 07:30 抵達 1F 出境大廳';
+            if (data.desc !== nextDesc) {
+                await updateExisting(prod, prod.title, {
+                    desc: nextDesc,
+                    location: data.location || '關西國際機場 第2航廈'
+                });
+                productsDirty = true;
+            }
         } else if (data.sourceRef === 'flight:flight-2' || (day === '2026-11-11' && String(prod.title).includes('MM027'))) {
             await updateExisting(prod, prod.title, {
                 desc: 'Cu Tennoji退房後前往近鐵上本町2F巴士總站，搭機場利木津巴士直達關西機場第2航廈。目前時刻表建議11:40發→12:42抵達T2；MM027 15:25起飛。Peach國際線報到在T2 1F，最晚起飛前50分鐘完成。出發前再確認最新時刻。',
