@@ -2391,27 +2391,48 @@ function toggleChecklistItem(id) {
     }
 }
 
+// HELPER TO IDENTIFY PREPAID ITINERARY ITEMS (行前已付款項目，計入行前必備開銷)
+function isPrepaidItineraryItem(e) {
+    if (!e) return false;
+    if (e.paymentStatus === 'paid') return true;
+    if (/(天橋立|伊根)/.test(e.title || '') && (e.costTwd > 0 || e.paymentStatus === 'paid')) return true;
+    return false;
+}
+
 // UPDATE BUDGET TOTALS
 function updateBudgetCalculations() {
     // 行前機票／住宿原始價格為雙人總額，這裡換算成每人。
     const flightTotalTwd = db.flights.reduce((sum, f) => sum + f.price, 0) / 2;
     const hotelTotalTwd = db.hotels.reduce((sum, h) => sum + h.price, 0) / 2;
-    const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd;
     const rate = JPY_TO_TWD_RATE;
-    const flightHotelTotalJpy = Math.round(flightHotelTotalTwd / rate);
 
-    // 行程費用視為每人費用，因此我與女友各算一份。
+    // 行程費用視為每人費用；若為行前已付款項目（如一日團），計入行前必備開銷。
+    let prepaidActivityTwd = 0;
     let activityTotalJpy = 0;
     let activityPaidTwd = 0;
     Object.values(db.itinerary).forEach(dayEvents => {
         dayEvents.forEach(e => {
-            if (e.costTwd && !isNaN(e.costTwd)) {
-                activityPaidTwd += parseInt(e.costTwd);
-            } else if (e.cost && !isNaN(e.cost)) {
-                activityTotalJpy += parseInt(e.cost);
+            const directTwd = parseInt(e.costTwd) || 0;
+            const jpyCost = parseInt(e.cost) || 0;
+            if (isPrepaidItineraryItem(e)) {
+                if (directTwd > 0) {
+                    prepaidActivityTwd += directTwd;
+                } else if (jpyCost > 0) {
+                    prepaidActivityTwd += Math.round(jpyCost * rate);
+                }
+            } else {
+                if (directTwd > 0) {
+                    activityPaidTwd += directTwd;
+                } else if (jpyCost > 0) {
+                    activityTotalJpy += jpyCost;
+                }
             }
         });
     });
+
+    const flightHotelTotalTwd = flightTotalTwd + hotelTotalTwd + prepaidActivityTwd;
+    const flightHotelTotalJpy = Math.round(flightHotelTotalTwd / rate);
+
     const activityTotalTwd = Math.round(activityTotalJpy * rate) + activityPaidTwd;
     const activityTotalJpyEquivalent = activityTotalJpy + Math.round(activityPaidTwd / rate);
 
@@ -2512,12 +2533,9 @@ function renderBudgetDetail() {
         `;
     });
 
-    let flightHotelBody = flightHtml + hotelHtml;
-    if (flightHotelBody === '') {
-        flightHotelBody = '<div class="budget-detail-empty">無行前必備開銷</div>';
-    }
-
-    // 3. Activities Section
+    // 3. Activities & Prepaid Items Section
+    let prepaidActivityHtml = '';
+    let prepaidActivitySumTwd = 0;
     let activityHtml = '';
     let activitySumJpy = 0;
     let activitySumTwd = 0;
@@ -2538,18 +2556,29 @@ function renderBudgetDetail() {
             if (directTwd > 0 || jpyCost > 0) {
                 const costTwd = directTwd > 0 ? directTwd : Math.round(jpyCost * rate);
                 const costJpy = directTwd > 0 ? Math.round(directTwd / rate) : jpyCost;
-                activitySumJpy += costJpy;
-                activitySumTwd += costTwd;
-                activityHtml += `
+                const itemHtml = `
                     <div class="budget-detail-item">
                         <span class="item-label">Day ${dayNum} - ${e.title}${directTwd > 0 ? '（台幣實付）' : ''}</span>
                         <span class="item-cost-jpy">${directTwd > 0 ? '≈ ' : ''}¥ ${costJpy.toLocaleString()}</span>
                         <span class="item-cost-twd">NT$ ${costTwd.toLocaleString()}</span>
                     </div>
                 `;
+                if (isPrepaidItineraryItem(e)) {
+                    prepaidActivitySumTwd += costTwd;
+                    prepaidActivityHtml += itemHtml;
+                } else {
+                    activitySumJpy += costJpy;
+                    activitySumTwd += costTwd;
+                    activityHtml += itemHtml;
+                }
             }
         });
     });
+
+    let flightHotelBody = flightHtml + hotelHtml + prepaidActivityHtml;
+    if (flightHotelBody === '') {
+        flightHotelBody = '<div class="budget-detail-empty">無行前必備開銷</div>';
+    }
 
     if (activityHtml === '') activityHtml = '<div class="budget-detail-empty">無行程費用</div>';
 
@@ -2582,7 +2611,7 @@ function renderBudgetDetail() {
         <div class="budget-detail-section">
             <div class="budget-detail-section-header">
                 <span>✈️🏨 行前必備開銷 (單人)</span>
-                <span>NT$ ${(flightSumTwd + hotelSumTwd).toLocaleString()}</span>
+                <span>NT$ ${(flightSumTwd + hotelSumTwd + prepaidActivitySumTwd).toLocaleString()}</span>
             </div>
             <div class="budget-detail-section-body">
                 ${flightHotelBody}
