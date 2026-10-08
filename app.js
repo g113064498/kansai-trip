@@ -1,15 +1,3108 @@
 // TRIPS INITIAL DATA (PRELOADED)
 // [INITIAL_DATA_START]
 const initialTripData = {
-    tripTitle: "關西雙人浪漫楓秋之旅 🍁",
-    startDate: "2026-11-04",
-    endDate: "2026-11-11",
-    flights: [],
-    hotels: [],
-    itinerary: {},
-    attractionPool: [],
-    checklist: [],
-    messages: []
+    "tripTitle": "關西雙人浪漫楓秋之旅 🍁",
+    "startDate": "2026-11-04",
+    "endDate": "2026-11-11",
+    "flights": [
+        {
+            "id": "flight-1",
+            "type": "departure",
+            "number": "MM024 (樂桃航空)",
+            "airline": "Peach",
+            "from": "台北桃園 (TPE)",
+            "to": "大阪關西 (KIX)",
+            "depTime": "11/04 (三) 09:40",
+            "arrTime": "11/04 (三) 13:10",
+            "seats": "Standard",
+            "price": 10260,
+            "notes": "桃園機場第一航廈登機。抵達關西機場第二航廈後，直接從T2搭機場利木津巴士前往京都站八条口（目前單程¥2,800/人），再前往京都四條大宮住宿。"
+        },
+        {
+            "id": "flight-2",
+            "type": "return",
+            "number": "MM027 (樂桃航空)",
+            "airline": "Peach",
+            "from": "大阪關西 (KIX)",
+            "to": "台北桃園 (TPE)",
+            "depTime": "11/11 (三) 15:25",
+            "arrTime": "11/11 (三) 17:55",
+            "seats": "Standard",
+            "price": 10260,
+            "notes": "Peach國際線由關西機場第二航廈出發。退房後由Cu Tennoji前往近鐵上本町2F巴士總站，搭機場利木津巴士直達T2；目前時刻表建議11:40發、12:42抵達T2。MM027 15:25起飛，國際線須最晚於起飛前50分鐘完成報到。出發前再確認最新巴士時刻。"
+        }
+    ],
+    "hotels": [
+        {
+            "id": "hotel-1",
+            "city": "Kyoto",
+            "name": "Hop Inn Kyoto Shijo Omiya (京都四條大宮霍普飯店)",
+            "checkIn": "2026-11-04",
+            "checkOut": "2026-11-07",
+            "nights": 3,
+            "price": 7316,
+            "link": "https://www.booking.com/hotel/jp/hop-inn-kyoto-shijo-omiya.zh-tw.html",
+            "address": "京都市中京区壬生坊城町18-1",
+            "notes": "從機場搭乘 JR Haruka 直達京都車站，再搭計程車 (約 ¥1500) 或公車前往飯店。鄰近阪急與嵐電，去嵐山跟河原町超方便。"
+        },
+        {
+            "id": "hotel-2",
+            "city": "Osaka",
+            "name": "Cu Tennoji",
+            "checkIn": "2026-11-07",
+            "checkOut": "2026-11-11",
+            "nights": 4,
+            "price": 7174,
+            "link": "",
+            "address": "大阪府大阪市天王寺区味原町14-23",
+            "notes": "已確認住宿為 Cu Tennoji。自助入住公寓，入住前約24小時提供房號與 self check-in instructions；位置靠近鶴橋站。"
+        }
+    ],
+    "itinerary": {
+        "2026-11-04": [
+            {
+                "id": "api--P10zstRlbhecFp1DO1U",
+                "_poolId": "api--P10zstRlbhecFp1DO1U",
+                "_productId": "-P10zstRlbhecFp1DO1U",
+                "time": "09:40 - 13:10",
+                "title": "MM024 (樂桃航空) 台北桃園 (TPE) → 大阪關西 (KIX) ✈️",
+                "desc": "搭乘 06:07 的高鐵至桃園站（06:49 抵達），轉乘 A18 機場捷運至 A12 第一航廈，約 07:30 抵達 1F 出境大廳",
+                "cost": 3000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": "關西國際機場 第2航廈"
+            },
+            {
+                "id": "api--P10ztCne2UQWEWudnie",
+                "_poolId": "api--P10ztCne2UQWEWudnie",
+                "_productId": "-P10ztCne2UQWEWudnie",
+                "time": "17:00 - 17:30",
+                "title": "Hop Inn Kyoto Shijo Omiya (京都四條大宮霍普飯店) Check-in 🏨",
+                "desc": "抵達關西機場第二航廈後，直接從T2搭機場利木津巴士前往京都站八条口（目前單程¥2,800/人，100分鐘），再搭計程車(約 ¥1500) 前往Hop Inn Kyoto Shijo Omiya。",
+                "cost": 4000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": "京都市中京区壬生坊城町18-1"
+            },
+            {
+                "id": "api--P2y2sn2WOryyOiBTVh1",
+                "_poolId": "api--P2y2sn2WOryyOiBTVh1",
+                "_productId": "-P2y2sn2WOryyOiBTVh1",
+                "time": "18:45 - 19:30",
+                "title": "宮川豚衛門",
+                "desc": "已預約｜2026/11/4 18:45｜2人",
+                "cost": 3500,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "food",
+                "photos": [
+                    "https://img.bigfang.tw/2025/02/1739972268-ae566253288191ce5d879e51dae1d8c3.jpg"
+                ],
+                "location": "https://maps.app.goo.gl/pCMuGB6yeqixSjGD9"
+            },
+            {
+                "id": "api--OubeXXz7r2WWczz2F3q",
+                "_poolId": "api--OubeXXz7r2WWczz2F3q",
+                "_productId": "-OubeXXz7r2WWczz2F3q",
+                "time": "20:00 - 20:30",
+                "title": "二、三年坂 🏮",
+                "desc": "24小時開放。\n大部份店家晚上沒營業，拍拍照散步。\n累的話可以跳過，去走花見小路。",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://letsgokyoto.com/wp-content/uploads/2024/06/IMG_2863-2.jpg"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--OubgUg7XZBhksc3QfWV",
+                "_poolId": "api--OubgUg7XZBhksc3QfWV",
+                "_productId": "-OubgUg7XZBhksc3QfWV",
+                "time": "21:00 - 21:30",
+                "title": "八坂神社",
+                "desc": "24小時開放。晚上會點燈，非常浪漫，適合夜間散步。",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://img.wenkaiin.com/1527040324-4b5798c495c592b1036e1821dda8437e.jpg"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--OuYJ77bUK6_FxUYQhkp",
+                "_poolId": "api--OuYJ77bUK6_FxUYQhkp",
+                "_productId": "-OuYJ77bUK6_FxUYQhkp",
+                "time": "21:30",
+                "title": "GION GOZU 四条店 🍴",
+                "desc": "13:00–22:00\n原味布丁大推 ¥600，好吃的話回程再買。",
+                "cost": 600,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "food",
+                "photos": [
+                    "https://i0.wp.com/windiewang.com/wp-content/uploads/2025/10/IMG_5505.jpeg?w=1000&ssl=1"
+                ],
+                "location": "https://maps.app.goo.gl/BzkWZAF8YNw69TrZ8"
+            }
+        ],
+        "2026-11-05": [
+            {
+                "id": "api--Ow7eH6Yl6MPT1Tc2YIr",
+                "_poolId": "api--Ow7eH6Yl6MPT1Tc2YIr",
+                "_productId": "-Ow7eH6Yl6MPT1Tc2YIr",
+                "time": "09:00 – 09:45",
+                "title": "晴明神社",
+                "desc": "建議停留時間為 30 至 60 分鐘\n御朱印帳￥3000\n御朱印帳￥500",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://img.bigfang.tw/2023/04/1680594454-62bf1edb36141f114521ec4bb4175579.jpg"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--OuLyfxzS2IrqquYvJJP",
+                "_poolId": "api--OuLyfxzS2IrqquYvJJP",
+                "_productId": "-OuLyfxzS2IrqquYvJJP",
+                "time": "10:30 - 12:30",
+                "title": "下鴨神社&河合神社 ⛩️",
+                "desc": "10:00-16:00。世界文化遺產，京都最古老神社之一。\n季節限定御守¥1500\n建議停留時間為 1.5 至 2 小時",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://tw.wamazing.com/media/wp-content/uploads/sites/4/2019/07/shimogamojinja_pixta_94294698_M-853x569.jpg.webp"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--Ov6BJQlJi4JV-ohJS53",
+                "_poolId": "api--Ov6BJQlJi4JV-ohJS53",
+                "_productId": "-Ov6BJQlJi4JV-ohJS53",
+                "time": "12:45 - 13:30",
+                "title": "DAY2 午餐",
+                "desc": "午餐候選\n▸鴨町拉麵 ¥1000",
+                "cost": 1500,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--Ow2xCwWk3m3laQ9ajZX",
+                "_poolId": "api--Ow2xCwWk3m3laQ9ajZX",
+                "_productId": "-Ow2xCwWk3m3laQ9ajZX",
+                "time": "14:30",
+                "title": "DAY2 晚餐候選&逛新京極商店街",
+                "desc": "▸mina：unqlo、GU、loft\n▸bal ：muji\n▸MY ONLY FRAGRANCE SHINKYOGOKU ( 需預約 )\n\n晚餐候選\n▸麵匠 Taka松 ¥1000",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P22E7mCI-KIQpHhRQ1k",
+                "_poolId": "api--P22E7mCI-KIQpHhRQ1k",
+                "_productId": "-P22E7mCI-KIQpHhRQ1k",
+                "time": "15:30 - 16:30",
+                "title": "MY ONLY FRAGRANCE SHINKYOGOKU",
+                "desc": "11:00–20:00\n可以調自己的香水，需預約 沒預約隨緣\n停留時間大概 30 分鐘到 1 小時",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": ""
+            }
+        ],
+        "2026-11-06": [
+            {
+                "id": "api--OuYIrqpWmVn_nb7bHKg",
+                "_poolId": "api--OuYIrqpWmVn_nb7bHKg",
+                "_productId": "-OuYIrqpWmVn_nb7bHKg",
+                "time": "06:15 - 08:00",
+                "title": "清水寺 🌸",
+                "desc": "06:00-18:00。門票￥400\n御朱印8:00-8:30開始\n從大宮搭公車207 ( 5:52 的車次 ¥230 )\n清水道可以拍到八坂之塔",
+                "cost": 630,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://upload.wikimedia.org/wikipedia/commons/a/ae/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg?utm_source=zh.wikipedia.org&utm_campaign=index&utm_content=original"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--P1zm4hTqXmTBSN8xfxT",
+                "_poolId": "api--P1zm4hTqXmTBSN8xfxT",
+                "_productId": "-P1zm4hTqXmTBSN8xfxT",
+                "time": "08:30",
+                "title": "一寸法師",
+                "desc": "08:00–20:30\n拉麵 有早餐拉麵\n鹽味比醬油好吃",
+                "cost": 500,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "food",
+                "photos": [],
+                "location": "https://maps.app.goo.gl/EKkGdRAurSwcmgmy6"
+            },
+            {
+                "id": "api--OubtGrN98QDcEq8e7kw",
+                "_poolId": "api--OubtGrN98QDcEq8e7kw",
+                "_productId": "-OubtGrN98QDcEq8e7kw",
+                "time": "09:30 - 11:00",
+                "title": "二、三年坂 🏮早上",
+                "desc": "大部份店家都10點過後才開，可以買伴手禮或喝個茶再繼續下個行程。\n\n▸京都辣油香鬆 ¥600",
+                "cost": 4000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/a0/cd/a5/caption.jpg?w=900&h=500&s=1"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--Ow8Svp2irYD3UqlQ70C",
+                "_poolId": "api--Ow8Svp2irYD3UqlQ70C",
+                "_productId": "-Ow8Svp2irYD3UqlQ70C",
+                "time": "11:30 - 13:30",
+                "title": "DAY3 午餐候選",
+                "desc": "午餐候選\n▸錦市場\n▸Onimaru ¥350\n▸Mamemono ¥500\n▸Apple Pie Lab ¥600",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--Ow1xX5OHs2aJKWM5mi0",
+                "_poolId": "api--Ow1xX5OHs2aJKWM5mi0",
+                "_productId": "-Ow1xX5OHs2aJKWM5mi0",
+                "time": "11:30 - 12:30",
+                "title": "八坂神社 day3",
+                "desc": "建議停留時間 1 小時\n累的話可跳過去吃午餐\n御朱印￥500",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://static.gltjp.com/glt/data/article/21000/20409/20251120_221812_a1149194_w1920.webp"
+                ],
+                "location": ""
+            },
+            {
+                "id": "api--Ow3TZdbXyelE7IBVtR5",
+                "_poolId": "api--Ow3TZdbXyelE7IBVtR5",
+                "_productId": "-Ow3TZdbXyelE7IBVtR5",
+                "time": "14:00 - 16:00",
+                "title": "DAY3 回去補眠休息",
+                "desc": "",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--Ow3lRP4J8nm5JXz1u4Y",
+                "_poolId": "api--Ow3lRP4J8nm5JXz1u4Y",
+                "_productId": "-Ow3lRP4J8nm5JXz1u4Y",
+                "time": "17:30",
+                "title": "DAY3 晚餐候選",
+                "desc": "旅館附近\n▸炭焼 極 ¥1800",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--OubXJZGaoH5ak9ghZuJ",
+                "_poolId": "api--OubXJZGaoH5ak9ghZuJ",
+                "_productId": "-OubXJZGaoH5ak9ghZuJ",
+                "time": "19:30 - 20:30",
+                "title": "東寺(教王護國寺) 📍",
+                "desc": "秋季會開放限定的夜間特別拜觀與紅楓點燈。\n夜間點燈：18:00 - 21:30，最晚入場21:00\n門票 ￥ 1000\n建議停留時間為 1 小時",
+                "cost": 1000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [
+                    "https://d1grca2t3zpuug.cloudfront.net/2026/05/kyoto-toji-202605-001-1920x1281.webp"
+                ],
+                "location": ""
+            }
+        ],
+        "2026-11-07": [
+            {
+                "id": "api--P10ztL12Q1-XoNkLhyN",
+                "_poolId": "api--P10ztL12Q1-XoNkLhyN",
+                "_productId": "-P10ztL12Q1-XoNkLhyN",
+                "time": "08:00 - 08:30",
+                "title": "Hop Inn Kyoto Shijo Omiya (京都四條大宮霍普飯店) Check-out 🧳",
+                "desc": "退房\n搭阪急京都線到日本橋（預計8:26）\n搭千日前線到鶴橋",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": "京都市中京区壬生坊城町18-1"
+            },
+            {
+                "id": "api--OvuRaouWMxtuEQrU_bI",
+                "_poolId": "api--OvuRaouWMxtuEQrU_bI",
+                "_productId": "-OvuRaouWMxtuEQrU_bI",
+                "time": "10:30",
+                "title": "Cu Tennoji 放行李",
+                "desc": "寄放行李；入住時間下午 4:00 至 12:00。",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": "大阪府大阪市天王寺区味原町14-23"
+            },
+            {
+                "id": "api--OuYIzXMejSuoy-G5tt6",
+                "_poolId": "api--OuYIzXMejSuoy-G5tt6",
+                "_productId": "-OuYIzXMejSuoy-G5tt6",
+                "time": "11:00 - 12:30",
+                "title": "大阪城公園 🏯",
+                "desc": "以大阪城公園、天守外觀與豐國神社為主，不強制進天守。",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": "大阪城公園"
+            },
+            {
+                "id": "api--Ow8sxlHZOVOOLVbbIRe",
+                "_poolId": "api--Ow8sxlHZOVOOLVbbIRe",
+                "_productId": "-Ow8sxlHZOVOOLVbbIRe",
+                "time": "12:30 - 13:30",
+                "title": "DAY4 午餐候選",
+                "desc": "▸Zenyatanimachi 2 Chometen ¥1500",
+                "cost": 2500,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--OxQ-k4ZXhy1azrf7wqf",
+                "_poolId": "api--OxQ-k4ZXhy1azrf7wqf",
+                "_productId": "-OxQ-k4ZXhy1azrf7wqf",
+                "time": "14:00",
+                "title": "LUCUA & LUCUA1100",
+                "desc": "10:30 - 20:30\n年輕人服飾美妝\nLUCUA\nB1 ▸ PRESS BUTTER SAND\n3F ▸ Beams、FREAK'S STORE\n6F ▸ Lowrys farm\n7F ▸ FREAK'S STORE ( 男裝 ) \n8F ▸ 3COINS +plus\n9F ▸ loft\n10F ▸ 美食餐廳\n\nLUCUA1100\n2F ▸ bijumam\n3F ▸ @cosme\n6F ▸ montbell、keen、ABC-MART GRAND STAGE",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P16GVipe4Af1yS434VC",
+                "_poolId": "api--P16GVipe4Af1yS434VC",
+                "_productId": "-P16GVipe4Af1yS434VC",
+                "time": "17:00",
+                "title": "GRAND FRONT OSAKA",
+                "desc": "11:00 - 21:00\n戶外運動潮牌\n北館\n3F ▸關西最大muji\n\n南館\n2F ▸ AUX PARADIS\n始祖鳥、mammut",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--OwsT_H93L6ymkCk0zCw",
+                "_poolId": "api--OwsT_H93L6ymkCk0zCw",
+                "_productId": "-OwsT_H93L6ymkCk0zCw",
+                "time": "18:00",
+                "title": "DAY4 晚餐後選",
+                "desc": "GRAND FRONT 南館\n7F ▸ 美食餐廳\n\nLinks & 友都八喜\n8F ▸ 美食餐廳",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P16Gasz2RONb5qCjL46",
+                "_poolId": "api--P16Gasz2RONb5qCjL46",
+                "_productId": "-P16Gasz2RONb5qCjL46",
+                "time": "19:30",
+                "title": "Links",
+                "desc": "10:00 - 21:00\n每層都相通友都八喜\nB1 ▸ 小吃\n1F  ▸ uniqlo旗艦店\n3F ▸ GU",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P16EP0EkU_uj1rvGwlv",
+                "_poolId": "api--P16EP0EkU_uj1rvGwlv",
+                "_productId": "-P16EP0EkU_uj1rvGwlv",
+                "time": "20:30",
+                "title": "友都八喜",
+                "desc": "09:30 - 22:00\n5F ▸ 扭蛋\n7F ▸ asics Walking",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            }
+        ],
+        "2026-11-08": [
+            {
+                "id": "api--P111qj-fzy6J9L3yjEx",
+                "_poolId": "api--P111qj-fzy6J9L3yjEx",
+                "_productId": "-P111qj-fzy6J9L3yjEx",
+                "time": "07:15 - 18:30",
+                "title": "天橋立＋伊根舟屋一日團 🚌",
+                "desc": "Klook 天橋立路線：天橋立＋伊根舟屋。\n實際集合地點、集合時間與導遊資訊，請以前一天 Klook／供應商通知為準。\n至少提早 15 分鐘抵達集合點。\n已預訂｜Klook 丹後鐵道路線｜單人 NT$1,973（已付款）",
+                "cost": 0,
+                "costTwd": 1973,
+                "paymentStatus": "paid",
+                "bookingPlatform": "Klook",
+                "category": "sightseeing",
+                "photos": [],
+                "location": "天橋立・伊根舟屋"
+            },
+            {
+                "id": "api--P10Qu6NN5ZCSzqt4rsF",
+                "_poolId": "api--P10Qu6NN5ZCSzqt4rsF",
+                "_productId": "-P10Qu6NN5ZCSzqt4rsF",
+                "time": "12:00",
+                "title": "DAY5 午餐候選",
+                "desc": "",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P10R-abYHaEUm50dqTu",
+                "_poolId": "api--P10R-abYHaEUm50dqTu",
+                "_productId": "-P10R-abYHaEUm50dqTu",
+                "time": "19:00",
+                "title": "DAY5 晚餐候選",
+                "desc": "",
+                "cost": 3000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            }
+        ],
+        "2026-11-09": [
+            {
+                "id": "api--OuYJ4Bkt394eUgwFW-s",
+                "_poolId": "api--OuYJ4Bkt394eUgwFW-s",
+                "_productId": "-OuYJ4Bkt394eUgwFW-s",
+                "time": "9:30 - 10:00",
+                "title": "難波八阪神社 🦁️",
+                "desc": "06:30-17:00。巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地。\n扇子籤 ¥500",
+                "cost": 500,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--OuYJ-kfiny5CJsJNrPt",
+                "_poolId": "api--OuYJ-kfiny5CJsJNrPt",
+                "_productId": "-OuYJ-kfiny5CJsJNrPt",
+                "time": "10:30 - 17:30",
+                "title": "心齋橋 & 道頓堀 🛍️",
+                "desc": "▸ Shinsaibashi PARCO\n▸大丸百貨\n▸Uniqlo\n▸Daiso\n▸唐吉訶德\n▸跑跑人招牌\n▸HOKA",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P1cRG9Uu3uZHJGaTF3A",
+                "_poolId": "api--P1cRG9Uu3uZHJGaTF3A",
+                "_productId": "-P1cRG9Uu3uZHJGaTF3A",
+                "time": "11:00 - 12:00",
+                "title": "DAY6 午餐候選",
+                "desc": "▸Shabucho 午餐¥3000 ( 11:30開 須排隊 )\n▸豚涮 蒸籠蒸 ( 12開  )",
+                "cost": 3000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P10IOr0gG2A1NpXgkEe",
+                "_poolId": "api--P10IOr0gG2A1NpXgkEe",
+                "_productId": "-P10IOr0gG2A1NpXgkEe",
+                "time": "17:30",
+                "title": "DAY6 晚餐候選",
+                "desc": "▸Ikareta Noodle Fishtons ¥1500",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            }
+        ],
+        "2026-11-10": [
+            {
+                "id": "api--P323qqfLHK7yRCq5jPF",
+                "_poolId": "api--P323qqfLHK7yRCq5jPF",
+                "_productId": "-P323qqfLHK7yRCq5jPF",
+                "time": "09:30 - 12:00",
+                "title": "勝尾寺 🎋",
+                "desc": "建議07:45左右由大阪出發，先到箕面萱野站；官方直行巴士09:00起約每10分鐘一班。\n箕面萱野站～勝尾寺直行巴士成人單程¥800；2026/10/1起完全無現金，可用ICOCA／Suica／PiTaPa等，車內不能儲值。\n入山¥500＋巴士來回¥1,600",
+                "cost": 2100,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": "勝尾寺"
+            },
+            {
+                "id": "api--OwsT4QinNvc-S-V5sk7",
+                "_poolId": "api--OwsT4QinNvc-S-V5sk7",
+                "_productId": "-OwsT4QinNvc-S-V5sk7",
+                "time": "13:30 - 14:30",
+                "title": "DAY6 午餐後選",
+                "desc": "阪急百貨\nB1、B2\nF12、F13",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--P16EugbRJWer4_qCQ62",
+                "_poolId": "api--P16EugbRJWer4_qCQ62",
+                "_productId": "-P16EugbRJWer4_qCQ62",
+                "time": "14:30",
+                "title": "阪急百貨",
+                "desc": "10:00 - 20:00\n都精品\nB1 ▸Sugar Butter Tree ( 要排隊 可以平日再去買 )",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--OubXO5586wzieOFnciE",
+                "_poolId": "api--OubXO5586wzieOFnciE",
+                "_productId": "-OubXO5586wzieOFnciE",
+                "time": "15:00",
+                "title": "購物中心 HEP FIVE 🛍️",
+                "desc": "11:00 - 20:00\n年輕流行服飾\n1F ▸ Beams、niko and\n6F ▸ 3COINS",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "shopping",
+                "photos": [],
+                "location": ""
+            },
+            {
+                "id": "api--OxPv9IZusf2S_L-bd6Z",
+                "_poolId": "api--OxPv9IZusf2S_L-bd6Z",
+                "_productId": "-OxPv9IZusf2S_L-bd6Z",
+                "time": "18:30 - 20:30",
+                "title": "焼肉ごりちゃん お初天神店",
+                "desc": "已預約｜2026/11/10 18:30｜2人",
+                "cost": 2000,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "food",
+                "photos": [],
+                "location": "https://maps.app.goo.gl/s6MwFF5yx34d3SR9A"
+            }
+        ],
+        "2026-11-11": [
+            {
+                "id": "api--P10ztbQFEZUEHFV_g5f",
+                "_poolId": "api--P10ztbQFEZUEHFV_g5f",
+                "_productId": "-P10ztbQFEZUEHFV_g5f",
+                "time": "09:30 - 10:00",
+                "title": "Cu Tennoji Check-out 🧳",
+                "desc": "上午10:00 前需退房。",
+                "cost": 0,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "sightseeing",
+                "photos": [],
+                "location": "大阪府大阪市天王寺区味原町14-23"
+            },
+            {
+                "id": "api--P10zt2_B5k859m671Pz",
+                "_poolId": "api--P10zt2_B5k859m671Pz",
+                "_productId": "-P10zt2_B5k859m671Pz",
+                "time": "15:25 - 17:55",
+                "title": "MM027 (樂桃航空) 大阪關西 (KIX) → 台北桃園 (TPE) ✈️",
+                "desc": "Cu Tennoji退房後前往近鐵上本町2F巴士總站，搭機場利木津巴士直達關西機場第2航廈。目前時刻表建議11:40發→12:42抵達T2；MM027 15:25起飛。Peach國際線報到在T2 1F，最晚起飛前50分鐘完成。出發前再確認最新時刻。",
+                "cost": 4500,
+                "costTwd": 0,
+                "paymentStatus": "",
+                "bookingPlatform": "",
+                "category": "other",
+                "photos": [],
+                "location": "關西國際機場 第2航廈"
+            }
+        ]
+    },
+    "attractionPool": [
+        {
+            "id": "api--OuLyfxzS2IrqquYvJJP",
+            "city": "Kyoto",
+            "title": "下鴨神社&河合神社 ⛩️",
+            "desc": "10:00-16:00。世界文化遺產，京都最古老神社之一。\n季節限定御守¥1500\n建議停留時間為 1.5 至 2 小時",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-05",
+            "time": "10:30 - 12:30",
+            "photos": [
+                "https://tw.wamazing.com/media/wp-content/uploads/sites/4/2019/07/shimogamojinja_pixta_94294698_M-853x569.jpg.webp"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuLyfxzS2IrqquYvJJP"
+        },
+        {
+            "id": "api--OuYIrqpWmVn_nb7bHKg",
+            "city": "Kyoto",
+            "title": "清水寺 🌸",
+            "desc": "06:00-18:00。門票￥400\n御朱印8:00-8:30開始\n從大宮搭公車207 ( 5:52 的車次 ¥230 )\n清水道可以拍到八坂之塔",
+            "cost": 630,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "06:15 - 08:00",
+            "photos": [
+                "https://upload.wikimedia.org/wikipedia/commons/a/ae/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg?utm_source=zh.wikipedia.org&utm_campaign=index&utm_content=original"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYIrqpWmVn_nb7bHKg"
+        },
+        {
+            "id": "api--OuYItCuiq10u32x0LaA",
+            "city": "Kyoto",
+            "title": "伏見稻荷大社 🦊",
+            "desc": "24小時開放，下午5點左右太陽下山，日落很漂亮。\n附近有很多攤位跟吉伊卡哇專門店。\n不上山太累了。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "15:00 - 17:00",
+            "photos": [
+                "https://d1grca2t3zpuug.cloudfront.net/2025/07/inari00-870x500-1752805331.webp"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYItCuiq10u32x0LaA"
+        },
+        {
+            "id": "api--OuYIv7tybF-5M2AR9BD",
+            "city": "Kyoto",
+            "title": "鴨川 Shijō Bridge ➜ 花見小路附近走走",
+            "desc": "從花見小路走路過鴨川",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "22:00 - 22:30",
+            "photos": [
+                "https://cdn.corner.inc/place-photo/AXQCQNR_kuTnkR_Scri9XlS6d6MbsYnkxEBpab8QlLO6w1zfaSwYyn9v2TTYLBUtKZwTKxvWSEgdKxODMfpSJ0TX5N5RWkn84KUh3lVWsBtIlpoJSnHlhxdpt4pK1XcyFpHi5wET8hQDlDFIHVAbHCGU5QNcYKwVtREKs_Jl9z9bLWRPv-c0qQ2f9iAYTkV0gj8Gu1ppdQPKxU6lMePOryQ6Q1-cvkyQo8tXY62w7A7i6F_kZToERQWBY4JVOtqNsTsGdtdzkJBheTRmiOft9Sm1djO4OmC-7xDfp3xRP5HlnwS1-0Y1J7Echu0sksrNtIUbDB_jB0Rl1uWm9GE5Hr9x8k_kZ-8c9Mo-tvE0kqE5IXltuZpuvs-xqgTK46VePaKPXv08QzjIOXlFlc4x0umLN5AULeuYzycMi-5enocYJbmrraQ0NKK6VTzXLE6QndrEtMHvaiIAulIxZMf7sold7U_hhcqhoCEPK__sd8Way3xguJwzk_oWX7kxk1HHjD1_JJYh0BahVOkhFeOk61c5H-tFzPMYOYjR_xdhN4O53Yh0L8CCdwJZAQtyEAQVLSS6dMFK5Qp0C2_hC7vho9g_NucCYLpUrQQHb-olAIBdrHICB0p83Vw6nUFWNkUPC1pTxO0taG-I.jpeg"
+            ],
+            "location": "https://maps.app.goo.gl/ppFSmTdgLinNcxEy8",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYIv7tybF-5M2AR9BD"
+        },
+        {
+            "id": "api--OuYIwvih-UvarXnh42q",
+            "city": "Kyoto",
+            "title": "錦市場 🍢",
+            "desc": "京都的廚房，有各式海鮮、小吃。注意有店家不開放邊走邊吃。\n有去過就好的地方。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "13:30 - 15:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYIwvih-UvarXnh42q"
+        },
+        {
+            "id": "api--OuYIxgjZ-IpEr4qBRV-",
+            "city": "Kyoto",
+            "title": "Onimaru Kyoto Shijo Kawaramachi 🍙",
+            "desc": "精緻好吃的飯糰店，Threads 熱門打卡美食。",
+            "cost": 800,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "3.06",
+            "tabelogUrl": "",
+            "ratingChecked": "2026-09-08",
+            "_productId": "-OuYIxgjZ-IpEr4qBRV-"
+        },
+        {
+            "id": "api--OuYIzXMejSuoy-G5tt6",
+            "city": "Osaka",
+            "title": "大阪城公園 🏯",
+            "desc": "以大阪城公園、天守外觀與豐國神社為主，不強制進天守。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "11:00 - 12:30",
+            "photos": [],
+            "location": "大阪城公園",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYIzXMejSuoy-G5tt6"
+        },
+        {
+            "id": "api--OuYJ-kfiny5CJsJNrPt",
+            "city": "Osaka",
+            "title": "心齋橋 & 道頓堀 🛍️",
+            "desc": "▸ Shinsaibashi PARCO\n▸大丸百貨\n▸Uniqlo\n▸Daiso\n▸唐吉訶德\n▸跑跑人招牌\n▸HOKA",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-09",
+            "time": "10:30 - 17:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJ-kfiny5CJsJNrPt"
+        },
+        {
+            "id": "api--OuYJ0T2Tyst4cpgP6ot",
+            "city": "Osaka",
+            "title": "大阪日本橋電器街 🎮",
+            "desc": "11:00-19:00。類似東京秋葉原，充滿動漫、遊戲周邊與電子產品。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJ0T2Tyst4cpgP6ot"
+        },
+        {
+            "id": "api--OuYJ4Bkt394eUgwFW-s",
+            "city": "Osaka",
+            "title": "難波八阪神社 🦁️",
+            "desc": "06:30-17:00。巨大震撼的獅子頭舞台，能吸走厄運帶來好運，求籤熱門地。\n扇子籤 ¥500",
+            "cost": 500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-09",
+            "time": "9:30 - 10:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJ4Bkt394eUgwFW-s"
+        },
+        {
+            "id": "api--OuYJ4h7oMC7joMAf1i4",
+            "city": "Osaka",
+            "title": "天滿市場 & 天神橋筋商店街 🛍️",
+            "desc": "日本最長商店街！\n▸OS藥妝（極便宜，只收現金不能退稅）\n▸中村屋可樂餅 ¥160\n▸お好み焼 ( 大阪燒 ) 千草 ¥1200",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "11:30 - 14:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJ4h7oMC7joMAf1i4"
+        },
+        {
+            "id": "api--OuYJ5OK87tTJEprbYlT",
+            "city": "Osaka",
+            "title": "大阪天滿宮 ⛩️",
+            "desc": "關西求學業、事業最知名的神社，主祀天神菅原道真。\n參觀完後逛街",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "11:00-11:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJ5OK87tTJEprbYlT"
+        },
+        {
+            "id": "api--OuYJ77bUK6_FxUYQhkp",
+            "city": "Kyoto",
+            "title": "GION GOZU 四条店 🍴",
+            "desc": "13:00–22:00\n原味布丁大推 ¥600，好吃的話回程再買。",
+            "cost": 600,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": true,
+            "day": "2026-11-04",
+            "time": "21:30",
+            "photos": [
+                "https://i0.wp.com/windiewang.com/wp-content/uploads/2025/10/IMG_5505.jpeg?w=1000&ssl=1"
+            ],
+            "location": "https://maps.app.goo.gl/BzkWZAF8YNw69TrZ8",
+            "googleRating": "4.5",
+            "tabelogRating": "3.20",
+            "tabelogUrl": "",
+            "ratingChecked": "2026-09-08",
+            "_productId": "-OuYJ77bUK6_FxUYQhkp"
+        },
+        {
+            "id": "api--OuYJ7xMh_faoyKJGY13",
+            "city": "Osaka",
+            "title": "HARBS Namba Parks 🍴",
+            "desc": "位於難波 Parks 商場內的名店，招牌「水果千層蛋糕（Mille Crepes）」鮮奶油清爽不膩，搭配豐富新鮮水果，是關西必吃的甜點。",
+            "cost": 1200,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [
+                "https://leemider.com/wp-content/uploads/20190709234707_51.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "3.15",
+            "tabelogUrl": "",
+            "ratingChecked": "2026-09-08",
+            "_productId": "-OuYJ7xMh_faoyKJGY13"
+        },
+        {
+            "id": "api--OuYJ9qOfTx_HMYpcEI_",
+            "city": "Kyoto",
+            "title": "Mamemono and Taiyaki 🍴",
+            "desc": "主打「賞味期限一分鐘」的牛油鯛魚燒。現烤外皮酥脆，裡面夾著冰涼的厚牛油與紅豆餡。",
+            "cost": 500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [],
+            "location": "",
+            "googleRating": "4.2",
+            "tabelogRating": "3.50",
+            "tabelogUrl": "",
+            "ratingChecked": "2026-09-08",
+            "_productId": "-OuYJ9qOfTx_HMYpcEI_"
+        },
+        {
+            "id": "api--OuYJB8zT1fC-eg64S3-",
+            "city": "Osaka",
+            "title": "Shabucho 🍴",
+            "desc": "11:30–13:30\n17:30–22:00\ndcard多人在推，提供美味的國產牛、豬。\n\n午餐：\n【特選黑毛和牛壽喜燒】標準：4,800日圓\n【豬肉壽喜燒】標準：1,500日圓",
+            "cost": 3000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [
+                "https://tasting-japan.com/wp-content/uploads/2026/04/image-80-1024x574.webp"
+            ],
+            "location": "",
+            "googleRating": "4.5",
+            "tabelogRating": "3.54",
+            "tabelogUrl": "",
+            "ratingChecked": "2026-09-08",
+            "_productId": "-OuYJB8zT1fC-eg64S3-"
+        },
+        {
+            "id": "api--OuYJH6_OlZZfpqpE4Pe",
+            "city": "Kyoto",
+            "title": "北野天滿宮 🍁",
+            "desc": "07:00-17:00。主祀學問之神菅原道真，秋天也是賞楓名所。御土居紅葉隧道極美。\n也有夜間點燈 ~ 20:00，門票 ￥ 1200。\n建議停留時間 1 小時",
+            "cost": 1200,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "17:00 - 18:00",
+            "photos": [
+                "https://s3-ap-northeast-1.amazonaws.com/thegate/2021/01/05/13/04/01/Kitano-tenmangu-shrine.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJH6_OlZZfpqpE4Pe"
+        },
+        {
+            "id": "api--OuYJLSrvmg4n-6ddX2p",
+            "city": "Kyoto",
+            "title": "東寺（教王護國寺） 🗼",
+            "desc": "大門 05:00-17:00，一般參拜免費。\n JR「京都車站」八條口步行15分鐘。\n近鐵京都線「東寺車站」步行10分鐘。\n預計停留時間1小時",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [
+                "https://d1grca2t3zpuug.cloudfront.net/2026/05/kyoto-toji-202605-001-1920x1281-1777937736.webp"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OuYJLSrvmg4n-6ddX2p"
+        },
+        {
+            "id": "api--Ou_SgEWwKCU2H-9HlIJ",
+            "city": "Kyoto",
+            "title": "高台寺 🏮",
+            "desc": "09:00-17:30。\n建議停留時間約為 45 至 60 分鐘\n累的話直接去下一個景點，可略過。\n門票￥800 \n御朱印￥300",
+            "cost": 1100,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "12:00 - 13:00",
+            "photos": [
+                "https://www.bring-you.info/imgs/2015/08/kodaiji-7.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ou_SgEWwKCU2H-9HlIJ"
+        },
+        {
+            "id": "api--Ou_stvvh-1huntDbKCX",
+            "city": "Kyoto",
+            "title": "金閣寺（鹿苑寺） ✨",
+            "desc": "09:00-17:00。金碧輝煌的舍利塔倒映在鏡湖池，京都最具代表性的地標之一。\n建議停留時間約為 40 到 60 分鐘",
+            "cost": 500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFh8t7StxF_3YjfUrwoVBknByjok2Ogr9xpA&s"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ou_stvvh-1huntDbKCX"
+        },
+        {
+            "id": "api--OubXJZGaoH5ak9ghZuJ",
+            "city": "Kyoto",
+            "title": "東寺(教王護國寺) 📍",
+            "desc": "秋季會開放限定的夜間特別拜觀與紅楓點燈。\n夜間點燈：18:00 - 21:30，最晚入場21:00\n門票 ￥ 1000\n建議停留時間為 1 小時",
+            "cost": 1000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "19:30 - 20:30",
+            "photos": [
+                "https://d1grca2t3zpuug.cloudfront.net/2026/05/kyoto-toji-202605-001-1920x1281.webp"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OubXJZGaoH5ak9ghZuJ"
+        },
+        {
+            "id": "api--OubXO5586wzieOFnciE",
+            "city": "Osaka",
+            "title": "購物中心 HEP FIVE 🛍️",
+            "desc": "11:00 - 20:00\n年輕流行服飾\n1F ▸ Beams、niko and\n6F ▸ 3COINS",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-10",
+            "time": "15:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OubXO5586wzieOFnciE"
+        },
+        {
+            "id": "api--OubeXXz7r2WWczz2F3q",
+            "city": "Kyoto",
+            "title": "二、三年坂 🏮",
+            "desc": "24小時開放。\n大部份店家晚上沒營業，拍拍照散步。\n累的話可以跳過，去走花見小路。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-04",
+            "time": "20:00 - 20:30",
+            "photos": [
+                "https://letsgokyoto.com/wp-content/uploads/2024/06/IMG_2863-2.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OubeXXz7r2WWczz2F3q"
+        },
+        {
+            "id": "api--OubgUg7XZBhksc3QfWV",
+            "city": "Kyoto",
+            "title": "八坂神社",
+            "desc": "24小時開放。晚上會點燈，非常浪漫，適合夜間散步。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-04",
+            "time": "21:00 - 21:30",
+            "photos": [
+                "https://img.wenkaiin.com/1527040324-4b5798c495c592b1036e1821dda8437e.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OubgUg7XZBhksc3QfWV"
+        },
+        {
+            "id": "api--OubtGrN98QDcEq8e7kw",
+            "city": "Kyoto",
+            "title": "二、三年坂 🏮早上",
+            "desc": "大部份店家都10點過後才開，可以買伴手禮或喝個茶再繼續下個行程。\n\n▸京都辣油香鬆 ¥600",
+            "cost": 4000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "09:30 - 11:00",
+            "photos": [
+                "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/a0/cd/a5/caption.jpg?w=900&h=500&s=1"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OubtGrN98QDcEq8e7kw"
+        },
+        {
+            "id": "api--Ov1O2wRLdPiYs-QRraP",
+            "city": "Kyoto",
+            "title": "東福寺",
+            "desc": "09:00-16:00。\n聯票 ¥1000/每人",
+            "cost": 1000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "13:30 - 15:00",
+            "photos": [
+                "https://asset.japan.travel/image/upload/v1646651273/kyoto/M_00172_001.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ov1O2wRLdPiYs-QRraP"
+        },
+        {
+            "id": "api--Ov3iropWr4bH-uPgjUD",
+            "city": "Kyoto",
+            "title": "本能寺",
+            "desc": "09:00-17:00\n建議停留時間 30 至 60 分鐘\n御朱印帳很好看！買",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "15:00 - 15:30",
+            "photos": [
+                "https://kavana.tw/wp-content/uploads/thumb_20200828122447_94.jpg"
+            ],
+            "location": "https://maps.app.goo.gl/f5r3L5uhfx9nBz7b8",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ov3iropWr4bH-uPgjUD"
+        },
+        {
+            "id": "api--Ov4WbY3fGM9fucMzSpT",
+            "city": "Kyoto",
+            "title": "錦天滿宮",
+            "desc": "08:00-20:00。\n建議停留 15 分鐘",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": false,
+            "day": "",
+            "time": "10:30 - 10:45",
+            "photos": [
+                "https://d1grca2t3zpuug.cloudfront.net/2017/03/nishikiichiba-11-1750837911.webp"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ov4WbY3fGM9fucMzSpT"
+        },
+        {
+            "id": "api--Ov6BJQlJi4JV-ohJS53",
+            "city": "Kyoto",
+            "title": "DAY2 午餐",
+            "desc": "午餐候選\n▸鴨町拉麵 ¥1000",
+            "cost": 1500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-05",
+            "time": "12:45 - 13:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ov6BJQlJi4JV-ohJS53"
+        },
+        {
+            "id": "api--OvuRaouWMxtuEQrU_bI",
+            "city": "Osaka",
+            "title": "Cu Tennoji 放行李",
+            "desc": "寄放行李；入住時間下午 4:00 至 12:00。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "10:30",
+            "photos": [],
+            "location": "大阪府大阪市天王寺区味原町14-23",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OvuRaouWMxtuEQrU_bI"
+        },
+        {
+            "id": "api--Ow1xX5OHs2aJKWM5mi0",
+            "city": "Kyoto",
+            "title": "八坂神社 day3",
+            "desc": "建議停留時間 1 小時\n累的話可跳過去吃午餐\n御朱印￥500",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "11:30 - 12:30",
+            "photos": [
+                "https://static.gltjp.com/glt/data/article/21000/20409/20251120_221812_a1149194_w1920.webp"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow1xX5OHs2aJKWM5mi0"
+        },
+        {
+            "id": "api--Ow2xCwWk3m3laQ9ajZX",
+            "city": "Kyoto",
+            "title": "DAY2 晚餐候選&逛新京極商店街",
+            "desc": "▸mina：unqlo、GU、loft\n▸bal ：muji\n▸MY ONLY FRAGRANCE SHINKYOGOKU ( 需預約 )\n\n晚餐候選\n▸麵匠 Taka松 ¥1000",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-05",
+            "time": "14:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow2xCwWk3m3laQ9ajZX"
+        },
+        {
+            "id": "api--Ow3TZdbXyelE7IBVtR5",
+            "city": "Kyoto",
+            "title": "DAY3 回去補眠休息",
+            "desc": "",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "14:00 - 16:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow3TZdbXyelE7IBVtR5"
+        },
+        {
+            "id": "api--Ow3lRP4J8nm5JXz1u4Y",
+            "city": "Kyoto",
+            "title": "DAY3 晚餐候選",
+            "desc": "旅館附近\n▸炭焼 極 ¥1800",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "17:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow3lRP4J8nm5JXz1u4Y"
+        },
+        {
+            "id": "api--Ow7eH6Yl6MPT1Tc2YIr",
+            "city": "Kyoto",
+            "title": "晴明神社",
+            "desc": "建議停留時間為 30 至 60 分鐘\n御朱印帳￥3000\n御朱印帳￥500",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-05",
+            "time": "09:00 – 09:45",
+            "photos": [
+                "https://img.bigfang.tw/2023/04/1680594454-62bf1edb36141f114521ec4bb4175579.jpg"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow7eH6Yl6MPT1Tc2YIr"
+        },
+        {
+            "id": "api--Ow8Svp2irYD3UqlQ70C",
+            "city": "Kyoto",
+            "title": "DAY3 午餐候選",
+            "desc": "午餐候選\n▸錦市場\n▸Onimaru ¥350\n▸Mamemono ¥500\n▸Apple Pie Lab ¥600",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "11:30 - 13:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow8Svp2irYD3UqlQ70C"
+        },
+        {
+            "id": "api--Ow8sxlHZOVOOLVbbIRe",
+            "city": "Osaka",
+            "title": "DAY4 午餐候選",
+            "desc": "▸Zenyatanimachi 2 Chometen ¥1500",
+            "cost": 2500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "12:30 - 13:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-Ow8sxlHZOVOOLVbbIRe"
+        },
+        {
+            "id": "api--OwsT4QinNvc-S-V5sk7",
+            "city": "Osaka",
+            "title": "DAY6 午餐後選",
+            "desc": "阪急百貨\nB1、B2\nF12、F13",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-10",
+            "time": "13:30 - 14:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OwsT4QinNvc-S-V5sk7"
+        },
+        {
+            "id": "api--OwsT_H93L6ymkCk0zCw",
+            "city": "Osaka",
+            "title": "DAY4 晚餐後選",
+            "desc": "GRAND FRONT 南館\n7F ▸ 美食餐廳\n\nLinks & 友都八喜\n8F ▸ 美食餐廳",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "18:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OwsT_H93L6ymkCk0zCw"
+        },
+        {
+            "id": "api--OxPv9IZusf2S_L-bd6Z",
+            "city": "Osaka",
+            "title": "焼肉ごりちゃん お初天神店",
+            "desc": "已預約｜2026/11/10 18:30｜2人",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": true,
+            "day": "2026-11-10",
+            "time": "18:30 - 20:30",
+            "photos": [],
+            "location": "https://maps.app.goo.gl/s6MwFF5yx34d3SR9A",
+            "googleRating": "",
+            "tabelogRating": "3.51",
+            "tabelogUrl": "https://tabelog.com/osaka/A2701/A270101/27148234/",
+            "ratingChecked": "2026-09-25",
+            "_productId": "-OxPv9IZusf2S_L-bd6Z"
+        },
+        {
+            "id": "api--OxQ-k4ZXhy1azrf7wqf",
+            "city": "Osaka",
+            "title": "LUCUA & LUCUA1100",
+            "desc": "10:30 - 20:30\n年輕人服飾美妝\nLUCUA\nB1 ▸ PRESS BUTTER SAND\n3F ▸ Beams、FREAK'S STORE\n6F ▸ Lowrys farm\n7F ▸ FREAK'S STORE ( 男裝 ) \n8F ▸ 3COINS +plus\n9F ▸ loft\n10F ▸ 美食餐廳\n\nLUCUA1100\n2F ▸ bijumam\n3F ▸ @cosme\n6F ▸ montbell、keen、ABC-MART GRAND STAGE",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "14:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-OxQ-k4ZXhy1azrf7wqf"
+        },
+        {
+            "id": "api--P10IOr0gG2A1NpXgkEe",
+            "city": "Other",
+            "title": "DAY6 晚餐候選",
+            "desc": "▸Ikareta Noodle Fishtons ¥1500",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-09",
+            "time": "17:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10IOr0gG2A1NpXgkEe"
+        },
+        {
+            "id": "api--P10Qu6NN5ZCSzqt4rsF",
+            "city": "Osaka",
+            "title": "DAY5 午餐候選",
+            "desc": "",
+            "cost": 2000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-08",
+            "time": "12:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10Qu6NN5ZCSzqt4rsF"
+        },
+        {
+            "id": "api--P10R-abYHaEUm50dqTu",
+            "city": "Osaka",
+            "title": "DAY5 晚餐候選",
+            "desc": "",
+            "cost": 3000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-08",
+            "time": "19:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10R-abYHaEUm50dqTu"
+        },
+        {
+            "id": "api--P10zstRlbhecFp1DO1U",
+            "city": "Osaka",
+            "title": "MM024 (樂桃航空) 台北桃園 (TPE) → 大阪關西 (KIX) ✈️",
+            "desc": "搭乘 06:07 的高鐵至桃園站（06:49 抵達），轉乘 A18 機場捷運至 A12 第一航廈，約 07:30 抵達 1F 出境大廳",
+            "cost": 3000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-04",
+            "time": "09:40 - 13:10",
+            "photos": [],
+            "location": "關西國際機場 第2航廈",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10zstRlbhecFp1DO1U"
+        },
+        {
+            "id": "api--P10zt2_B5k859m671Pz",
+            "city": "Other",
+            "title": "MM027 (樂桃航空) 大阪關西 (KIX) → 台北桃園 (TPE) ✈️",
+            "desc": "Cu Tennoji退房後前往近鐵上本町2F巴士總站，搭機場利木津巴士直達關西機場第2航廈。目前時刻表建議11:40發→12:42抵達T2；MM027 15:25起飛。Peach國際線報到在T2 1F，最晚起飛前50分鐘完成。出發前再確認最新時刻。",
+            "cost": 4500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-11",
+            "time": "15:25 - 17:55",
+            "photos": [],
+            "location": "關西國際機場 第2航廈",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10zt2_B5k859m671Pz"
+        },
+        {
+            "id": "api--P10ztCne2UQWEWudnie",
+            "city": "Other",
+            "title": "Hop Inn Kyoto Shijo Omiya (京都四條大宮霍普飯店) Check-in 🏨",
+            "desc": "抵達關西機場第二航廈後，直接從T2搭機場利木津巴士前往京都站八条口（目前單程¥2,800/人，100分鐘），再搭計程車(約 ¥1500) 前往Hop Inn Kyoto Shijo Omiya。",
+            "cost": 4000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-04",
+            "time": "17:00 - 17:30",
+            "photos": [],
+            "location": "京都市中京区壬生坊城町18-1",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10ztCne2UQWEWudnie"
+        },
+        {
+            "id": "api--P10ztL12Q1-XoNkLhyN",
+            "city": "Other",
+            "title": "Hop Inn Kyoto Shijo Omiya (京都四條大宮霍普飯店) Check-out 🧳",
+            "desc": "退房\n搭阪急京都線到日本橋（預計8:26）\n搭千日前線到鶴橋",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "08:00 - 08:30",
+            "photos": [],
+            "location": "京都市中京区壬生坊城町18-1",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10ztL12Q1-XoNkLhyN"
+        },
+        {
+            "id": "api--P10ztUuJmxWgSWAHZcA",
+            "city": "Other",
+            "title": "Cu Tennoji Check-in 🏨",
+            "desc": "已確認住宿為 Cu Tennoji。自助入住公寓，入住前約24小時提供房號與入住說明。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "hotel",
+            "isEnabled": false,
+            "day": "",
+            "time": "15:00 - 16:00",
+            "photos": [],
+            "location": "大阪府大阪市天王寺区味原町14-23",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10ztUuJmxWgSWAHZcA"
+        },
+        {
+            "id": "api--P10ztbQFEZUEHFV_g5f",
+            "city": "Other",
+            "title": "Cu Tennoji Check-out 🧳",
+            "desc": "上午10:00 前需退房。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-11",
+            "time": "09:30 - 10:00",
+            "photos": [],
+            "location": "大阪府大阪市天王寺区味原町14-23",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P10ztbQFEZUEHFV_g5f"
+        },
+        {
+            "id": "api--P111FQsOkR-yZzqlzVu",
+            "city": "Osaka",
+            "title": "grenier 梅田店",
+            "desc": "10:00–20:00\n梅田的人氣麵包甜點店。",
+            "cost": 800,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkX3Q7Eo3KGtAqRJpWF3w49Fz0BDWGPmMlJv7RIDW2Oyom3AM4Xxlb4TI&s=10"
+            ],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "3.54",
+            "tabelogUrl": "https://tabelog.com/osaka/A2701/A270101/27130931/",
+            "ratingChecked": "2026-09-08",
+            "_productId": "-P111FQsOkR-yZzqlzVu"
+        },
+        {
+            "id": "api--P111qj-fzy6J9L3yjEx",
+            "city": "Other",
+            "title": "天橋立＋伊根舟屋一日團 🚌",
+            "desc": "Klook 天橋立路線：天橋立＋伊根舟屋。\n實際集合地點、集合時間與導遊資訊，請以前一天 Klook／供應商通知為準。\n至少提早 15 分鐘抵達集合點。\n已預訂｜Klook 丹後鐵道路線｜單人 NT$1,973（已付款）",
+            "cost": 0,
+            "costTwd": 1973,
+            "paymentStatus": "paid",
+            "bookingPlatform": "Klook",
+            "bookingMarker": "2026-10-02-klook-amanohashidate-ine",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-08",
+            "time": "07:15 - 18:30",
+            "photos": [],
+            "location": "天橋立・伊根舟屋",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P111qj-fzy6J9L3yjEx"
+        },
+        {
+            "id": "api--P16E5cL0QBYfKgYShvK",
+            "city": "Osaka",
+            "title": "大丸百貨 梅田",
+            "desc": "10:00 - 20:00",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "13:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16E5cL0QBYfKgYShvK"
+        },
+        {
+            "id": "api--P16EP0EkU_uj1rvGwlv",
+            "city": "Osaka",
+            "title": "友都八喜",
+            "desc": "09:30 - 22:00\n5F ▸ 扭蛋\n7F ▸ asics Walking",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "20:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16EP0EkU_uj1rvGwlv"
+        },
+        {
+            "id": "api--P16Edn7GhNxAAP-KWBJ",
+            "city": "Osaka",
+            "title": "阪神百貨",
+            "desc": "10:00 - 20:00\n7F ▸ muji",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "13:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16Edn7GhNxAAP-KWBJ"
+        },
+        {
+            "id": "api--P16EugbRJWer4_qCQ62",
+            "city": "Osaka",
+            "title": "阪急百貨",
+            "desc": "10:00 - 20:00\n都精品\nB1 ▸Sugar Butter Tree ( 要排隊 可以平日再去買 )",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-10",
+            "time": "14:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16EugbRJWer4_qCQ62"
+        },
+        {
+            "id": "api--P16GVipe4Af1yS434VC",
+            "city": "Osaka",
+            "title": "GRAND FRONT OSAKA",
+            "desc": "11:00 - 21:00\n戶外運動潮牌\n北館\n3F ▸關西最大muji\n\n南館\n2F ▸ AUX PARADIS\n始祖鳥、mammut",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "17:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16GVipe4Af1yS434VC"
+        },
+        {
+            "id": "api--P16Gasz2RONb5qCjL46",
+            "city": "Osaka",
+            "title": "Links",
+            "desc": "10:00 - 21:00\n每層都相通友都八喜\nB1 ▸ 小吃\n1F  ▸ uniqlo旗艦店\n3F ▸ GU",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": true,
+            "day": "2026-11-07",
+            "time": "19:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16Gasz2RONb5qCjL46"
+        },
+        {
+            "id": "api--P16VdifFYzp5XbKB7FI",
+            "city": "Kyoto",
+            "title": "京都高島屋",
+            "desc": "10:30 - 20:00\n5F keen 便宜",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "18:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P16VdifFYzp5XbKB7FI"
+        },
+        {
+            "id": "api--P1BZz8D6Z-ltJcH1urU",
+            "city": "Osaka",
+            "title": "GARIGUETTE Osaka",
+            "desc": "11:00 - 19:00\n千層酥好吃\n在GRAND FRONT OSAKA 廣場",
+            "cost": 1400,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [
+                "https://tblg.k-img.com/restaurant/images/Rvw/162987/640x640_rect_0080c8ce7d8a51b14a068493d1f1e290.jpg"
+            ],
+            "location": "",
+            "googleRating": "4.1",
+            "tabelogRating": "3.54",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P1BZz8D6Z-ltJcH1urU"
+        },
+        {
+            "id": "api--P1E4MAmDa87xDlGxxS9",
+            "city": "Osaka",
+            "title": "GRAND GREEN OSAKA",
+            "desc": "精品、精緻\n可以不用去",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P1E4MAmDa87xDlGxxS9"
+        },
+        {
+            "id": "api--P1cRG9Uu3uZHJGaTF3A",
+            "city": "Osaka",
+            "title": "DAY6 午餐候選",
+            "desc": "▸Shabucho 午餐¥3000 ( 11:30開 須排隊 )\n▸豚涮 蒸籠蒸 ( 12開  )",
+            "cost": 3000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": true,
+            "day": "2026-11-09",
+            "time": "11:00 - 12:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P1cRG9Uu3uZHJGaTF3A"
+        },
+        {
+            "id": "api--P1uv0WOYaKG_R7LHwOe",
+            "city": "Kyoto",
+            "title": "炭焼 極",
+            "desc": "17:30–23:00\n燒鳥 在飯店附近",
+            "cost": 1800,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [],
+            "location": "37 Sagarimatsucho, Shimogyo Ward, Kyoto, 600-8381日本",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P1uv0WOYaKG_R7LHwOe"
+        },
+        {
+            "id": "api--P1zm4hTqXmTBSN8xfxT",
+            "city": "Kyoto",
+            "title": "一寸法師",
+            "desc": "08:00–20:30\n拉麵 有早餐拉麵\n鹽味比醬油好吃",
+            "cost": 500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": true,
+            "day": "2026-11-06",
+            "time": "08:30",
+            "photos": [],
+            "location": "https://maps.app.goo.gl/EKkGdRAurSwcmgmy6",
+            "googleRating": "4.7",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P1zm4hTqXmTBSN8xfxT"
+        },
+        {
+            "id": "api--P22E7mCI-KIQpHhRQ1k",
+            "city": "Kyoto",
+            "title": "MY ONLY FRAGRANCE SHINKYOGOKU",
+            "desc": "11:00–20:00\n可以調自己的香水，需預約 沒預約隨緣\n停留時間大概 30 分鐘到 1 小時",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-05",
+            "time": "15:30 - 16:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P22E7mCI-KIQpHhRQ1k"
+        },
+        {
+            "id": "api--P23s6jUzz4s53hr55Px",
+            "city": "Kyoto",
+            "title": "DAY2 晚餐",
+            "desc": "",
+            "cost": 3000,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "other",
+            "isEnabled": false,
+            "day": "",
+            "time": "17:30 - 18:30",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P23s6jUzz4s53hr55Px"
+        },
+        {
+            "id": "api--P2LtaxXZEdTNzp4BTJD",
+            "city": "Osaka",
+            "title": "梅田百貨補逛 & 採買 🛍️",
+            "desc": "把前幾天漏逛／漏買的東西補齊。\n17:45左右結束購物準備去吃晚餐。",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "",
+            "photos": [],
+            "location": "梅田・大阪駅",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P2LtaxXZEdTNzp4BTJD"
+        },
+        {
+            "id": "api--P2y2sn2WOryyOiBTVh1",
+            "city": "Kyoto",
+            "title": "宮川豚衛門",
+            "desc": "已預約｜2026/11/4 18:45｜2人",
+            "cost": 3500,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "food",
+            "isEnabled": true,
+            "day": "2026-11-04",
+            "time": "18:45 - 19:30",
+            "photos": [
+                "https://img.bigfang.tw/2025/02/1739972268-ae566253288191ce5d879e51dae1d8c3.jpg"
+            ],
+            "location": "https://maps.app.goo.gl/pCMuGB6yeqixSjGD9",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P2y2sn2WOryyOiBTVh1"
+        },
+        {
+            "id": "api--P323qqfLHK7yRCq5jPF",
+            "city": "Osaka",
+            "title": "勝尾寺 🎋",
+            "desc": "建議07:45左右由大阪出發，先到箕面萱野站；官方直行巴士09:00起約每10分鐘一班。\n箕面萱野站～勝尾寺直行巴士成人單程¥800；2026/10/1起完全無現金，可用ICOCA／Suica／PiTaPa等，車內不能儲值。\n入山¥500＋巴士來回¥1,600",
+            "cost": 2100,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "sightseeing",
+            "isEnabled": true,
+            "day": "2026-11-10",
+            "time": "09:30 - 12:00",
+            "photos": [],
+            "location": "勝尾寺",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P323qqfLHK7yRCq5jPF"
+        },
+        {
+            "id": "api--P3MSk5MXXNYpWJ5kDvC",
+            "city": "Osaka",
+            "title": "阪急三番街",
+            "desc": "10:00–21:00",
+            "cost": 0,
+            "costTwd": 0,
+            "paymentStatus": "",
+            "bookingPlatform": "",
+            "bookingMarker": "",
+            "category": "shopping",
+            "isEnabled": false,
+            "day": "",
+            "time": "19:00",
+            "photos": [],
+            "location": "",
+            "googleRating": "",
+            "tabelogRating": "",
+            "tabelogUrl": "",
+            "ratingChecked": "",
+            "_productId": "-P3MSk5MXXNYpWJ5kDvC"
+        }
+    ],
+    "checklist": [
+        {
+            "id": "c1",
+            "category": "both",
+            "item": "中華民國護照 (確認效期6個月以上) 🛂",
+            "done": true
+        },
+        {
+            "id": "c2",
+            "category": "both",
+            "item": "Visit Japan Web 申報 QR Code 截圖 📱",
+            "done": false
+        },
+        {
+            "id": "c3",
+            "category": "both",
+            "item": "日本上網 eSIM / 實體網卡購買 📶",
+            "done": false
+        },
+        {
+            "id": "c4",
+            "category": "both",
+            "item": "日圓現金 (多換些百圓與千圓面額) 💴",
+            "done": false
+        },
+        {
+            "id": "c5",
+            "category": "both",
+            "item": "ICOCA 卡 / 綁定 iPhone Apple Wallet 💳",
+            "done": false
+        },
+        {
+            "id": "c6",
+            "category": "both",
+            "item": "雙人投保海外旅遊平安險+不便險 🛡️",
+            "done": true
+        },
+        {
+            "id": "c7",
+            "category": "both",
+            "item": "登機手提行李秤重、打包防溢罐 🧳",
+            "done": false
+        },
+        {
+            "id": "c8",
+            "category": "boy",
+            "item": "刮鬍刀、個人換洗衣物、盥洗包 🪒",
+            "done": false
+        },
+        {
+            "id": "c9",
+            "category": "boy",
+            "item": "行動電源、各類充電線與豆腐頭 🔋",
+            "done": false
+        },
+        {
+            "id": "c10",
+            "category": "boy",
+            "item": "預訂門票確認信件彙整 (勝尾寺、Haruka等) 📄",
+            "done": false
+        },
+        {
+            "id": "c11",
+            "category": "girl",
+            "item": "保養品、化妝品、卸妝與個人護理用品 🧴",
+            "done": false
+        },
+        {
+            "id": "c12",
+            "category": "girl",
+            "item": "隱形眼鏡、常備藥品 (止痛、防蚊、暈車) 💊",
+            "done": false
+        },
+        {
+            "id": "c13",
+            "category": "girl",
+            "item": "美美拍照服裝、舒適好走的走路鞋 👟",
+            "done": false
+        },
+        {
+            "id": "c14",
+            "category": "boy",
+            "item": "內政部役男出境核准公文（線上申請並列印帶在身上） 🪖",
+            "done": false
+        }
+    ],
+    "messages": [],
+    "dayOrder": {
+        "2026-11-04": [
+            "api--P10zstRlbhecFp1DO1U",
+            "api--P10ztCne2UQWEWudnie",
+            "api--P2y2sn2WOryyOiBTVh1",
+            "api--OubeXXz7r2WWczz2F3q",
+            "api--OubgUg7XZBhksc3QfWV",
+            "api--OuYJ77bUK6_FxUYQhkp"
+        ],
+        "2026-11-05": [
+            "api--Ow7eH6Yl6MPT1Tc2YIr",
+            "api--OuLyfxzS2IrqquYvJJP",
+            "api--Ov6BJQlJi4JV-ohJS53",
+            "api--Ow2xCwWk3m3laQ9ajZX",
+            "api--P22E7mCI-KIQpHhRQ1k"
+        ],
+        "2026-11-06": [
+            "api--OuYIrqpWmVn_nb7bHKg",
+            "api--P1zm4hTqXmTBSN8xfxT",
+            "api--OubtGrN98QDcEq8e7kw",
+            "api--Ow8Svp2irYD3UqlQ70C",
+            "api--Ow1xX5OHs2aJKWM5mi0",
+            "api--Ow3TZdbXyelE7IBVtR5",
+            "api--Ow3lRP4J8nm5JXz1u4Y",
+            "api--OubXJZGaoH5ak9ghZuJ"
+        ],
+        "2026-11-07": [
+            "api--P10ztL12Q1-XoNkLhyN",
+            "api--OvuRaouWMxtuEQrU_bI",
+            "api--OuYIzXMejSuoy-G5tt6",
+            "api--Ow8sxlHZOVOOLVbbIRe",
+            "api--OxQ-k4ZXhy1azrf7wqf",
+            "api--P16GVipe4Af1yS434VC",
+            "api--OwsT_H93L6ymkCk0zCw",
+            "api--P16Gasz2RONb5qCjL46",
+            "api--P16EP0EkU_uj1rvGwlv"
+        ],
+        "2026-11-08": [
+            "api--P111qj-fzy6J9L3yjEx",
+            "api--P10Qu6NN5ZCSzqt4rsF",
+            "api--P10R-abYHaEUm50dqTu"
+        ],
+        "2026-11-09": [
+            "api--OuYJ4Bkt394eUgwFW-s",
+            "api--OuYJ-kfiny5CJsJNrPt",
+            "api--P1cRG9Uu3uZHJGaTF3A",
+            "api--P10IOr0gG2A1NpXgkEe"
+        ],
+        "2026-11-10": [
+            "api--P323qqfLHK7yRCq5jPF",
+            "api--OwsT4QinNvc-S-V5sk7",
+            "api--P16EugbRJWer4_qCQ62",
+            "api--OubXO5586wzieOFnciE",
+            "api--OxPv9IZusf2S_L-bd6Z"
+        ],
+        "2026-11-11": [
+            "api--P10ztbQFEZUEHFV_g5f",
+            "api--P10zt2_B5k859m671Pz"
+        ]
+    },
+    "poolPhotos": {
+        "api--OuYIv7tybF-5M2AR9BD": [
+            "https://cdn.corner.inc/place-photo/AXQCQNR_kuTnkR_Scri9XlS6d6MbsYnkxEBpab8QlLO6w1zfaSwYyn9v2TTYLBUtKZwTKxvWSEgdKxODMfpSJ0TX5N5RWkn84KUh3lVWsBtIlpoJSnHlhxdpt4pK1XcyFpHi5wET8hQDlDFIHVAbHCGU5QNcYKwVtREKs_Jl9z9bLWRPv-c0qQ2f9iAYTkV0gj8Gu1ppdQPKxU6lMePOryQ6Q1-cvkyQo8tXY62w7A7i6F_kZToERQWBY4JVOtqNsTsGdtdzkJBheTRmiOft9Sm1djO4OmC-7xDfp3xRP5HlnwS1-0Y1J7Echu0sksrNtIUbDB_jB0Rl1uWm9GE5Hr9x8k_kZ-8c9Mo-tvE0kqE5IXltuZpuvs-xqgTK46VePaKPXv08QzjIOXlFlc4x0umLN5AULeuYzycMi-5enocYJbmrraQ0NKK6VTzXLE6QndrEtMHvaiIAulIxZMf7sold7U_hhcqhoCEPK__sd8Way3xguJwzk_oWX7kxk1HHjD1_JJYh0BahVOkhFeOk61c5H-tFzPMYOYjR_xdhN4O53Yh0L8CCdwJZAQtyEAQVLSS6dMFK5Qp0C2_hC7vho9g_NucCYLpUrQQHb-olAIBdrHICB0p83Vw6nUFWNkUPC1pTxO0taG-I.jpeg"
+        ],
+        "api--OuYIrqpWmVn_nb7bHKg": [
+            "https://upload.wikimedia.org/wikipedia/commons/a/ae/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg?utm_source=zh.wikipedia.org&utm_campaign=index&utm_content=original"
+        ],
+        "api--OuYJLSrvmg4n-6ddX2p": [
+            "https://d1grca2t3zpuug.cloudfront.net/2026/05/kyoto-toji-202605-001-1920x1281-1777937736.webp"
+        ],
+        "api--OubtGrN98QDcEq8e7kw": [
+            "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/a0/cd/a5/caption.jpg?w=900&h=500&s=1"
+        ],
+        "api--Ou_SgEWwKCU2H-9HlIJ": [
+            "https://www.bring-you.info/imgs/2015/08/kodaiji-7.jpg"
+        ],
+        "api--OubgUg7XZBhksc3QfWV": [
+            "https://img.wenkaiin.com/1527040324-4b5798c495c592b1036e1821dda8437e.jpg"
+        ],
+        "api--OuYIwvih-UvarXnh42q": [],
+        "api--OubeXXz7r2WWczz2F3q": [
+            "https://letsgokyoto.com/wp-content/uploads/2024/06/IMG_2863-2.jpg"
+        ],
+        "api--OuYItCuiq10u32x0LaA": [
+            "https://d1grca2t3zpuug.cloudfront.net/2025/07/inari00-870x500-1752805331.webp"
+        ],
+        "api--Ov1O2wRLdPiYs-QRraP": [
+            "https://asset.japan.travel/image/upload/v1646651273/kyoto/M_00172_001.jpg"
+        ],
+        "api--Ov3iropWr4bH-uPgjUD": [
+            "https://kavana.tw/wp-content/uploads/thumb_20200828122447_94.jpg"
+        ],
+        "api--Ov4WbY3fGM9fucMzSpT": [
+            "https://d1grca2t3zpuug.cloudfront.net/2017/03/nishikiichiba-11-1750837911.webp"
+        ],
+        "api--OuYJ77bUK6_FxUYQhkp": [
+            "https://i0.wp.com/windiewang.com/wp-content/uploads/2025/10/IMG_5505.jpeg?w=1000&ssl=1"
+        ],
+        "api--OuYJH6_OlZZfpqpE4Pe": [
+            "https://s3-ap-northeast-1.amazonaws.com/thegate/2021/01/05/13/04/01/Kitano-tenmangu-shrine.jpg"
+        ],
+        "api--OuLyfxzS2IrqquYvJJP": [
+            "https://tw.wamazing.com/media/wp-content/uploads/sites/4/2019/07/shimogamojinja_pixta_94294698_M-853x569.jpg.webp"
+        ],
+        "api--OubXJZGaoH5ak9ghZuJ": [
+            "https://d1grca2t3zpuug.cloudfront.net/2026/05/kyoto-toji-202605-001-1920x1281.webp"
+        ],
+        "api--OubWvWDtS0YofcrdqW0": [
+            "https://d1grca2t3zpuug.cloudfront.net/2025/10/nijocastle_05-870x500.webp"
+        ],
+        "api--Ou_stvvh-1huntDbKCX": [
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFh8t7StxF_3YjfUrwoVBknByjok2Ogr9xpA&s"
+        ],
+        "api--Ov6BJQlJi4JV-ohJS53": [],
+        "api--OuYJ4h7oMC7joMAf1i4": [],
+        "api--OuYJ5OK87tTJEprbYlT": [],
+        "api--OuYIzXMejSuoy-G5tt6": [],
+        "api--OvuRaouWMxtuEQrU_bI": [],
+        "api--Ow2xCwWk3m3laQ9ajZX": [],
+        "api--Ow3TZdbXyelE7IBVtR5": [],
+        "api--Ow1xX5OHs2aJKWM5mi0": [
+            "https://static.gltjp.com/glt/data/article/21000/20409/20251120_221812_a1149194_w1920.webp"
+        ],
+        "api--Ow7eH6Yl6MPT1Tc2YIr": [
+            "https://img.bigfang.tw/2023/04/1680594454-62bf1edb36141f114521ec4bb4175579.jpg"
+        ],
+        "api--Ow3lRP4J8nm5JXz1u4Y": [],
+        "api--Ow8Svp2irYD3UqlQ70C": [],
+        "api--OuYJ4Bkt394eUgwFW-s": [],
+        "api--OwsSIxo8_WIBbtxRs3F": [],
+        "api--OuYJ-kfiny5CJsJNrPt": [],
+        "api--OwsT4QinNvc-S-V5sk7": [],
+        "api--OwsT_H93L6ymkCk0zCw": [],
+        "api--OubXO5586wzieOFnciE": [],
+        "api--P10ztCne2UQWEWudnie": [],
+        "api--P10ztL12Q1-XoNkLhyN": [],
+        "api--P10zstRlbhecFp1DO1U": [],
+        "api--P10zt2_B5k859m671Pz": [],
+        "api--P111qj-fzy6J9L3yjEx": [],
+        "api--OuYJ9qOfTx_HMYpcEI_": [],
+        "api--OxQ-k4ZXhy1azrf7wqf": [],
+        "api--P16Edn7GhNxAAP-KWBJ": [],
+        "api--P16EugbRJWer4_qCQ62": [],
+        "api--P16GVipe4Af1yS434VC": [],
+        "api--P16Gasz2RONb5qCjL46": [],
+        "api--P16VdifFYzp5XbKB7FI": [],
+        "api--P16EP0EkU_uj1rvGwlv": [],
+        "api--P1BZz8D6Z-ltJcH1urU": [
+            "https://tblg.k-img.com/restaurant/images/Rvw/162987/640x640_rect_0080c8ce7d8a51b14a068493d1f1e290.jpg"
+        ],
+        "api--P1E4MAmDa87xDlGxxS9": [],
+        "api--P16E5cL0QBYfKgYShvK": [],
+        "api--P1zm4hTqXmTBSN8xfxT": [],
+        "api--OuYJB8zT1fC-eg64S3-": [
+            "https://tasting-japan.com/wp-content/uploads/2026/04/image-80-1024x574.webp"
+        ],
+        "api--P111FQsOkR-yZzqlzVu": [
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkX3Q7Eo3KGtAqRJpWF3w49Fz0BDWGPmMlJv7RIDW2Oyom3AM4Xxlb4TI&s=10"
+        ],
+        "api--P1cRG9Uu3uZHJGaTF3A": [],
+        "api--OuYJ7xMh_faoyKJGY13": [
+            "https://leemider.com/wp-content/uploads/20190709234707_51.jpg"
+        ],
+        "api--P1uv0WOYaKG_R7LHwOe": [],
+        "api--P22E7mCI-KIQpHhRQ1k": [],
+        "api--P10IOr0gG2A1NpXgkEe": [],
+        "api--P2y2sn2WOryyOiBTVh1": [
+            "https://img.bigfang.tw/2025/02/1739972268-ae566253288191ce5d879e51dae1d8c3.jpg"
+        ],
+        "api--P2LtaxXZEdTNzp4BTJD": [],
+        "api--Ow8sxlHZOVOOLVbbIRe": [],
+        "api--OxPv9IZusf2S_L-bd6Z": [],
+        "api--P10R-abYHaEUm50dqTu": [],
+        "api--P323qqfLHK7yRCq5jPF": [],
+        "api--P10ztbQFEZUEHFV_g5f": [],
+        "api--P3MSk5MXXNYpWJ5kDvC": []
+    },
+    "deletedPoolItems": [
+        "g20",
+        "g19",
+        "g1",
+        "api--OuLy_bmJdX1M34jV1jS",
+        "g2",
+        "api--OubXKebti0I8VcIznJ6",
+        "g10",
+        "api--OuYIhtUi6ipcl_HLQsR",
+        "api--OuaSgsePWh5zJxzvveP",
+        "g11",
+        "api--OuYJAPeIbMEnQ9KAWDP",
+        "api--OuYJ62C3qKdpHhXaMRU",
+        "api--OuYJ-B6c975rvYWE7LD",
+        "api--OuYJEMP0XHBtxtrWDJJ",
+        "api--P111q6WvQ6uxgbPjLZ3",
+        "-P111q6WvQ6uxgbPjLZ3",
+        "飯店 Check-in: Hop Inn Kyoto Shijo Omiya 🏨",
+        "飯店 Check-in: Hop Inn Kyoto Shijo Omiya",
+        "api--P111qRWPaUrOJFA2SPK",
+        "-P111qRWPaUrOJFA2SPK",
+        "京都飯店 Check-out ",
+        "京都飯店 Check-out",
+        "api--P111r70hbFCBBLLyjki",
+        "-P111r70hbFCBBLLyjki",
+        "搭乘 MM027 航班返台 ✈️",
+        "搭乘 MM027 航班返台",
+        "api--P111pcI2IMnmIzgfOH-",
+        "-P111pcI2IMnmIzgfOH-",
+        "飛往大阪關西機場 (MM024) ✈️",
+        "飛往大阪關西機場 (MM024)",
+        "api--P1113aOrLP6VksdUGRM",
+        "-P1113aOrLP6VksdUGRM",
+        "黑門市場 ⚠️",
+        "黑門市場",
+        "api--P111BVkSHpANKxw89yN",
+        "-P111BVkSHpANKxw89yN",
+        "木津市場",
+        "api--P111ENsxcVegWABXVT-",
+        "-P111ENsxcVegWABXVT-",
+        "PRESS BUTTER SAND 大阪高島屋",
+        "api--P111Ehpl2Z7c-M3pa1M",
+        "-P111Ehpl2Z7c-M3pa1M",
+        "Sugar Butter Tree 阪急梅田店",
+        "api--P111oknL6g6lr0Gd2Xk",
+        "-P111oknL6g6lr0Gd2Xk",
+        "お好み焼（大阪燒）千草",
+        "api--P111-2E-akIled88aWW",
+        "-P111-2E-akIled88aWW",
+        "大阪燒 千房 🍴",
+        "大阪燒 千房",
+        "api--OuYJBexvoCKIkU_5ODM",
+        "-OuYJBexvoCKIkU_5ODM",
+        "Shabuwara 壽喜燒 涮涮鍋 花月店",
+        "api--P110vZ7RKtl2uJfN_XB",
+        "-P110vZ7RKtl2uJfN_XB",
+        "法善寺",
+        "api--P1112ckbZf55ZSRd0r_",
+        "-P1112ckbZf55ZSRd0r_",
+        "梅田藍天大樓 🌌",
+        "梅田藍天大樓",
+        "api--P111-OdutyTsVTkAGXf",
+        "-P111-OdutyTsVTkAGXf",
+        "唐吉訶德 道頓堀店 🛍️",
+        "唐吉訶德 道頓堀店",
+        "api--P1113H0YHVNWzax0ytg",
+        "-P1113H0YHVNWzax0ytg",
+        "勝尾寺 🔴",
+        "勝尾寺",
+        "api--P1113-eXCFf9EN9QD6G",
+        "-P1113-eXCFf9EN9QD6G",
+        "橘子街 (Orange Street) 🍊",
+        "橘子街 (Orange Street)",
+        "api--P1113wSQDK92NaOw7jy",
+        "-P1113wSQDK92NaOw7jy",
+        "通天閣 & 新世界 🗼",
+        "通天閣 & 新世界",
+        "api--P11185QP28FbRRCm5Cg",
+        "-P11185QP28FbRRCm5Cg",
+        "心齋橋PARCO 🛍️",
+        "心齋橋PARCO",
+        "api--P111CLKa-CXiRA0x55e",
+        "-P111CLKa-CXiRA0x55e",
+        "大阪歷史博物館",
+        "api--P111Ck1W3bZJA8Gw-Gi",
+        "-P111Ck1W3bZJA8Gw-Gi",
+        "大丸百貨心齋橋店 本館 🛍️",
+        "大丸百貨心齋橋店 本館",
+        "api--P111D1uQf0GioEZRwBU",
+        "-P111D1uQf0GioEZRwBU",
+        "Os Drug 天滿店 🛍️",
+        "Os Drug 天滿店",
+        "api--P111DPRUQ9DXWolHhNB",
+        "-P111DPRUQ9DXWolHhNB",
+        "通天閣",
+        "api--P111DlhsfZ1z1ZL6k5L",
+        "-P111DlhsfZ1z1ZL6k5L",
+        "Shinsaibashi PARCO 🛍️",
+        "Shinsaibashi PARCO",
+        "api--Ou_rp2lztiwVH_7hzec",
+        "-Ou_rp2lztiwVH_7hzec",
+        "永觀堂（禪林寺） 🍁",
+        "永觀堂（禪林寺）",
+        "api--Ou_SgqgyTYYY52UN0By",
+        "-Ou_SgqgyTYYY52UN0By",
+        "慈照寺（銀閣寺） 🍁",
+        "慈照寺（銀閣寺）",
+        "api--Ov0c14scPJKgDAixyhD",
+        "-Ov0c14scPJKgDAixyhD",
+        "安井金比羅宮（緣切緣結碑）",
+        "api--OubXLWs9MOGjLTc_9ZK",
+        "-OubXLWs9MOGjLTc_9ZK",
+        "西本願寺 📍",
+        "西本願寺",
+        "api--P1118PyKR7ixPCz36hS",
+        "-P1118PyKR7ixPCz36hS",
+        "二條城 🏯",
+        "二條城",
+        "api--P111BDhNTe-OKbaiitg",
+        "-P111BDhNTe-OKbaiitg",
+        "賀茂御祖神社（下鴨神社）",
+        "api--P111BsPtqPu6_65XBAH",
+        "-P111BsPtqPu6_65XBAH",
+        "京都塔",
+        "api--Ov1Pgi8kuc9kbZwgVi4",
+        "-Ov1Pgi8kuc9kbZwgVi4",
+        "光明院",
+        "api--OuYItrPZWzonKjoH97K",
+        "-OuYItrPZWzonKjoH97K",
+        "平安神宮 ⛩️",
+        "平安神宮",
+        "api--P1118lDkE-hYwoSZNrt",
+        "-P1118lDkE-hYwoSZNrt",
+        "京都御苑 🌲",
+        "京都御苑",
+        "api--OuYJ6bgB44qD477Vr0Q",
+        "-OuYJ6bgB44qD477Vr0Q",
+        "DONGURI Shijo-Omiya Store 🍴",
+        "DONGURI Shijo-Omiya Store",
+        "api--OuYIyGLl3mCocoA9AYA",
+        "-OuYIyGLl3mCocoA9AYA",
+        "Sukiyaki Kimura 🍲",
+        "Sukiyaki Kimura",
+        "api--P111E3-kSowmPmb7d2J",
+        "-P111E3-kSowmPmb7d2J",
+        "松屋 四條大宮站前店",
+        "api--P111AZGofAtHXEa95Yq",
+        "-P111AZGofAtHXEa95Yq",
+        "四天王寺 🛕",
+        "四天王寺",
+        "api--OuYIysMX0Nae721yFSM",
+        "-OuYIysMX0Nae721yFSM",
+        "麵屋 豬一 🍜",
+        "麵屋 豬一",
+        "api--P111FzeoLnnUmPoI8Rr",
+        "-P111FzeoLnnUmPoI8Rr",
+        "Yasubee",
+        "api--P111oNIVupmnkiuaSmE",
+        "-P111oNIVupmnkiuaSmE",
+        "麵屋練之助 🍜",
+        "麵屋練之助",
+        "api--P111o1XnD8Sbn2ibzFv",
+        "-P111o1XnD8Sbn2ibzFv",
+        "Yumemiya",
+        "api--OuYJ8ZV08GfVwfa16oM",
+        "-OuYJ8ZV08GfVwfa16oM",
+        "HARBS 心齋橋Parco店 🍴",
+        "HARBS 心齋橋Parco店",
+        "api--P111-k61jdYQYEGyP7b",
+        "-P111-k61jdYQYEGyP7b",
+        "お好み焼 ( 大阪燒 ) 千草 🍴",
+        "お好み焼 ( 大阪燒 ) 千草",
+        "api--P1110_HvI3bVSnHzIfr",
+        "-P1110_HvI3bVSnHzIfr",
+        "Kusaka Curry Namba DINING MAISON 🍴",
+        "Kusaka Curry Namba DINING MAISON",
+        "api--P10U__vpfGBVDXripL2",
+        "-P10U__vpfGBVDXripL2",
+        "SUKIYAKI FUJIMOTO",
+        "api--P111p3UdSw80HscvQdC",
+        "-P111p3UdSw80HscvQdC",
+        "可樂餅 中村屋",
+        "api--P111F6hBvEHTSmAru9f",
+        "-P111F6hBvEHTSmAru9f",
+        "ÉCHIRÉ Marché au Beurre",
+        "api--P111GLAVWa7IRDie1R0",
+        "-P111GLAVWa7IRDie1R0",
+        "Kuchibashi Modern",
+        "api--Ouq_EUmSa3JbPinNVjI",
+        "-Ouq_EUmSa3JbPinNVjI",
+        "DAY1 晚餐候選"
+    ],
+    "scheduledItems": {
+        "api--OuLyfxzS2IrqquYvJJP": "2026-11-05|10:30 - 12:30",
+        "api--OuYIrqpWmVn_nb7bHKg": "2026-11-06|06:15 - 08:00",
+        "api--OuYIzXMejSuoy-G5tt6": "2026-11-07|11:00 - 12:30",
+        "api--OuYJ-kfiny5CJsJNrPt": "2026-11-09|10:30 - 17:30",
+        "api--OuYJ4Bkt394eUgwFW-s": "2026-11-09|9:30 - 10:00",
+        "api--OuYJ77bUK6_FxUYQhkp": "2026-11-04|21:30",
+        "api--OubXJZGaoH5ak9ghZuJ": "2026-11-06|19:30 - 20:30",
+        "api--OubXO5586wzieOFnciE": "2026-11-10|15:00",
+        "api--OubeXXz7r2WWczz2F3q": "2026-11-04|20:00 - 20:30",
+        "api--OubgUg7XZBhksc3QfWV": "2026-11-04|21:00 - 21:30",
+        "api--OubtGrN98QDcEq8e7kw": "2026-11-06|09:30 - 11:00",
+        "api--Ov6BJQlJi4JV-ohJS53": "2026-11-05|12:45 - 13:30",
+        "api--OvuRaouWMxtuEQrU_bI": "2026-11-07|10:30",
+        "api--Ow1xX5OHs2aJKWM5mi0": "2026-11-06|11:30 - 12:30",
+        "api--Ow2xCwWk3m3laQ9ajZX": "2026-11-05|14:30",
+        "api--Ow3TZdbXyelE7IBVtR5": "2026-11-06|14:00 - 16:00",
+        "api--Ow3lRP4J8nm5JXz1u4Y": "2026-11-06|17:30",
+        "api--Ow7eH6Yl6MPT1Tc2YIr": "2026-11-05|09:00 – 09:45",
+        "api--Ow8Svp2irYD3UqlQ70C": "2026-11-06|11:30 - 13:30",
+        "api--Ow8sxlHZOVOOLVbbIRe": "2026-11-07|12:30 - 13:30",
+        "api--OwsT4QinNvc-S-V5sk7": "2026-11-10|13:30 - 14:30",
+        "api--OwsT_H93L6ymkCk0zCw": "2026-11-07|18:00",
+        "api--OxPv9IZusf2S_L-bd6Z": "2026-11-10|18:30 - 20:30",
+        "api--OxQ-k4ZXhy1azrf7wqf": "2026-11-07|14:00",
+        "api--P10IOr0gG2A1NpXgkEe": "2026-11-09|17:30",
+        "api--P10Qu6NN5ZCSzqt4rsF": "2026-11-08|12:00",
+        "api--P10R-abYHaEUm50dqTu": "2026-11-08|19:00",
+        "api--P10zstRlbhecFp1DO1U": "2026-11-04|09:40 - 13:10",
+        "api--P10zt2_B5k859m671Pz": "2026-11-11|15:25 - 17:55",
+        "api--P10ztCne2UQWEWudnie": "2026-11-04|17:00 - 17:30",
+        "api--P10ztL12Q1-XoNkLhyN": "2026-11-07|08:00 - 08:30",
+        "api--P10ztbQFEZUEHFV_g5f": "2026-11-11|09:30 - 10:00",
+        "api--P111qj-fzy6J9L3yjEx": "2026-11-08|07:15 - 18:30",
+        "api--P16EP0EkU_uj1rvGwlv": "2026-11-07|20:30",
+        "api--P16EugbRJWer4_qCQ62": "2026-11-10|14:30",
+        "api--P16GVipe4Af1yS434VC": "2026-11-07|17:00",
+        "api--P16Gasz2RONb5qCjL46": "2026-11-07|19:30",
+        "api--P1cRG9Uu3uZHJGaTF3A": "2026-11-09|11:00 - 12:00",
+        "api--P1zm4hTqXmTBSN8xfxT": "2026-11-06|08:30",
+        "api--P22E7mCI-KIQpHhRQ1k": "2026-11-05|15:30 - 16:30",
+        "api--P2y2sn2WOryyOiBTVh1": "2026-11-04|18:45 - 19:30",
+        "api--P323qqfLHK7yRCq5jPF": "2026-11-10|09:30 - 12:00"
+    },
+    "souvenirs": [
+        {
+            "id": "souv-1781008392031",
+            "name": "PRESS BUTTER SAND",
+            "category": "零食",
+            "shop": "大丸京都/LUCUA",
+            "price": 2000,
+            "photo": "https://megapx-assets.dcard.tw/images/f4822c4a-88d6-4668-9b37-eb12a2e3bd33/orig.jpeg",
+            "done": true,
+            "notes": "LUCUA B1"
+        },
+        {
+            "id": "souv-1781288301765",
+            "name": "化妝品",
+            "category": "美妝",
+            "shop": "藥妝店",
+            "price": 4000,
+            "photo": "",
+            "notes": "CEZANNE\n▸濾鏡提亮粉餅01 ¥700\n▸柔潤腮紅01/04 ¥550\n▸小顏修修筆02 ¥660\n▸混色修容盤  ( 全3色,01 ) ¥781\n\nCANMAKE\n▸激細滑順眼線膠筆 ( 直徑1.5MM ) ¥700\n\n▸Rosy Rosa 多用途粉撲2入 ¥638",
+            "done": true
+        },
+        {
+            "id": "souv-1782526352446",
+            "name": "本能寺",
+            "category": "其他",
+            "shop": "",
+            "price": 3000,
+            "photo": "",
+            "notes": "御朱印帳+御朱印約 ¥ 3000",
+            "done": false
+        },
+        {
+            "id": "souv-1783936272292",
+            "name": "清水寺",
+            "category": "其他",
+            "shop": "",
+            "price": 900,
+            "photo": "",
+            "notes": "御朱印8:00-8:30開始 御朱印 ¥ 300\n御朱印位置：\n14、15跟17之間、20對面",
+            "done": false
+        },
+        {
+            "id": "souv-1788351851141",
+            "name": "ululis髮油",
+            "category": "美妝",
+            "shop": "藥妝店",
+            "price": 1400,
+            "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsfx3pz2qCyBqAEkPdlEywglR5asBlkon3BujLeLhDh5FAWQLfjm1RKqw&s=10",
+            "notes": "ululis髮油 100ml NT$280 ¥1,400\n黃色or黑色",
+            "done": true
+        },
+        {
+            "id": "souv-1788353102939",
+            "name": "星巴克焙茶拿鐵",
+            "category": "超商",
+            "shop": "星巴克",
+            "price": 600,
+            "photo": "https://scontent-tpe1-1.cdninstagram.com/v/t51.82787-15/723934629_17971078857117523_3655949315668813659_n.jpg?stp=cp6_dst-jpg_e35_tt6&_nc_cat=108&ig_cache_key=MzkyMjk5NTY5NDcwMDk3NTM4OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=EVVlLfPFdBAQ7kNvwEp0FEH&_nc_oc=Adr-BRQFjnMSkhX6J5Zfoj6f10TAz37WAiBy99fOsZnynzJyC6sybtzXXxhBNd27XMw&_nc_zt=23&_nc_ht=scontent-tpe1-1.cdninstagram.com&_nc_gid=H2IdIlNRC6V0Qs0iXmHwVA&_nc_ss=7b2a8&oh=00_AQIoUYNcKGt0M3_Kgmok_aBt2wS1b7xCt-EeOYwux_BcyQ&oe=6A9DE5D9",
+            "notes": "拿照片給店員看就好 NT$120",
+            "done": true,
+            "meDone": true
+        },
+        {
+            "id": "souv-1788353406724",
+            "name": "舞妓辣仙貝",
+            "category": "零食",
+            "shop": "京都清水寺",
+            "price": 500,
+            "photo": "https://scontent-tpe1-1.cdninstagram.com/v/t51.82787-15/650928842_17951416038101585_5608922067390107101_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ig_cache_key=Mzg1MDkwNDQ1NTQ2NjY4NTU2NQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTAwMC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=xNPdnpTgMWkQ7kNvwHMbtJj&_nc_oc=AdpQzGBfnbSo-MUM57c_LIsgYtAN_-w6Jw4H8dOnNqVRRqqT-CSjPaw790RPmNcYjqo&_nc_zt=23&_nc_ht=scontent-tpe1-1.cdninstagram.com&_nc_gid=1kcW3QG15vSjiiCPIqPdvg&_nc_ss=7b2a8&oh=00_AQKsyCwCfUqOuncCC1i-VJprTK4Kja-8q37bOY_OZhRRwA&oe=6A9DE512",
+            "notes": "舞妓激辛咖哩仙貝（舞妓はんひぃ〜ひぃ〜カレーせんべい）NT$100",
+            "done": true
+        },
+        {
+            "id": "souv-1788359692073",
+            "name": "齒磨殿堂美白牙膏",
+            "category": "美妝",
+            "shop": "藥妝店",
+            "price": 3000,
+            "photo": "https://scontent-tpe1-1.cdninstagram.com/v/t51.82787-15/572241421_17933732427102460_6521866035692214748_n.jpg?stp=cp6_dst-jpegr_e35_tt6&_nc_cat=107&ig_cache_key=Mzc1MTkzNjc0ODE3MjgzMzcyNA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=EMN5YEVAJ8UQ7kNvwF492TY&_nc_oc=AdpK73kRgPy2waiZle1h6QWQ7vsw8KMA4-fR69jb5oPVKO5uq19V7Sw9IM6Z3zzAn1o&_nc_zt=23&_nc_ht=scontent-tpe1-1.cdninstagram.com&_nc_gid=ageVQAnyuahVNd-i860d6w&_nc_ss=7b2a8&oh=00_AQLCxy-_9W-_DNxWj7EmHvM9NrlKUWs9JN48V0hDd-Hc6Q&oe=6A9DEC29",
+            "notes": "NT$600\n藍色：去垢淨白\n深藍：3倍淨白\n綠色：清新淨白（預防口臭）",
+            "done": true,
+            "meDone": true,
+            "girlDone": false
+        },
+        {
+            "id": "souv-1788408751573",
+            "name": "TAKAMI",
+            "category": "美妝",
+            "shop": "藥妝店",
+            "price": 5000,
+            "photo": "https://www.takami-labo.com/assets/img/products/skinpeel/product_320px@2x.webp",
+            "notes": "30ml NT$1000\n\nKyoto LOFT / 大阪梅田cosme 買的到",
+            "done": false,
+            "meDone": false,
+            "girlDone": false
+        },
+        {
+            "id": "souv-1788891046614",
+            "name": "Sugar Butter Tree",
+            "category": "零食",
+            "shop": "阪急梅田店",
+            "price": 3000,
+            "photo": "",
+            "notes": "",
+            "done": true,
+            "girlDone": true,
+            "meDone": false
+        },
+        {
+            "id": "souv-1788891182753",
+            "name": "晴明神社",
+            "category": "其他",
+            "shop": "",
+            "price": 3500,
+            "photo": "",
+            "notes": "御朱印帳￥3000\n御朱印￥500",
+            "done": true
+        },
+        {
+            "id": "souv-1788891197567",
+            "name": "下鴨神社&河合神社",
+            "category": "其他",
+            "shop": "",
+            "price": 1500,
+            "photo": "",
+            "notes": "季節限定御守¥1500",
+            "done": true
+        },
+        {
+            "id": "souv-1789448823509",
+            "name": "HOKA",
+            "category": "服飾",
+            "shop": "",
+            "price": 25000,
+            "photo": "",
+            "notes": "▸STINSON BREEZE ¥25300 NT$5000\n▸BONDI MARY JANE BLACK ¥28,600 NT$5700\n▸HOKA Ora Primo EXT 台灣賣4500\n▸HOKA Mafate",
+            "done": true,
+            "meDone": true
+        },
+        {
+            "id": "souv-1789619950431",
+            "name": "KUBOMI 棉花糖餅乾",
+            "category": "零食",
+            "shop": "關西機場",
+            "price": 2000,
+            "photo": "https://img.feebee.tw/i/AK0NOMc4MQCsvAuGyjCT5srDJZ_VRDZdTPn8PFaZkdM/372/aHR0cHM6Ly9jZi5zaG9wZWUudHcvZmlsZS90dy0xMTEzNDIwNy04MjBsNy1tbXZkdG5yb2Zkdm4yZg.webp",
+            "notes": "KUBOMI 棉花糖餅乾12入 NT$400",
+            "done": true
+        },
+        {
+            "id": "souv-1789631138599",
+            "name": "Lawson",
+            "category": "超商",
+            "shop": "",
+            "price": 2000,
+            "photo": "",
+            "notes": "▸醜麵包 ( 也三顆星都是日本投票過好吃的麵包 ) ¥118\n▸炸雞君 ¥278\n▸生乳捲 ¥214\n▸紅豆奶油銅鑼燒 ( 冷凍櫃 ) ¥214\n▸LAWSON 一燈拉麵 ¥348",
+            "done": true,
+            "meDone": true
+        },
+        {
+            "id": "souv-1789813720025",
+            "name": "muji",
+            "category": "超商",
+            "shop": "",
+            "price": 10000,
+            "photo": "",
+            "notes": "▸司康 ¥190\n▸藥用抗老霜面膜 ¥2490 \n▸梅子軟糖 ¥120",
+            "done": true,
+            "meDone": false
+        },
+        {
+            "id": "souv-1789831395123",
+            "name": "各處有賣 超商等",
+            "category": "超商",
+            "shop": "唐吉訶德",
+            "price": 3000,
+            "photo": "",
+            "notes": "▸Premium Hichew ¥160  NT$35\n▸泡麵 鴨to蔥  ¥292\n▸泡麵 凄台系列 背脂  ¥300 ( 超推一定要買 )\n▸草莓pocky ¥198",
+            "done": true,
+            "meDone": true
+        },
+        {
+            "id": "souv-1789838950443",
+            "name": "合利他命NIGHT RECOVER",
+            "category": "藥品",
+            "shop": "",
+            "price": 5220,
+            "photo": "https://sugiphotoblob.blob.core.windows.net/photo/4987910003665/4987910003665_1.webp",
+            "notes": "合利他命NIGHT RECOVER 160錠 NT$1000\n好睡覺 睡醒不會累",
+            "done": true
+        },
+        {
+            "id": "souv-1790010581020",
+            "name": "全家",
+            "category": "超商",
+            "shop": "",
+            "price": 1000,
+            "photo": "",
+            "notes": "▸辣味炸雞 ¥258\n▸炸雞君 ¥278",
+            "done": true
+        },
+        {
+            "id": "souv-1790011261661",
+            "name": "7-11",
+            "category": "超商",
+            "shop": "",
+            "price": 1500,
+            "photo": "",
+            "notes": "▸甜甜圈卡士達奶油球 ¥140\n▸砂糖樹餅乾 ¥289\n▸7-11 蒙古拉麵 ¥259\n▸7-11 蒙古泡飯 ¥257",
+            "done": true
+        },
+        {
+            "id": "souv-1790533991340",
+            "name": "尿素20%乳霜",
+            "category": "藥品",
+            "shop": "",
+            "price": 1000,
+            "photo": "",
+            "notes": "",
+            "done": true
+        },
+        {
+            "id": "souv-1790654286274",
+            "name": "EVE止痛藥",
+            "category": "藥品",
+            "shop": "",
+            "price": 1000,
+            "photo": "",
+            "notes": "",
+            "done": true
+        },
+        {
+            "id": "souv-1790660278702",
+            "name": "SS製藥 暈車藥 10粒",
+            "category": "藥品",
+            "shop": "",
+            "price": 2000,
+            "photo": "https://instagram.ftpe8-3.fna.fbcdn.net/v/t51.82787-15/642530532_17934447327190381_6443182079022333909_n.jpg?stp=cp6_dst-jpg_e35_tt6&_nc_cat=106&ig_cache_key=Mzg0NDc1NjkyNjA2OTA5MTc3MA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTMyMC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=7jlbCkTjLIEQ7kNvwFnnl3z&_nc_oc=AdoMBk82YHQAXAMul-5izTmb5JhdpL3Aa6Sv3gqJj3y3HeFJzQE6RB6jq_L1MOJPpRc&_nc_zt=23&_nc_ht=instagram.ftpe8-3.fna&_nc_gid=jv8RGPhitwRRahIKrmDSog&_nc_ss=7b2a8&oh=00_AQOh3jlf8xJvEsQzcJnwaeqjmt1Qm6BEqkwl7eBBUCNIaA&oe=6AC11203",
+            "notes": "10粒/包 ¥1000 \n買兩包\n很有用且不昏睡",
+            "done": true
+        },
+        {
+            "id": "souv-1790661248113",
+            "name": "樂敦製藥 曼秀雷敦 Medi Quick E 耳內止癢藥液 30mL",
+            "category": "藥品",
+            "shop": "",
+            "price": 1200,
+            "photo": "https://instagram.ftpe8-3.fna.fbcdn.net/v/t51.82787-15/573105278_17928597240114660_3019918330691750889_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ig_cache_key=Mzc1MjA2NDg1MzMxNTE0NDM4OA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuNDQ3LnNkci5yZWd1bGFyX3Bob3RvLkMzIn0%3D&_nc_ohc=IBuokRJ2q-kQ7kNvwE63RB3&_nc_oc=AdqQ2Nv-KIu1Px3eU2qBBXUEZukB_84mK9-_nuGlfw3iK4O4Fzv1wujaylimakQs5zU&_nc_zt=23&_nc_ht=instagram.ftpe8-3.fna&_nc_gid=7dVaYfKMdwJ8ezasolTOFg&_nc_ss=7b2a8&oh=00_AQObSyK_iA-fK38iRSV8A54ZZXiEwNn8vbjNYeFuWs6mqQ&oe=6AC13F2A",
+            "notes": "油耳耳朵癢\n有類固醇不建議長期使用\n棉花棒耳朵內擦一圈保證不癢",
+            "done": true
+        },
+        {
+            "id": "souv-1791046916578",
+            "name": "Gyutto質感整形髮膜 200g",
+            "category": "美妝",
+            "shop": "",
+            "price": 1500,
+            "photo": "https://i7.momoshop.com.tw/1772024729/goodsimg/TP000/8311/0002/100/TP00083110002100_R_m.jpg",
+            "notes": "",
+            "done": true,
+            "meDone": false,
+            "girlDone": true
+        },
+        {
+            "id": "souv-1791047693704",
+            "name": "MY ONLY FRAGRANCE",
+            "category": "美妝",
+            "shop": "MY ONLY FRAGRANCE SHINKYOGOKU",
+            "price": 8000,
+            "photo": "",
+            "notes": "調自己的香水   NT$1600",
+            "done": true,
+            "meDone": false,
+            "girlDone": true
+        },
+        {
+            "id": "souv-1791208796416",
+            "name": "unqlo",
+            "category": "服飾",
+            "shop": "",
+            "price": 8000,
+            "photo": "",
+            "notes": "▸發熱衣 ¥1290 ( 與台灣價差兩倍 )\n▸保暖褲 ¥1500\n▸AIRism 防紫外線緊身褲 ¥1500\n▸無鋼圈內衣 ¥1990 ( 與台灣價差兩倍 )",
+            "done": true,
+            "meDone": false,
+            "girlDone": true
+        }
+    ]
 };
 // [INITIAL_DATA_END]
 
@@ -22,6 +3115,7 @@ let currentPoolFilter = 'Kyoto-sightseeing';
 let currentPoolPage = 1;
 const JPY_TO_TWD_RATE = 0.20;
 
+const CURRENT_CACHE_VERSION = '20261008_v3_user_json';
 // Clean up old localStorage data on page load
 (function cleanupOldLocalStorage() {
     try {
@@ -29,6 +3123,10 @@ const JPY_TO_TWD_RATE = 0.20;
         localStorage.removeItem('kansai_trip_messages');
         localStorage.removeItem('kansai_trip_checklist_state');
         localStorage.removeItem('deletedPoolIds');
+        if (localStorage.getItem('kansai_trip_cache_version') !== CURRENT_CACHE_VERSION) {
+            localStorage.removeItem('kansai_trip_db_cache');
+            localStorage.setItem('kansai_trip_cache_version', CURRENT_CACHE_VERSION);
+        }
     } catch (e) { /* ignore */ }
 })();
 
@@ -929,7 +4027,7 @@ async function loadFromRemote() {
         // Restore verified restaurant ratings into the API itself when older imports are missing them.
         allProducts = await backfillVerifiedRestaurantRatings(allProducts);
 
-        // Products are the sole source for attractionPool and scheduled itinerary entries.
+        // Products are the primary source for attractionPool and scheduled itinerary entries.
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
         poolProducts.sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
         const seen = new Set();
@@ -937,36 +4035,74 @@ async function loadFromRemote() {
         for (const prod of poolProducts) {
             const data = parseContent(prod);
             const norm = normalizeTitle(prod.title);
+
+            // 檢查是否已被使用者刪除（若為 initialTripData 中明確保留的項目則不視為刪除）
+            const isSpecificallyActive = (initialTripData.attractionPool || []).some(ip =>
+                ip.id === 'api-' + prod.id || ip._productId === prod.id || ip.title === prod.title
+            );
+            const isDeleted = !isSpecificallyActive && (db.deletedPoolItems || []).some(d =>
+                d === prod.id ||
+                d === 'api-' + prod.id ||
+                d === prod.title ||
+                d === norm
+            );
+            if (isDeleted) continue;
+
             // Only dedupe exact title duplicates; newest product wins.
             if (seen.has(norm)) continue;
             seen.add(norm);
             const unit = prod.unit || '';
             const unitDay = unit.includes('|') ? unit.split('|')[0] : '';
             const unitTime = unit.includes('|') ? unit.split('|')[1] : '';
+
+            // 如果 initialTripData 中有該項目的設定，且遠端產品尚未標記 user-edited，以 initialTripData 為主
+            const initialItem = (initialTripData.attractionPool || []).find(ip =>
+                ip.id === 'api-' + prod.id ||
+                ip._productId === prod.id ||
+                normalizeTitle(ip.title) === norm
+            );
+
+            const desc = (data.scheduleMarker === 'user-edited' || !initialItem) ? (data.desc || '') : (initialItem.desc || data.desc || '');
+            const time = (data.scheduleMarker === 'user-edited' || !initialItem) ? (unitTime || data.time || '') : (initialItem.time || unitTime || data.time || '');
+            const cost = data.cost ?? prod.origin_price ?? (initialItem ? initialItem.cost : 0);
+            const location = (data.scheduleMarker === 'user-edited' || !initialItem) ? (data.location || '') : (initialItem.location || data.location || '');
+
             apiPoolItems.push({
                 id: 'api-' + prod.id,
-                city: data.city || 'Other',
+                city: data.city || (initialItem ? initialItem.city : 'Other'),
                 title: prod.title,
-                desc: data.desc || '',
-                cost: data.cost ?? prod.origin_price ?? 0,
-                costTwd: data.costTwd || 0,
-                paymentStatus: data.paymentStatus || '',
-                bookingPlatform: data.bookingPlatform || '',
-                bookingMarker: data.bookingMarker || '',
-                category: data.category || 'other',
+                desc: desc,
+                cost: cost,
+                costTwd: data.costTwd || (initialItem ? initialItem.costTwd : 0) || 0,
+                paymentStatus: data.paymentStatus || (initialItem ? initialItem.paymentStatus : '') || '',
+                bookingPlatform: data.bookingPlatform || (initialItem ? initialItem.bookingPlatform : '') || '',
+                bookingMarker: data.bookingMarker || (initialItem ? initialItem.bookingMarker : '') || '',
+                category: data.category || (initialItem ? initialItem.category : 'other') || 'other',
                 isEnabled: prod.is_enabled == 1 || prod.is_enabled === true,
-                day: unitDay || data.day || '',
-                time: unitTime || data.time || '',
-                photos: data.photos || [],
-                location: data.location || '',
-                googleRating: data.googleRating || '',
-                tabelogRating: data.tabelogRating || '',
-                tabelogUrl: data.tabelogUrl || '',
-                ratingChecked: data.ratingChecked || '',
-                scheduleMarker: data.scheduleMarker || '',
+                day: unitDay || data.day || (initialItem ? initialItem.day : '') || '',
+                time: time,
+                photos: (data.photos && data.photos.length) ? data.photos : (initialItem && initialItem.photos ? initialItem.photos : []),
+                location: location,
+                googleRating: data.googleRating || (initialItem ? initialItem.googleRating : '') || '',
+                tabelogRating: data.tabelogRating || (initialItem ? initialItem.tabelogRating : '') || '',
+                tabelogUrl: data.tabelogUrl || (initialItem ? initialItem.tabelogUrl : '') || '',
+                ratingChecked: data.ratingChecked || (initialItem ? initialItem.ratingChecked : '') || '',
+                scheduleMarker: data.scheduleMarker || (initialItem ? initialItem.scheduleMarker : '') || '',
                 _productId: prod.id
             });
         }
+
+        // 保留 initialTripData 中存在但遠端尚未建立產品的候選景點（不遺失候選名單）
+        for (const initItem of (initialTripData.attractionPool || [])) {
+            const isDel = (db.deletedPoolItems || []).some(d => d === initItem.id || d === initItem._productId);
+            if (isDel) continue;
+            const normInit = normalizeTitle(initItem.title);
+            if (!seen.has(normInit)) {
+                seen.add(normInit);
+                apiPoolItems.push(JSON.parse(JSON.stringify(initItem)));
+            }
+        }
+
         db.attractionPool = apiPoolItems;
 
         if (!db.poolPhotos) db.poolPhotos = {};
@@ -1235,11 +4371,14 @@ async function savePoolEdit(e) {
             is_enabled: item.isEnabled ? 1 : 0,
             num: 1
         };
-        if (item._productId) {
-            await hexAPI.updateProduct(item._productId, productData);
-        } else {
-            const newId = await ensurePoolProduct(item);
-            if (newId) item._productId = newId;
+        const loggedIn = getToken() && !isTokenExpired();
+        if (loggedIn) {
+            if (item._productId) {
+                await hexAPI.updateProduct(item._productId, productData);
+            } else {
+                const newId = await ensurePoolProduct(item);
+                if (newId) item._productId = newId;
+            }
         }
         // 更新每日日程顯示
         const isLinkedEvent = (e) => {
@@ -1277,10 +4416,14 @@ async function savePoolEdit(e) {
             if (item._productId) {
                 db.scheduledItems['api-' + item._productId] = item.day + '|' + (item.time || '10:00 - 12:00');
             }
-            await saveItineraryToRemote();
+            if (loggedIn) {
+                await saveItineraryToRemote();
+            }
         }
+        saveToLocalStorage();
+        renderPool();
         renderItineraryForDay(currentSelectedDay);
-        showToast('已儲存！');
+        showToast(loggedIn ? '已儲存！' : '已儲存至本機！');
     } catch (err) {
         showToast('儲存失敗：' + err.message, 3000);
     } finally {
@@ -2794,76 +5937,102 @@ async function saveEvent(e) {
 
     showSyncOverlay();
     try {
-        if (id) {
-            const oldEntry = (db.itinerary[dayStr] || []).find(ev => ev.id === id);
-            const poolId = oldEntry ? (oldEntry._poolId || (oldEntry.id && oldEntry.id.startsWith('api-') ? oldEntry.id : null)) : null;
-            let poolItem = poolId ? db.attractionPool.find(p => p.id === poolId) : null;
-            if (!poolItem && oldEntry) {
-                poolItem = db.attractionPool.find(p =>
-                    (oldEntry._productId && p._productId === oldEntry._productId) ||
-                    (p._productId && oldEntry.id === 'api-' + p._productId) ||
-                    (p.title && oldEntry.title && p.title === oldEntry.title)
-                );
-            }
-            if (poolItem) {
-                Object.assign(poolItem, { title, time, category, cost, location, desc, photos, day: dayStr, isEnabled: true });
-                const content = {
-                    city: poolItem.city || 'Other',
-                    desc,
-                    cost,
-                    costTwd: poolItem.costTwd || 0,
-                    paymentStatus: poolItem.paymentStatus || '',
-                    bookingPlatform: poolItem.bookingPlatform || '',
-                    bookingMarker: poolItem.bookingMarker || '',
-                    category,
-                    day: dayStr,
-                    photos,
-                    location,
-                    time,
-                    googleRating: poolItem.googleRating || '',
-                    tabelogRating: poolItem.tabelogRating || '',
-                    tabelogUrl: poolItem.tabelogUrl || '',
-                    ratingChecked: poolItem.ratingChecked || '',
-                    scheduleMarker: poolItem.scheduleMarker || 'user-edited'
-                };
-                await hexAPI.updateProduct(poolItem._productId, {
-                    title,
-                    content: JSON.stringify(content),
-                    category: '候選景點',
-                    origin_price: cost,
-                    price: 0,
-                    unit: dayStr + '|' + (time || '10:00 - 12:00'),
-                    is_enabled: 1,
-                    num: 1
-                });
+        const loggedIn = getToken() && !isTokenExpired();
+        if (loggedIn) {
+            if (id) {
+                const oldEntry = (db.itinerary[dayStr] || []).find(ev => ev.id === id);
+                const poolId = oldEntry ? (oldEntry._poolId || (oldEntry.id && oldEntry.id.startsWith('api-') ? oldEntry.id : null)) : null;
+                let poolItem = poolId ? db.attractionPool.find(p => p.id === poolId) : null;
+                if (!poolItem && oldEntry) {
+                    poolItem = db.attractionPool.find(p =>
+                        (oldEntry._productId && p._productId === oldEntry._productId) ||
+                        (p._productId && oldEntry.id === 'api-' + p._productId) ||
+                        (p.title && oldEntry.title && p.title === oldEntry.title)
+                    );
+                }
+                if (poolItem) {
+                    Object.assign(poolItem, { title, time, category, cost, location, desc, photos, day: dayStr, isEnabled: true });
+                    const content = {
+                        city: poolItem.city || 'Other',
+                        desc,
+                        cost,
+                        costTwd: poolItem.costTwd || 0,
+                        paymentStatus: poolItem.paymentStatus || '',
+                        bookingPlatform: poolItem.bookingPlatform || '',
+                        bookingMarker: poolItem.bookingMarker || '',
+                        category,
+                        day: dayStr,
+                        photos,
+                        location,
+                        time,
+                        googleRating: poolItem.googleRating || '',
+                        tabelogRating: poolItem.tabelogRating || '',
+                        tabelogUrl: poolItem.tabelogUrl || '',
+                        ratingChecked: poolItem.ratingChecked || '',
+                        scheduleMarker: 'user-edited'
+                    };
+                    await hexAPI.updateProduct(poolItem._productId, {
+                        title,
+                        content: JSON.stringify(content),
+                        category: '候選景點',
+                        origin_price: cost,
+                        price: 0,
+                        unit: dayStr + '|' + (time || '10:00 - 12:00'),
+                        is_enabled: 1,
+                        num: 1
+                    });
+                } else {
+                    const tmp = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
+                    const pid = await ensurePoolProduct(tmp);
+                    if (!pid) throw new Error('無法建立 API 行程資料');
+                    await hexAPI.updateProduct(pid, {
+                        title,
+                        content: JSON.stringify({ city: 'Other', desc, cost, category, day: dayStr, photos, location, time, scheduleMarker: 'user-edited' }),
+                        category: '候選景點',
+                        origin_price: cost,
+                        price: 0,
+                        unit: dayStr + '|' + (time || '10:00 - 12:00'),
+                        is_enabled: 1,
+                        num: 1
+                    });
+                }
             } else {
-                // Legacy/direct entry: convert it to a normal API product on edit.
-                const tmp = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
-                const pid = await ensurePoolProduct(tmp);
+                const newItem = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
+                const pid = await ensurePoolProduct(newItem);
                 if (!pid) throw new Error('無法建立 API 行程資料');
-                await hexAPI.updateProduct(pid, {
-                    title,
-                    content: JSON.stringify({ city: 'Other', desc, cost, category, day: dayStr, photos, location, time, scheduleMarker: 'user-edited' }),
-                    category: '候選景點',
-                    origin_price: cost,
-                    price: 0,
-                    unit: dayStr + '|' + (time || '10:00 - 12:00'),
-                    is_enabled: 1,
-                    num: 1
-                });
+                await hexAPI.updateProduct(pid, { title, content: JSON.stringify({ city:'Other', desc, cost, category, day:dayStr, photos, location, time, scheduleMarker: 'user-edited' }), category:'候選景點', origin_price:cost, price:0, unit:dayStr+'|'+(time || '10:00 - 12:00'), is_enabled:1, num:1 });
             }
+            closeEventModal();
+            await loadFromRemote();
         } else {
-            const newItem = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
-            const pid = await ensurePoolProduct(newItem);
-            if (!pid) throw new Error('無法建立 API 行程資料');
-            await hexAPI.updateProduct(pid, { title, content: JSON.stringify({ city:'Other', desc, cost, category, day:dayStr, photos, location, time }), category:'候選景點', origin_price:cost, price:0, unit:dayStr+'|'+(time || '10:00 - 12:00'), is_enabled:1, num:1 });
+            // 本機 / 離線模式儲存
+            if (id) {
+                const dayEvents = db.itinerary[dayStr] || [];
+                const ev = dayEvents.find(e => e.id === id);
+                if (ev) {
+                    Object.assign(ev, { title, time, category, cost, location, desc, photos });
+                }
+                const poolItem = db.attractionPool.find(p => p.id === id || (ev && (p.id === ev._poolId || p._productId === ev._productId)));
+                if (poolItem) {
+                    Object.assign(poolItem, { title, time, category, cost, location, desc, photos, day: dayStr, isEnabled: true, scheduleMarker: 'user-edited' });
+                }
+            } else {
+                const newId = 'local-' + Date.now();
+                const newEv = { id: newId, title, time, category, cost, location, desc, photos, day: dayStr };
+                if (!db.itinerary[dayStr]) db.itinerary[dayStr] = [];
+                db.itinerary[dayStr].push(newEv);
+                if (!db.attractionPool) db.attractionPool = [];
+                db.attractionPool.push({ ...newEv, city: 'Other', isEnabled: true, scheduleMarker: 'user-edited' });
+            }
+            if (db.itinerary[dayStr]) {
+                db.itinerary[dayStr] = sortItineraryByTime(db.itinerary[dayStr]);
+            }
+            closeEventModal();
         }
-        closeEventModal();
-        await loadFromRemote();
         saveToLocalStorage();
         renderAllUI();
         selectDay(dayStr);
-        showToast('已儲存到 Hexschool 資料庫！');
+        showToast(loggedIn ? '已儲存到 Hexschool 資料庫！' : '已儲存至本機！');
     } catch (err) {
         console.warn('[SaveEvent] 同步失敗:', err);
         showToast('儲存失敗：' + err.message, 3000);
@@ -3121,33 +6290,36 @@ async function deleteFromPool(id) {
     renderItineraryForDay(currentSelectedDay);
 
     try {
-        setSyncStatus('syncing');
-        // 在遠端搜尋所有同名或同 ID 的候選景點產品並全數刪除，避免舊版重複產品殘留
-        const allProducts = await hexAPI.getProducts();
-        const targets = allProducts.filter(p => 
-            p.category === '候選景點' && 
-            (p.id === item._productId || normalizeTitle(p.title) === normTitle || p.title === item.title)
-        );
+        const loggedIn = getToken() && !isTokenExpired();
+        if (loggedIn) {
+            setSyncStatus('syncing');
+            // 在遠端搜尋所有同名或同 ID 的候選景點產品並全數刪除，避免舊版重複產品殘留
+            const allProducts = await hexAPI.getProducts();
+            const targets = allProducts.filter(p => 
+                p.category === '候選景點' && 
+                (p.id === item._productId || normalizeTitle(p.title) === normTitle || p.title === item.title)
+            );
 
-        if (targets.length > 0) {
-            console.log(`[DEBUG deleteFromPool] 找到 ${targets.length} 個符合的遠端產品，開始全數刪除:`, targets.map(t => t.id));
-            for (const target of targets) {
-                try {
-                    await hexAPI.deleteProduct(target.id);
-                    removeCacheId('pool', `pool:${target.id}`);
-                } catch (err) {
-                    console.warn(`[DEBUG deleteFromPool] 刪除產品 ${target.id} 失敗:`, err.message);
+            if (targets.length > 0) {
+                console.log(`[DEBUG deleteFromPool] 找到 ${targets.length} 個符合的遠端產品，開始全數刪除:`, targets.map(t => t.id));
+                for (const target of targets) {
+                    try {
+                        await hexAPI.deleteProduct(target.id);
+                        removeCacheId('pool', `pool:${target.id}`);
+                    } catch (err) {
+                        console.warn(`[DEBUG deleteFromPool] 刪除產品 ${target.id} 失敗:`, err.message);
+                    }
                 }
+            } else {
+                console.log('[DEBUG deleteFromPool] 遠端查無同名產品，無須呼叫刪除 API');
             }
-        } else {
-            console.log('[DEBUG deleteFromPool] 遠端查無同名產品，無須呼叫刪除 API');
+
+            console.log('[DEBUG deleteFromPool] 正在呼叫 saveItineraryToRemote 同步行程與排程狀態至遠端 Master...');
+            await saveItineraryToRemote();
+            console.log('[DEBUG deleteFromPool] saveItineraryToRemote 同步成功');
+            setSyncStatus('synced');
         }
-
-        console.log('[DEBUG deleteFromPool] 正在呼叫 saveItineraryToRemote 同步行程與排程狀態至遠端 Master...');
-        await saveItineraryToRemote();
-        console.log('[DEBUG deleteFromPool] saveItineraryToRemote 同步成功');
-
-        setSyncStatus('synced');
+        saveToLocalStorage();
         showToast('刪除成功！');
     } catch (e) {
         console.error('[DEBUG deleteFromPool] 刪除失敗或同步失敗:', e);
