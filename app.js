@@ -615,11 +615,13 @@ async function migrateTripCorrections20260925(masterData, master, allProducts) {
             });
             productsDirty = true;
         } else if (prod.title === 'Cu Tennoji 放行李') {
-            await updateExisting(prod, prod.title, {
-                desc: '大阪住宿已確認為 Cu Tennoji。可先寄放／處理行李；正式入住依住宿方自助入住說明。',
-                location: HOTEL_ADDRESS
-            });
-            productsDirty = true;
+            if (!data.desc) {
+                await updateExisting(prod, prod.title, {
+                    desc: '大阪住宿已確認為 Cu Tennoji。可先寄放／處理行李；正式入住依住宿方自助入住說明。',
+                    location: HOTEL_ADDRESS
+                });
+                productsDirty = true;
+            }
         }
     }
 
@@ -669,13 +671,13 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
     );
     for (const prod of castleCandidates) {
         const data = parse(prod);
-        if (data.scheduleMarker === '2026-10-04-osaka-castle-to-nov7') continue;
+        if (data.scheduleMarker === '2026-10-04-osaka-castle-to-nov7' || dayOf(prod) === '2026-11-07') continue;
         const note = '11/7 京都退房後先處理大阪住宿行李，再前往大阪城。以大阪城公園、天守外觀與豐國神社為主，不強制進天守；逛完約12:30離開，下午前往梅田。';
         await update(prod, {
             ...data,
             title: prod.title,
-            desc: note,
-            location: '大阪城公園',
+            desc: data.desc || note,
+            location: data.location || '大阪城公園',
             scheduleMarker: '2026-10-04-osaka-castle-to-nov7'
         }, '2026-11-07', '11:00 - 12:30', true);
         dirty = true;
@@ -724,18 +726,18 @@ async function migrateOsakaCastleAndKatsuoji20261004(allProducts) {
     ].join('\n');
     if (katsuoji) {
         const data = parse(katsuoji);
-        if (data.scheduleMarker !== '2026-10-04-katsuoji-nov10') {
-        await update(katsuoji, {
-            ...data,
-            title: katsuoji.title || '勝尾寺 🎋',
-            city: 'Osaka',
-            desc: katsuojiDesc,
-            cost: 2100,
-            category: 'sightseeing',
-            location: '勝尾寺',
-            scheduleMarker: '2026-10-04-katsuoji-nov10'
-        }, '2026-11-10', '07:45 - 16:00', true);
-        dirty = true;
+        if (!data.day && !data.desc) {
+            await update(katsuoji, {
+                ...data,
+                title: katsuoji.title || '勝尾寺 🎋',
+                city: 'Osaka',
+                desc: katsuojiDesc,
+                cost: 2100,
+                category: 'sightseeing',
+                location: '勝尾寺',
+                scheduleMarker: '2026-10-04-katsuoji-nov10'
+            }, '2026-11-10', '07:45 - 16:00', true);
+            dirty = true;
         }
     } else {
         const data = {
@@ -929,7 +931,7 @@ async function loadFromRemote() {
 
         // Products are the sole source for attractionPool and scheduled itinerary entries.
         const poolProducts = allProducts.filter(p => p.category === '候選景點');
-        poolProducts.sort((a, b) => (parseInt(b.id, 10) || 0) - (parseInt(a.id, 10) || 0));
+        poolProducts.sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
         const seen = new Set();
         const apiPoolItems = [];
         for (const prod of poolProducts) {
@@ -961,6 +963,7 @@ async function loadFromRemote() {
                 tabelogRating: data.tabelogRating || '',
                 tabelogUrl: data.tabelogUrl || '',
                 ratingChecked: data.ratingChecked || '',
+                scheduleMarker: data.scheduleMarker || '',
                 _productId: prod.id
             });
         }
@@ -1203,7 +1206,25 @@ async function savePoolEdit(e) {
     renderPool();
     showSyncOverlay();
     try {
-        const content = { city: item.city, desc: item.desc, cost: item.cost, costTwd: item.costTwd || 0, paymentStatus: item.paymentStatus || '', bookingPlatform: item.bookingPlatform || '', bookingMarker: item.bookingMarker || '', category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' };
+        const content = {
+            city: item.city,
+            desc: item.desc,
+            cost: item.cost,
+            costTwd: item.costTwd || 0,
+            paymentStatus: item.paymentStatus || '',
+            bookingPlatform: item.bookingPlatform || '',
+            bookingMarker: item.bookingMarker || '',
+            category: item.category,
+            day: item.day || '',
+            photos: item.photos || [],
+            location: item.location || '',
+            time: item.time || '',
+            googleRating: item.googleRating || '',
+            tabelogRating: item.tabelogRating || '',
+            tabelogUrl: item.tabelogUrl || '',
+            ratingChecked: item.ratingChecked || '',
+            scheduleMarker: item.scheduleMarker || 'user-edited'
+        };
         const productData = {
             title: item.title,
             content: JSON.stringify(content),
@@ -1221,19 +1242,41 @@ async function savePoolEdit(e) {
             if (newId) item._productId = newId;
         }
         // 更新每日日程顯示
+        const isLinkedEvent = (e) => {
+            if (!e) return false;
+            if (e._poolId && (e._poolId === item.id || (item._productId && e._poolId === `api-${item._productId}`))) return true;
+            if (e._productId && item._productId && e._productId === item._productId) return true;
+            if (e.id === item.id || (item._productId && e.id === `api-${item._productId}`)) return true;
+            if (item.title && e.title && (item.title === e.title || item.title.includes(e.title) || e.title.includes(item.title))) return true;
+            return false;
+        };
         for (const [day, events] of Object.entries(db.itinerary || {})) {
-            const ev = events.find(e => e._poolId === item.id);
-            if (ev) {
-                ev.title = item.title; ev.desc = item.desc; ev.cost = item.cost;
-                ev.category = item.category; ev.time = item.time || ev.time;
-                ev.location = item.location || ev.location; ev.photos = item.photos || [];
-                // 依時間重新排序該天日程
+            let dayChanged = false;
+            for (const ev of events) {
+                if (isLinkedEvent(ev)) {
+                    ev.title = item.title;
+                    ev.desc = item.desc;
+                    ev.cost = item.cost;
+                    ev.category = item.category;
+                    ev.time = item.time || ev.time;
+                    ev.location = item.location || ev.location;
+                    ev.photos = item.photos || [];
+                    ev._poolId = item.id;
+                    if (item._productId) ev._productId = item._productId;
+                    dayChanged = true;
+                }
+            }
+            if (dayChanged) {
                 db.itinerary[day] = sortItineraryByTime(db.itinerary[day]);
             }
         }
         // 同步 scheduledItems 時間
-        if (item.isEnabled && db.scheduledItems[item.id]) {
+        if (item.isEnabled && item.day) {
+            if (!db.scheduledItems) db.scheduledItems = {};
             db.scheduledItems[item.id] = item.day + '|' + (item.time || '10:00 - 12:00');
+            if (item._productId) {
+                db.scheduledItems['api-' + item._productId] = item.day + '|' + (item.time || '10:00 - 12:00');
+            }
             await saveItineraryToRemote();
         }
         renderItineraryForDay(currentSelectedDay);
@@ -2753,19 +2796,61 @@ async function saveEvent(e) {
     try {
         if (id) {
             const oldEntry = (db.itinerary[dayStr] || []).find(ev => ev.id === id);
-            if (oldEntry && oldEntry._poolId) {
-                const poolItem = db.attractionPool.find(p => p.id === oldEntry._poolId);
-                if (!poolItem) throw new Error('找不到對應的 API 行程資料');
+            const poolId = oldEntry ? (oldEntry._poolId || (oldEntry.id && oldEntry.id.startsWith('api-') ? oldEntry.id : null)) : null;
+            let poolItem = poolId ? db.attractionPool.find(p => p.id === poolId) : null;
+            if (!poolItem && oldEntry) {
+                poolItem = db.attractionPool.find(p =>
+                    (oldEntry._productId && p._productId === oldEntry._productId) ||
+                    (p._productId && oldEntry.id === 'api-' + p._productId) ||
+                    (p.title && oldEntry.title && p.title === oldEntry.title)
+                );
+            }
+            if (poolItem) {
                 Object.assign(poolItem, { title, time, category, cost, location, desc, photos, day: dayStr, isEnabled: true });
-                const content = { city: poolItem.city || 'Other', desc, cost, costTwd: poolItem.costTwd || 0, paymentStatus: poolItem.paymentStatus || '', bookingPlatform: poolItem.bookingPlatform || '', bookingMarker: poolItem.bookingMarker || '', category, day: dayStr, photos, location, time,
-                    googleRating: poolItem.googleRating || '', tabelogRating: poolItem.tabelogRating || '', tabelogUrl: poolItem.tabelogUrl || '', ratingChecked: poolItem.ratingChecked || '' };
-                await hexAPI.updateProduct(poolItem._productId, { title, content: JSON.stringify(content), category: '候選景點', origin_price: cost, price: 0, unit: dayStr + '|' + (time || '10:00 - 12:00'), is_enabled: 1, num: 1 });
+                const content = {
+                    city: poolItem.city || 'Other',
+                    desc,
+                    cost,
+                    costTwd: poolItem.costTwd || 0,
+                    paymentStatus: poolItem.paymentStatus || '',
+                    bookingPlatform: poolItem.bookingPlatform || '',
+                    bookingMarker: poolItem.bookingMarker || '',
+                    category,
+                    day: dayStr,
+                    photos,
+                    location,
+                    time,
+                    googleRating: poolItem.googleRating || '',
+                    tabelogRating: poolItem.tabelogRating || '',
+                    tabelogUrl: poolItem.tabelogUrl || '',
+                    ratingChecked: poolItem.ratingChecked || '',
+                    scheduleMarker: poolItem.scheduleMarker || 'user-edited'
+                };
+                await hexAPI.updateProduct(poolItem._productId, {
+                    title,
+                    content: JSON.stringify(content),
+                    category: '候選景點',
+                    origin_price: cost,
+                    price: 0,
+                    unit: dayStr + '|' + (time || '10:00 - 12:00'),
+                    is_enabled: 1,
+                    num: 1
+                });
             } else {
                 // Legacy/direct entry: convert it to a normal API product on edit.
                 const tmp = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
                 const pid = await ensurePoolProduct(tmp);
                 if (!pid) throw new Error('無法建立 API 行程資料');
-                await hexAPI.updateProduct(pid, { title, content: JSON.stringify({ city:'Other', desc, cost, category, day:dayStr, photos, location, time }), category:'候選景點', origin_price:cost, price:0, unit:dayStr+'|'+(time || '10:00 - 12:00'), is_enabled:1, num:1 });
+                await hexAPI.updateProduct(pid, {
+                    title,
+                    content: JSON.stringify({ city: 'Other', desc, cost, category, day: dayStr, photos, location, time, scheduleMarker: 'user-edited' }),
+                    category: '候選景點',
+                    origin_price: cost,
+                    price: 0,
+                    unit: dayStr + '|' + (time || '10:00 - 12:00'),
+                    is_enabled: 1,
+                    num: 1
+                });
             }
         } else {
             const newItem = { id: 'new-' + Date.now(), city: 'Other', title, desc, cost, category, day: dayStr, time, photos, location, isEnabled: true };
