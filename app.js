@@ -3400,37 +3400,82 @@ async function ensureProduct(title, content) {
     }
 
     // Create new product
-    await hexAPI.createProduct(productData);
+    const createRes = await hexAPI.createProduct(productData);
+    const directId = createRes?.product?.id || createRes?.id;
+    if (directId) {
+        setCacheId('prod', cacheKey, directId);
+        return directId;
+    }
     const updated = await hexAPI.getProducts();
-    const created = updated.find(p => p.title === title);
+    const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+    const created = updated.find(p => p.title === title || normalizeTitle(p.title) === normalizeTitle(title));
     if (created) setCacheId('prod', cacheKey, created.id);
     return created ? created.id : null;
 }
 
 async function ensurePoolProduct(item) {
+    const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
     const productData = {
         title: item.title || '未命名景點',
-        content: JSON.stringify({ city: item.city, desc: item.desc, cost: item.cost, costTwd: item.costTwd || 0, paymentStatus: item.paymentStatus || '', bookingPlatform: item.bookingPlatform || '', bookingMarker: item.bookingMarker || '', category: item.category, day: item.day || '', photos: item.photos || [], location: item.location || '', time: item.time || '', googleRating: item.googleRating || '', tabelogRating: item.tabelogRating || '', tabelogUrl: item.tabelogUrl || '', ratingChecked: item.ratingChecked || '' }),
+        content: JSON.stringify({
+            city: item.city || 'Kyoto',
+            desc: item.desc || '',
+            cost: item.cost || 0,
+            costTwd: item.costTwd || 0,
+            paymentStatus: item.paymentStatus || '',
+            bookingPlatform: item.bookingPlatform || '',
+            bookingMarker: item.bookingMarker || '',
+            category: item.category || 'sightseeing',
+            day: item.day || '',
+            photos: item.photos || [],
+            location: item.location || '',
+            time: item.time || '',
+            googleRating: item.googleRating || '',
+            tabelogRating: item.tabelogRating || '',
+            tabelogUrl: item.tabelogUrl || '',
+            ratingChecked: item.ratingChecked || '',
+            scheduleMarker: item.scheduleMarker || 'user-edited'
+        }),
         category: '候選景點',
         origin_price: item.cost || 0,
         price: 0,
-        unit: '景點',
-        is_enabled: item.isEnabled ? 1 : 0,
+        unit: item.day ? (item.day + '|' + (item.time || '10:00 - 12:00')) : '景點',
+        is_enabled: 1,
         num: 1
     };
     const cacheKey = `pool:${item.id}`;
     const existingId = getCacheId('pool', cacheKey);
     if (existingId) {
-        try { await hexAPI.updateProduct(existingId, productData); return existingId; } catch { removeCacheId('pool', cacheKey); }
+        try {
+            await hexAPI.updateProduct(existingId, productData);
+            return existingId;
+        } catch {
+            removeCacheId('pool', cacheKey);
+        }
     }
     const all = await hexAPI.getProducts();
-    const found = all.find(p => p.title === item.title && p.category === '候選景點');
-    if (found) { setCacheId('pool', cacheKey, found.id); await hexAPI.updateProduct(found.id, productData); return found.id; }
-    await hexAPI.createProduct(productData);
+    const norm = normalizeTitle(item.title);
+    const found = all.find(p => p.category === '候選景點' && (p.title === item.title || normalizeTitle(p.title) === norm));
+    if (found) {
+        setCacheId('pool', cacheKey, found.id);
+        await hexAPI.updateProduct(found.id, productData);
+        return found.id;
+    }
+
+    const createRes = await hexAPI.createProduct(productData);
+    const directId = createRes?.product?.id || createRes?.id;
+    if (directId) {
+        setCacheId('pool', cacheKey, directId);
+        return directId;
+    }
+
     const updated = await hexAPI.getProducts();
-    const created = updated.find(p => p.title === item.title && p.category === '候選景點');
-    if (created) setCacheId('pool', cacheKey, created.id);
-    return created ? created.id : null;
+    const created = updated.find(p => p.category === '候選景點' && (p.title === item.title || normalizeTitle(p.title) === norm));
+    if (created) {
+        setCacheId('pool', cacheKey, created.id);
+        return created.id;
+    }
+    throw new Error('雲端資料庫未能建立產品或未取得產品 ID');
 }
 
 // Verified restaurant metadata migration. Values are persisted into Hexschool Products;
@@ -4206,6 +4251,12 @@ function openPoolEditModal(poolId) {
 }
 
 function openPoolAddModal() {
+    const loggedIn = getToken() && !isTokenExpired();
+    if (!loggedIn) {
+        document.getElementById('login-modal').classList.add('open');
+        showToast('請先登入管理員帳號以新增候選項目', 3000);
+        return;
+    }
     document.getElementById('pool-modal-title').textContent = '新增候選景點';
     document.getElementById('pool-edit-mode').value = 'add';
     document.getElementById('pool-edit-id').value = '';
@@ -4288,6 +4339,13 @@ async function savePoolEdit(e) {
     const photos = (photoText || '').split('\n').map(s => s.trim()).filter(Boolean);
 
     if (mode === 'add') {
+        const loggedIn = getToken() && !isTokenExpired();
+        if (!loggedIn) {
+            document.getElementById('login-modal').classList.add('open');
+            showToast('請先登入管理員帳號以同步新增至雲端！', 3000);
+            return;
+        }
+
         const newItem = {
             id: 'new-' + Date.now(),
             city: city,
@@ -4299,23 +4357,41 @@ async function savePoolEdit(e) {
             location: location,
             photos: photos,
             isEnabled: false,
-            day: ''
+            day: '',
+            scheduleMarker: 'user-edited'
         };
-        db.attractionPool.push(newItem);
+
+        const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+        const normTitle = normalizeTitle(title);
+        if (db.deletedPoolItems) {
+            db.deletedPoolItems = db.deletedPoolItems.filter(d => d !== title && d !== normTitle && d !== newItem.id);
+        }
+
         closePoolEditModal();
-        renderPool();
         showSyncOverlay();
+        setSyncStatus('syncing');
         try {
             const newId = await ensurePoolProduct(newItem);
-            if (newId) {
-                newItem._productId = newId;
-                newItem.id = 'api-' + newId;
-            }
-            showToast('已新增候選景點！');
-        } catch (err) {
-            db.attractionPool = db.attractionPool.filter(p => p.id !== newItem.id);
+            if (!newId) throw new Error('雲端建立產品失敗');
+
+            newItem._productId = newId;
+            newItem.id = 'api-' + newId;
+            db.attractionPool.push(newItem);
+
+            if (!db.poolPhotos) db.poolPhotos = {};
+            if (photos.length) db.poolPhotos[newItem.id] = photos;
+
+            saveToLocalStorage();
+            await saveItineraryToRemote();
+
             renderPool();
-            showToast('新增失敗：' + err.message, 3000);
+            setSyncStatus('synced');
+            showToast('已成功新增候選景點至雲端！');
+        } catch (err) {
+            setSyncStatus('offline');
+            renderPool();
+            showToast('新增失敗：' + err.message, 3500);
+            console.error('[savePoolEdit] 新增失敗:', err);
         } finally {
             hideSyncOverlay();
         }
@@ -4368,9 +4444,14 @@ async function savePoolEdit(e) {
             origin_price: item.cost || 0,
             price: 0,
             unit: item.isEnabled && item.day ? (item.day + '|' + (item.time || '10:00 - 12:00')) : '景點',
-            is_enabled: item.isEnabled ? 1 : 0,
+            is_enabled: 1,
             num: 1
         };
+        const normalizeTitle = (t) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+        const normTitle = normalizeTitle(item.title);
+        if (db.deletedPoolItems) {
+            db.deletedPoolItems = db.deletedPoolItems.filter(d => d !== item.id && d !== item._productId && d !== item.title && d !== normTitle);
+        }
         const loggedIn = getToken() && !isTokenExpired();
         if (loggedIn) {
             if (item._productId) {

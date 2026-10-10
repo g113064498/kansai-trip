@@ -67,6 +67,10 @@ function createAppContext(extraMocks = {}) {
 
     const wrapper = `
         ${appJsCode}
+        if (typeof globalThis.hexAPI !== 'undefined') {
+            Object.assign(hexAPI, globalThis.hexAPI);
+        }
+        globalThis.hexAPI = hexAPI;
         globalThis.initialTripData = typeof initialTripData !== 'undefined' ? initialTripData : null;
         globalThis.setDb = (val) => { db = val; };
         globalThis.getDb = () => db;
@@ -360,4 +364,106 @@ test('loadFromRemote preserves user baseline content, filters deleted items, and
     assert.ok(db.attractionPool.some(p => p.title.includes('金閣寺')), '金閣寺 candidate should be retained');
     assert.ok(db.attractionPool.some(p => p.title.includes('勝尾寺')), '勝尾寺 should be in pool');
 });
+
+test('adding a new candidate via savePoolEdit requires login and does not mutate pool when unauthenticated', async () => {
+    const ctx = createAppContext();
+    ctx.setDb(JSON.parse(JSON.stringify(ctx.initialTripData)));
+    const db = ctx.getDb();
+    const initialPoolLen = db.attractionPool.length;
+
+    const baseGetElementById = ctx.document.getElementById;
+    ctx.document.getElementById = (id) => {
+        const map = {
+            'pool-edit-mode': { value: 'add' },
+            'pool-edit-title': { value: '新景點測試（未登入）' },
+            'pool-edit-city': { value: 'Kyoto' },
+            'pool-edit-category': { value: 'sightseeing' },
+            'pool-edit-time': { value: '14:00 - 15:30' },
+            'pool-edit-cost': { value: '500' },
+            'pool-edit-location': { value: '京都某處' },
+            'pool-edit-desc': { value: '未登入測試' },
+            'pool-edit-photos': { value: '' }
+        };
+        const el = baseGetElementById(id);
+        if (map[id]) Object.assign(el, map[id]);
+        return el;
+    };
+
+    // Unauthenticated: document.cookie is empty
+    await ctx.savePoolEdit({ preventDefault: () => {} });
+
+    // Pool should not have gained any new items
+    assert.equal(db.attractionPool.length, initialPoolLen, 'Pool count should remain unchanged when unauthenticated');
+    assert.ok(!db.attractionPool.some(p => p.title === '新景點測試（未登入）'), 'Unauthenticated candidate must not be added to memory pool');
+});
+
+test('adding a new candidate via savePoolEdit when logged in persists to remote product with is_enabled=1 and attaches API ID', async () => {
+    let createdPayload = null;
+    const ctx = createAppContext({
+        hexAPI: {
+            createProduct: async (payload) => {
+                createdPayload = payload;
+                return { success: true, product: { id: '-NewCandidateId123' } };
+            },
+            getProducts: async () => [],
+            getArticles: async () => [],
+            getArticle: async () => null,
+            updateProduct: async () => {},
+            deleteProduct: async () => {},
+            ensureArticle: async () => {},
+            updateArticle: async () => {}
+        }
+    });
+
+    // Mock logged in cookie
+    ctx.document.cookie = 'hexToken=valid-test-token';
+
+    ctx.setDb(JSON.parse(JSON.stringify(ctx.initialTripData)));
+    const db = ctx.getDb();
+    db.deletedPoolItems = ['新景點測試（已登入）']; // Simulate previous deletion
+
+    const baseGetElementById = ctx.document.getElementById;
+    ctx.document.getElementById = (id) => {
+        const map = {
+            'pool-edit-mode': { value: 'add' },
+            'pool-edit-title': { value: '新景點測試（已登入）' },
+            'pool-edit-city': { value: 'Osaka' },
+            'pool-edit-category': { value: 'food' },
+            'pool-edit-time': { value: '18:00 - 19:30' },
+            'pool-edit-cost': { value: '1200' },
+            'pool-edit-location': { value: '大阪道頓堀某處' },
+            'pool-edit-desc': { value: '美味拉麵' },
+            'pool-edit-photos': { value: 'https://example.com/ramen.jpg' }
+        };
+        const el = baseGetElementById(id);
+        if (map[id]) Object.assign(el, map[id]);
+        return el;
+    };
+
+    await ctx.savePoolEdit({ preventDefault: () => {} });
+
+    // 1. Verify Hexschool API received product with category '候選景點' and is_enabled: 1
+    assert.ok(createdPayload, 'createProduct should have been called');
+    assert.equal(createdPayload.category, '候選景點');
+    assert.equal(createdPayload.is_enabled, 1);
+    assert.equal(createdPayload.title, '新景點測試（已登入）');
+
+    // 2. Verify pool item now has api ID
+    const addedItem = db.attractionPool.find(p => p.title === '新景點測試（已登入）');
+    assert.ok(addedItem, 'Item should be present in attractionPool');
+    assert.equal(addedItem.id, 'api--NewCandidateId123');
+    assert.equal(addedItem._productId, '-NewCandidateId123');
+    assert.equal(addedItem.city, 'Osaka');
+    assert.equal(addedItem.category, 'food');
+
+    // 3. Verify deletedPoolItems was cleaned
+    assert.ok(!db.deletedPoolItems.includes('新景點測試（已登入）'), 'Re-added title should be removed from deletedPoolItems');
+
+    // 4. Verify localStorage cache was updated
+    const cached = ctx.localStorage.getItem('kansai_trip_db_cache');
+    assert.ok(cached);
+    const parsedCache = JSON.parse(cached);
+    assert.ok(parsedCache.attractionPool.some(p => p.id === 'api--NewCandidateId123'));
+});
+
 
